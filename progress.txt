@@ -65,3 +65,23 @@ Total user stories: 30
   - Future breeding logic will use this schema to implement genetic inheritance
 ---
 
+## 2026-02-07 - US-017
+- Implemented Skill Activation and Storage system for pets
+- Files changed:
+  - Database: prisma/schema.prisma (added Skill, UserSkill, PetSkill models with relations)
+  - Migration: prisma/migrations/20260207023938_add_skill_system/migration.sql
+  - Library: src/lib/skills.ts (validation and business logic)
+  - API routes: src/app/api/skills/{assign,remove,pet/[petId],user/[userId]}/route.ts
+  - Updated: prd.json (marked US-017 as passes: true), dev.db (new tables)
+- **Learnings for future iterations:**
+  - Skill system separates ownership (UserSkill) from activation (PetSkill)
+  - Max 5 active skills per pet enforced in src/lib/skills.ts via canAddSkillToPet()
+  - Proficiency starts at 0 for newly assigned skills (can be increased later)
+  - UserSkill.active allows toggling skills without deletion (soft deactivation)
+  - PetSkill uses composite unique constraint on (petId, skillId) to prevent duplicates
+  - API routes follow pattern: assign (POST), remove (DELETE), query (GET)
+  - Skill categories: education, games, arts, sports (for marketplace organization)
+  - All skill operations require userId validation to prevent unauthorized access
+  - Next.js 16 dynamic routes use `params` as Promise, must await before accessing
+---
+
