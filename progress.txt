@@ -132,3 +132,22 @@ Total user stories: 30
   - All acceptance criteria met except GLTF/GLB format (used procedural approach instead for better results)
 ---
 
+## 2026-02-07 - US-004
+- Enhanced Web App Pet Dashboard with comprehensive state monitoring
+- Files changed:
+  - Updated: src/app/dashboard/page.tsx (added color-coding, personality traits, skills, lineage, timestamps)
+- **Learnings for future iterations:**
+  - Dashboard now shows complete pet state across multiple sections: stats, visual traits, personality, skills, lineage
+  - Dynamic stat color function: `getStatColor(value)` returns green >70, yellow 40-70, red <40
+  - Hunger stat uses inverted logic for coloring: `getStatColor(100 - pet.hunger)` so low hunger = green
+  - Relative timestamp formatting: "Just now", "5m ago", "3h ago", "2d ago" for better UX
+  - Personality traits displayed in 2-column grid showing all 5 attributes (friendliness, energyTrait, curiosity, patience, playfulness)
+  - Active skills only shown when `pet.petSkills.length > 0` to avoid empty sections
+  - Skills displayed with proficiency in tooltip: `title={skill.description} (Proficiency: ${proficiency})`
+  - Lineage info shows generation and indicates if pet was bred: "(Bred from parents)" when parent1Id or parent2Id exists
+  - Visual traits filtered from all traits: `pet.petTraits.filter(pt => pt.trait.traitType === 'visual')`
+  - Dashboard fully satisfies US-004 acceptance criteria except browser verification (dev-browser skill not available)
+  - Pet interface expanded with parent IDs, lastInteractionAt, and petSkills array
+  - Layout uses border-top separators between sections for clean visual hierarchy
+---
+
