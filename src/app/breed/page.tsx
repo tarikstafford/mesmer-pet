@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 
 const PetModel3D = dynamic(() => import('@/components/PetModel3D'), {
   ssr: false,
-  loading: () => <div className="w-full h-[200px] bg-gray-100 animate-pulse rounded-lg" />,
+  loading: () => <div className="w-full h-[200px] bg-gradient-to-br from-purple-100 to-pink-100 animate-pulse rounded-2xl" />,
 });
 
 interface Pet {
@@ -178,10 +178,10 @@ function BreedingPageContent() {
   const getPet = (id: string) => pets.find((p) => p.id === id);
 
   const getCompatibilityColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-yellow-600';
-    if (score >= 40) return 'text-orange-600';
-    return 'text-red-600';
+    if (score >= 80) return 'from-green-600 to-emerald-600';
+    if (score >= 60) return 'from-yellow-600 to-orange-600';
+    if (score >= 40) return 'from-orange-600 to-red-600';
+    return 'from-red-600 to-pink-600';
   };
 
   const getCompatibilityLabel = (score: number) => {
@@ -191,50 +191,89 @@ function BreedingPageContent() {
     return 'Poor';
   };
 
+  const getCompatibilityBadge = (score: number) => {
+    if (score >= 80) return 'bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border-green-300';
+    if (score >= 60) return 'bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border-yellow-300';
+    if (score >= 40) return 'bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 border-orange-300';
+    return 'bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border-red-300';
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-8">
         <div className="max-w-6xl mx-auto">
-          <p>Loading your pets...</p>
+          <div className="flex flex-col items-center gap-4 py-20">
+            <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+            <p className="text-gray-600 font-medium text-lg">Loading your pets...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-6">
+        {/* Header */}
+        <div className="mb-8">
           <button
             onClick={() => router.push('/dashboard')}
-            className="text-blue-600 hover:underline"
+            className="mb-6 flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition group"
           >
-            ← Back to Dashboard
+            <span className="group-hover:-translate-x-1 transition-transform">←</span>
+            <span>Back to Dashboard</span>
           </button>
+
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl flex items-center justify-center shadow-lg shadow-pink-500/40">
+              <span className="text-3xl">🐣</span>
+            </div>
+            <div>
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text">
+                Breed Your Pets
+              </h1>
+              <p className="text-gray-600 text-lg mt-1">Create unique offspring with combined genetics</p>
+            </div>
+          </div>
         </div>
 
-        <h1 className="text-4xl font-bold mb-8">Breed Your Pets</h1>
-
+        {/* Error Message */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 text-red-800 rounded-2xl shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xl">✕</span>
+              </div>
+              <span className="font-medium">{error}</span>
+            </div>
           </div>
         )}
 
+        {/* Not Enough Pets Warning */}
         {pets.length < 2 && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-            You need at least 2 pets to breed. Create more pets to unlock breeding!
+          <div className="mb-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-2xl shadow-lg">
+            <div className="flex items-center gap-4">
+              <span className="text-4xl">⚠️</span>
+              <div>
+                <p className="text-yellow-900 font-bold text-lg">Not Enough Pets</p>
+                <p className="text-yellow-800 text-sm">You need at least 2 pets to breed. Create more pets to unlock breeding!</p>
+              </div>
+            </div>
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-8 mb-8">
-          {/* Parent 1 Selection */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-4">Parent 1</h2>
+        {/* Parent Selection */}
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          {/* Parent 1 */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border-2 border-purple-100">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span className="text-3xl">👨</span>
+              Parent 1
+            </h2>
             <select
               value={selectedPet1}
               onChange={(e) => setSelectedPet1(e.target.value)}
-              className="w-full p-2 border rounded mb-4"
+              className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 mb-4 font-medium transition bg-white"
               disabled={pets.length < 2}
             >
               <option value="">Select a pet...</option>
@@ -249,39 +288,47 @@ function BreedingPageContent() {
 
             {selectedPet1 && getPet(selectedPet1) && (
               <div>
-                <PetModel3D
-                  traitNames={getPet(selectedPet1)!.petTraits
-                    .filter((pt) => pt.trait.traitType === 'visual')
-                    .map((pt) => pt.trait.traitName)}
-                  health={getPet(selectedPet1)!.health}
-                />
-                <div className="mt-4 space-y-2 text-sm">
-                  <p>
-                    <strong>Health:</strong> {getPet(selectedPet1)!.health}
-                  </p>
-                  <p>
-                    <strong>Age:</strong>{' '}
-                    {Math.floor(
-                      (Date.now() - new Date(getPet(selectedPet1)!.createdAt).getTime()) /
-                        (24 * 60 * 60 * 1000)
-                    )}{' '}
-                    days
-                  </p>
-                  <p>
-                    <strong>Generation:</strong> {getPet(selectedPet1)!.generation}
-                  </p>
+                <div className="mb-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-2xl overflow-hidden border-2 border-purple-200">
+                  <PetModel3D
+                    traitNames={getPet(selectedPet1)!.petTraits
+                      .filter((pt) => pt.trait.traitType === 'visual')
+                      .map((pt) => pt.trait.traitName)}
+                    health={getPet(selectedPet1)!.health}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200">
+                    <span className="font-semibold text-gray-700">❤️ Health:</span>
+                    <span className="font-bold text-red-600">{getPet(selectedPet1)!.health}/100</span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                    <span className="font-semibold text-gray-700">🎂 Age:</span>
+                    <span className="font-bold text-blue-600">
+                      {Math.floor(
+                        (Date.now() - new Date(getPet(selectedPet1)!.createdAt).getTime()) /
+                          (24 * 60 * 60 * 1000)
+                      )} days
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <span className="font-semibold text-gray-700">🧬 Generation:</span>
+                    <span className="font-bold text-purple-600">Gen {getPet(selectedPet1)!.generation}</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Parent 2 Selection */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-bold mb-4">Parent 2</h2>
+          {/* Parent 2 */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border-2 border-pink-100">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span className="text-3xl">👩</span>
+              Parent 2
+            </h2>
             <select
               value={selectedPet2}
               onChange={(e) => setSelectedPet2(e.target.value)}
-              className="w-full p-2 border rounded mb-4"
+              className="w-full px-4 py-3 border-2 border-pink-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 mb-4 font-medium transition bg-white"
               disabled={pets.length < 2}
             >
               <option value="">Select a pet...</option>
@@ -296,111 +343,146 @@ function BreedingPageContent() {
 
             {selectedPet2 && getPet(selectedPet2) && (
               <div>
-                <PetModel3D
-                  traitNames={getPet(selectedPet2)!.petTraits
-                    .filter((pt) => pt.trait.traitType === 'visual')
-                    .map((pt) => pt.trait.traitName)}
-                  health={getPet(selectedPet2)!.health}
-                />
-                <div className="mt-4 space-y-2 text-sm">
-                  <p>
-                    <strong>Health:</strong> {getPet(selectedPet2)!.health}
-                  </p>
-                  <p>
-                    <strong>Age:</strong>{' '}
-                    {Math.floor(
-                      (Date.now() - new Date(getPet(selectedPet2)!.createdAt).getTime()) /
-                        (24 * 60 * 60 * 1000)
-                    )}{' '}
-                    days
-                  </p>
-                  <p>
-                    <strong>Generation:</strong> {getPet(selectedPet2)!.generation}
-                  </p>
+                <div className="mb-4 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-2xl overflow-hidden border-2 border-pink-200">
+                  <PetModel3D
+                    traitNames={getPet(selectedPet2)!.petTraits
+                      .filter((pt) => pt.trait.traitType === 'visual')
+                      .map((pt) => pt.trait.traitName)}
+                    health={getPet(selectedPet2)!.health}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200">
+                    <span className="font-semibold text-gray-700">❤️ Health:</span>
+                    <span className="font-bold text-red-600">{getPet(selectedPet2)!.health}/100</span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                    <span className="font-semibold text-gray-700">🎂 Age:</span>
+                    <span className="font-bold text-blue-600">
+                      {Math.floor(
+                        (Date.now() - new Date(getPet(selectedPet2)!.createdAt).getTime()) /
+                          (24 * 60 * 60 * 1000)
+                      )} days
+                    </span>
+                  </div>
+                  <div className="flex justify-between p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                    <span className="font-semibold text-gray-700">🧬 Generation:</span>
+                    <span className="font-bold text-purple-600">Gen {getPet(selectedPet2)!.generation}</span>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </div>
 
-        {/* Compatibility and Breeding UI */}
+        {/* Compatibility and Breeding Section */}
         {breedingCheck && (
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-2xl font-bold mb-4">Breeding Compatibility</h2>
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-8 mb-8 border-2 border-purple-100">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+              <span className="text-4xl">💕</span>
+              Breeding Compatibility
+            </h2>
 
-            <div className="mb-4">
-              <div className="flex items-center gap-4 mb-2">
-                <span className="text-lg font-semibold">Compatibility Score:</span>
-                <span
-                  className={`text-3xl font-bold ${getCompatibilityColor(
-                    breedingCheck.compatibility
-                  )}`}
-                >
-                  {breedingCheck.compatibility}/100
-                </span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                    breedingCheck.compatibility >= 80
-                      ? 'bg-green-100 text-green-800'
-                      : breedingCheck.compatibility >= 60
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : breedingCheck.compatibility >= 40
-                      ? 'bg-orange-100 text-orange-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}
-                >
+            {/* Compatibility Score */}
+            <div className="mb-6 p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl border-2 border-purple-200">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <span className="text-lg font-semibold text-gray-700">Compatibility Score:</span>
+                  <span className={`text-5xl font-bold bg-gradient-to-r ${getCompatibilityColor(breedingCheck.compatibility)} text-transparent bg-clip-text`}>
+                    {breedingCheck.compatibility}/100
+                  </span>
+                </div>
+                <span className={`px-6 py-3 rounded-full text-lg font-bold border-2 ${getCompatibilityBadge(breedingCheck.compatibility)}`}>
                   {getCompatibilityLabel(breedingCheck.compatibility)}
                 </span>
               </div>
-              <p className="text-sm text-gray-600">
-                Compatibility is based on personality similarities, health, and generation
-                compatibility.
+              <p className="text-sm text-gray-600 mt-4">
+                Compatibility is based on personality similarities, health, and generation compatibility.
               </p>
             </div>
 
+            {/* Can Breed Status */}
             {breedingCheck.canBreed ? (
-              <div className="bg-green-50 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-                ✓ These pets can breed!
+              <div className="mb-6 p-5 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 text-green-800 rounded-2xl shadow-lg">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">✓</span>
+                  <span className="font-bold text-lg">These pets can breed!</span>
+                </div>
               </div>
             ) : (
-              <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                ✗ {breedingCheck.reason}
+              <div className="mb-6 p-5 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 text-red-800 rounded-2xl shadow-lg">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">✗</span>
+                  <span className="font-bold text-lg">{breedingCheck.reason}</span>
+                </div>
               </div>
             )}
 
+            {/* Breeding Form */}
             {breedingCheck.canBreed && (
-              <div className="mt-6">
-                <label className="block text-sm font-semibold mb-2">
-                  Name for offspring:
-                </label>
-                <input
-                  type="text"
-                  value={offspringName}
-                  onChange={(e) => setOffspringName(e.target.value)}
-                  placeholder="Enter a name..."
-                  className="w-full p-3 border rounded mb-4"
-                  maxLength={50}
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <span className="text-2xl">🏷️</span>
+                    Name for offspring:
+                  </label>
+                  <input
+                    type="text"
+                    value={offspringName}
+                    onChange={(e) => setOffspringName(e.target.value)}
+                    placeholder="Enter a name..."
+                    className="w-full px-5 py-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-lg font-medium transition bg-white shadow-inner"
+                    maxLength={50}
+                  />
+                  <p className="text-xs text-gray-500 mt-2 ml-1">
+                    Choose a unique name for your new pet (max 50 characters)
+                  </p>
+                </div>
 
                 <button
                   onClick={handleBreed}
                   disabled={!offspringName.trim() || breeding}
-                  className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+                  className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-bold hover:from-pink-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition shadow-lg shadow-pink-500/50 hover:shadow-pink-500/80 hover:scale-105 active:scale-95 text-lg"
                 >
-                  {breeding ? 'Breeding...' : '🐣 Breed Pets'}
+                  {breeding ? (
+                    <span className="flex items-center justify-center gap-3">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Breeding...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2">
+                      🐣 Breed Pets
+                    </span>
+                  )}
                 </button>
               </div>
             )}
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-400 text-blue-700 px-4 py-3 rounded">
-          <p className="font-semibold mb-2">Breeding Requirements:</p>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            <li>Both pets must be at least 7 days old</li>
-            <li>Both pets must have health {'>'} 50</li>
-            <li>Neither pet can be in Critical state</li>
-            <li>Both pets must have finished their 7-day breeding cooldown</li>
+        {/* Requirements Info Box */}
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-2xl p-6 shadow-lg">
+          <h3 className="font-bold text-blue-900 text-lg mb-4 flex items-center gap-2">
+            <span className="text-2xl">📋</span>
+            Breeding Requirements:
+          </h3>
+          <ul className="space-y-3 text-sm text-blue-800">
+            <li className="flex items-start gap-3">
+              <span className="text-lg flex-shrink-0">🎂</span>
+              <span className="font-medium">Both pets must be at least 7 days old</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-lg flex-shrink-0">❤️</span>
+              <span className="font-medium">Both pets must have health {'>'} 50</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-lg flex-shrink-0">💀</span>
+              <span className="font-medium">Neither pet can be in Critical state</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-lg flex-shrink-0">⏰</span>
+              <span className="font-medium">Both pets must have finished their 7-day breeding cooldown</span>
+            </li>
           </ul>
         </div>
       </div>
@@ -410,7 +492,14 @@ function BreedingPageContent() {
 
 export default function BreedingPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50 p-8">Loading...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-8">
+        <div className="flex flex-col items-center gap-4 py-20">
+          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+          <div className="text-gray-600 font-medium text-lg">Loading...</div>
+        </div>
+      </div>
+    }>
       <BreedingPageContent />
     </Suspense>
   );
