@@ -95,10 +95,11 @@ model Pet {
   parent2Id    String?
 
   // Timestamps
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  lastFedAt    DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastFedAt         DateTime?
   lastInteractionAt DateTime?
+  lastStatUpdate    DateTime @default(now()) // US-021: Track last stat degradation calculation
 
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   petTraits    PetTrait[]
