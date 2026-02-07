@@ -68,6 +68,8 @@ export default function DashboardPage() {
   const [pets, setPets] = useState<Pet[]>([])
   const [loading, setLoading] = useState(true)
   const [successMessage, setSuccessMessage] = useState('')
+  const [feedingPetId, setFeedingPetId] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -148,6 +150,54 @@ export default function DashboardPage() {
     return `${diffDays}d ago`
   }
 
+  const handleFeedPet = async (petId: string) => {
+    if (!user) return
+
+    setFeedingPetId(petId)
+    setErrorMessage('')
+    setSuccessMessage('')
+
+    try {
+      const response = await fetch('/api/pets/feed', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          petId,
+          userId: user.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.error || 'Failed to feed pet')
+        return
+      }
+
+      // Update the pet in the local state
+      setPets((prevPets) =>
+        prevPets.map((p) =>
+          p.id === petId
+            ? {
+                ...p,
+                hunger: data.pet.hunger,
+                happiness: data.pet.happiness,
+                health: data.pet.health,
+              }
+            : p
+        )
+      )
+      setSuccessMessage(data.message)
+    } catch (error) {
+      console.error('Failed to feed pet:', error)
+      setErrorMessage('An error occurred while feeding your pet')
+    } finally {
+      setFeedingPetId(null)
+    }
+  }
+
   if (!user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -181,6 +231,12 @@ export default function DashboardPage() {
         {successMessage && (
           <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
             {successMessage}
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {errorMessage}
           </div>
         )}
 
@@ -286,8 +342,23 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
+                {/* Feed Button */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => handleFeedPet(pet.id)}
+                    disabled={feedingPetId === pet.id}
+                    className={`w-full px-4 py-3 rounded-lg font-semibold transition ${
+                      feedingPetId === pet.id
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-green-600 text-white hover:bg-green-700'
+                    }`}
+                  >
+                    {feedingPetId === pet.id ? 'Feeding...' : '🍖 Feed Pet'}
+                  </button>
+                </div>
+
                 {/* Visual Traits */}
-                <div className="border-t pt-4">
+                <div className="border-t pt-4 mt-4">
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">Visual Traits</h4>
                   <div className="flex flex-wrap gap-2">
                     {pet.petTraits.filter(pt => pt.trait.traitType === 'visual').slice(0, 4).map((petTrait) => (
