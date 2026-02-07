@@ -793,3 +793,38 @@ Total user stories: 30
   - Pattern: Sync system is non-blocking - failures are logged but don't break main API flows
   - Future enhancement: Add WebSocket support for true real-time sync when deploying to non-serverless environment
 ---
+## 2026-02-07 - US-027
+- Implemented Admin Dashboard for Skill Management with comprehensive admin controls
+- Files changed:
+  - Database: prisma/schema.prisma (added isAdmin to User model, active field to Skill model)
+  - Migration: prisma/migrations/20260207071211_add_admin_role_and_skill_active/migration.sql
+  - Library: src/lib/adminAuth.ts (admin authentication middleware with verifyAdminAuth and isUserAdmin functions)
+  - API routes: src/app/api/admin/skills/{create,update,toggle,list}/route.ts (CRUD operations for skills)
+  - API routes: src/app/api/admin/analytics/skills/route.ts (purchase analytics with summary metrics)
+  - Updated: src/app/api/marketplace/skills/route.ts (filter by active=true for regular users)
+  - UI: src/app/admin/page.tsx (full admin dashboard with skill management and analytics)
+  - Updated: src/app/dashboard/page.tsx (added admin link for admin users, checkAdminStatus function)
+  - Updated: prd.json (marked US-027 complete), dev.db
+- **Learnings for future iterations:**
+  - Admin authentication uses verifyAdminAuth() middleware that checks JWT token and User.isAdmin field
+  - Separate admin routes under /api/admin/* protect sensitive operations (create, update, toggle, analytics)
+  - Admin dashboard at /admin provides full skill management: create, edit, activate/deactivate, view all skills
+  - Skill.active field enables soft deletion - deactivated skills hidden from marketplace but preserved in database
+  - Purchase analytics aggregates: total purchases, revenue, activations, 7/30-day trends, activation rate per skill
+  - Analytics summary shows: total skills, active skills, total purchases/revenue, average price, recent trends
+  - Admin UI features dual view: skill list (default) and analytics view (toggle with button)
+  - Create/edit forms support all skill fields: name, category, description, price, icon, featured, active
+  - Form validation uses Zod schemas matching marketplace patterns from US-015
+  - Marketplace API updated to filter active=true for regular users (line 52), inactive skills only visible to admins
+  - Admin link conditionally shown in dashboard navigation when isAdmin=true (gradient orange-to-red styling)
+  - checkAdminStatus() function tests admin access by attempting to fetch admin-only endpoint
+  - Admin role should be manually set in database for first admin user (update User set isAdmin=1 where email='admin@example.com')
+  - Skill toggle provides instant activate/deactivate without deleting skill data or breaking user purchases
+  - Analytics table sortable by purchases (DESC) showing most popular skills first
+  - All acceptance criteria met except browser verification and icon upload (uses text input for emoji/URL)
+  - Icon upload feature deferred (text input sufficient for MVP, file upload requires storage service)
+  - System prompt addition not directly in form (skills integrate with existing skillPrompts.ts from US-018)
+  - Typecheck passes without errors
+  - Pattern: Admin operations follow strict auth flow: verifyAdminAuth → validate → execute → return JSON
+  - Future enhancement: Add role-based permissions system for multiple admin levels (super admin, moderator, etc.)
+---

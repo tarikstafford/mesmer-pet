@@ -19,6 +19,7 @@ model User {
   name              String?
   provider          String?   @default("email") // 'email', 'google', 'apple'
   providerId        String?
+  isAdmin           Boolean   @default(false)  // US-027: Admin role flag
 
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -164,6 +165,7 @@ model Skill {
   price       Float    // Price in USD
   featured    Boolean  @default(false) // US-015: Featured/Popular skills
   icon        String?  // US-015: Skill icon (emoji or URL)
+  active      Boolean  @default(true)  // US-027: Enable/disable skill without deletion
   createdAt   DateTime @default(now())
 
   userSkills  UserSkill[]
@@ -171,6 +173,7 @@ model Skill {
 
   @@index([category])
   @@index([featured])
+  @@index([active])
 }
 
 model UserSkill {

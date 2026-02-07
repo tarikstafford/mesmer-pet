@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
         where: { id: skillId },
       });
 
-      if (!skill) {
+      if (!skill || !skill.active) {
         return NextResponse.json({ error: 'Skill not found' }, { status: 404 });
       }
 
@@ -49,7 +49,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Build where clause for filtering
-    const where: any = {};
+    const where: any = {
+      active: true, // US-027: Only show active skills in marketplace
+    };
 
     if (category && category !== 'all') {
       where.category = category;

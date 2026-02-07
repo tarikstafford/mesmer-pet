@@ -156,6 +156,7 @@ export default function DashboardPage() {
   const [user, setUser] = useState<any>(null)
   const [pets, setPets] = useState<Pet[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAdmin, setIsAdmin] = useState(false) // US-027: Admin status
   const [successMessage, setSuccessMessage] = useState('')
   const [feedingPetId, setFeedingPetId] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
@@ -183,6 +184,9 @@ export default function DashboardPage() {
     const parsedUser = JSON.parse(userData)
     setUser(parsedUser)
 
+    // US-027: Check if user is an admin
+    checkAdminStatus(parsedUser.id)
+
     // Check for success message
     const params = new URLSearchParams(window.location.search)
     if (params.get('petCreated') === 'true') {
@@ -202,6 +206,24 @@ export default function DashboardPage() {
     // US-008: Fetch user's recovery items
     fetchRecoveryItems(parsedUser.id)
   }, [router])
+
+  // US-027: Check if user is an admin
+  const checkAdminStatus = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken')
+      if (!token) return
+
+      const response = await fetch('/api/admin/skills/list', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+
+      // If the request succeeds, user is an admin
+      setIsAdmin(response.ok && response.status !== 403)
+    } catch (error) {
+      // Not an admin or error occurred
+      setIsAdmin(false)
+    }
+  }
 
   const fetchPets = async (userId: string) => {
     try {
@@ -545,6 +567,14 @@ export default function DashboardPage() {
               >
                 👥 Friends
               </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-lg hover:from-orange-600 hover:to-red-700 transition font-semibold"
+                >
+                  🔧 Admin
+                </Link>
+              )}
               <span className="text-gray-700">Welcome, {user.name || user.email}!</span>
               <button
                 onClick={handleLogout}
