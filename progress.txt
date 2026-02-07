@@ -757,3 +757,39 @@ Total user stories: 30
   - Pattern: AR interactions integrate seamlessly with existing APIs (feed, chat) without code duplication
   - Future enhancement: Add more gesture types (pinch to scale, swipe to move pet)
 ---
+
+## 2026-02-07 - US-025
+- Implemented Cross-Platform Pet Sync system for seamless web/AR data synchronization
+- Files changed:
+  - Database: prisma/schema.prisma (added SyncState and OfflineAction models)
+  - Migration: prisma/migrations/20260207070330_add_cross_platform_sync/migration.sql
+  - Library: src/lib/sync.ts (sync state tracking, conflict resolution, offline queue)
+  - Library: src/lib/syncManager.ts (client-side sync manager with periodic polling)
+  - API routes: src/app/api/sync/{status,pet/[petId],offline}/route.ts
+  - Component: src/components/SyncStatus.tsx (visual sync indicator)
+  - Updated: src/app/api/pets/feed/route.ts (tracks sync state for stat changes)
+  - Updated: src/app/api/chat/route.ts (tracks sync state for interactions)
+  - Updated: src/app/dashboard/page.tsx (integrated SyncStatus component)
+  - Updated: prd.json, dev.db
+- **Learnings for future iterations:**
+  - Sync system uses polling instead of WebSocket for Next.js serverless compatibility (5-second interval)
+  - SyncState model tracks: userId, petId, entityType, entityId, version, lastSyncedAt, platform, deviceId
+  - OfflineAction model queues actions when offline: actionType, actionData, status, attempts, error
+  - Conflict resolution uses "Last Write Wins" with version checking for optimistic concurrency
+  - Stats conflicts resolved by merging: max(health/happiness/energy), min(hunger) to preserve progress
+  - Interaction and memory conflicts prefer server version (newer data wins)
+  - Client-side SyncManager handles: periodic sync, offline queue, online/offline detection, localStorage persistence
+  - Offline queue automatically syncs when connection restored, supports retry logic
+  - Sync status component displays: online/offline state, syncing indicator, queued actions, last sync time, conflicts, errors
+  - Fixed bottom-right overlay with expandable details panel for debugging
+  - API endpoints follow pattern: /api/sync/status (summary), /api/sync/pet/[petId] (GET pet data, POST updates), /api/sync/offline (queue management)
+  - Auth pattern: Extract token from Authorization header, use verifyToken(token), access user.userId not user.id
+  - updateSyncState() called after feed and chat actions to track entity changes
+  - Sync state updated with platform identifier ('web', 'ar', 'mobile') and optional deviceId
+  - Real-time sync achieved via polling (5s interval), interactions sync within 5 seconds as required
+  - Offline actions stored in localStorage and database for redundancy
+  - cleanupOldActions() removes synced/failed actions older than 7 days to prevent bloat
+  - All acceptance criteria met: real-time sync (polling), AR↔web sync, <5s sync time, conflict resolution, offline mode, typecheck passes
+  - Pattern: Sync system is non-blocking - failures are logged but don't break main API flows
+  - Future enhancement: Add WebSocket support for true real-time sync when deploying to non-serverless environment
+---
