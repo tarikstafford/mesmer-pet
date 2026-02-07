@@ -59,6 +59,16 @@ const EngagementPanel = dynamic(() => import('@/components/EngagementPanel'), {
   ),
 })
 
+// Dynamically import Breeding Requests Panel (US-024)
+const BreedingRequestsPanel = dynamic(() => import('@/components/BreedingRequestsPanel'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-pink-50 rounded-lg p-6">
+      <p>Loading breeding requests...</p>
+    </div>
+  ),
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -512,6 +522,12 @@ export default function DashboardPage() {
               >
                 🛒 Skill Marketplace
               </Link>
+              <Link
+                href="/friends"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                👥 Friends
+              </Link>
               <span className="text-gray-700">Welcome, {user.name || user.email}!</span>
               <button
                 onClick={handleLogout}
@@ -541,6 +557,9 @@ export default function DashboardPage() {
         <div className="mb-8">
           <EngagementPanel userId={user.id} />
         </div>
+
+        {/* US-024: Breeding Requests Panel */}
+        <BreedingRequestsPanel />
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Your Pets</h2>

@@ -31,6 +31,8 @@ model User {
   recoveryItems     UserRecoveryItem[]
   engagement        UserEngagement?
   challenges        UserChallenge[]
+  sentFriendRequests     Friendship[] @relation("SentFriendRequests")
+  receivedFriendRequests Friendship[] @relation("ReceivedFriendRequests")
 
   @@index([email])
 }
@@ -355,4 +357,37 @@ model UserChallenge {
   @@index([challengeId])
   @@index([assignedDate])
   @@index([completed])
+}
+
+// US-024: Social Features - Friend System
+model Friendship {
+  id          String   @id @default(uuid())
+  requesterId String   // User who sent the friend request
+  addresseeId String   // User who received the friend request
+  status      String   // 'pending', 'accepted', 'declined'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester   User     @relation("SentFriendRequests", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee   User     @relation("ReceivedFriendRequests", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([requesterId])
+  @@index([addresseeId])
+  @@index([status])
+}
+
+model BreedingRequest {
+  id              String   @id @default(uuid())
+  requesterId     String   // User requesting to breed
+  requesterPetId  String   // Pet owned by requester
+  addresseeId     String   // Friend being asked
+  addresseePetId  String   // Friend's pet to breed with
+  status          String   // 'pending', 'accepted', 'declined'
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([requesterId])
+  @@index([addresseeId])
+  @@index([status])
 }
