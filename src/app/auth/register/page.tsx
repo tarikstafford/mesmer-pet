@@ -66,39 +66,72 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">Create Account</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 p-4">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
 
+      <div className="relative z-10 bg-white/90 backdrop-blur-xl p-10 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl mb-4 shadow-lg shadow-pink-500/50">
+            <span className="text-4xl">🎉</span>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text mb-2">
+            Create Account
+          </h1>
+          <p className="text-gray-600">Join Mesmer and start your journey</p>
+        </div>
+
+        {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+          <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 text-red-800 rounded-2xl shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xl">✕</span>
+              </div>
+              <span className="font-medium">{error}</span>
+            </div>
           </div>
         )}
 
+        {/* Age Warning */}
         {ageWarning && (
-          <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded">
-            <strong>Age Requirement:</strong> {ageWarning}
+          <div className="mb-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-300 text-yellow-900 rounded-2xl shadow-lg">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xl">⚠️</span>
+              </div>
+              <div>
+                <p className="font-bold mb-1">Age Requirement:</p>
+                <p className="text-sm">{ageWarning}</p>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Name (Optional)
+            <label htmlFor="name" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span className="text-xl">👤</span>
+              Name <span className="text-gray-400 font-normal text-xs">(Optional)</span>
             </label>
             <input
               id="name"
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+              className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 transition bg-white shadow-inner"
               placeholder="John Doe"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span className="text-xl">📧</span>
               Email
             </label>
             <input
@@ -107,13 +140,14 @@ export default function RegisterPage() {
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+              className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 transition bg-white shadow-inner"
               placeholder="you@example.com"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="password" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span className="text-xl">🔒</span>
               Password
             </label>
             <input
@@ -122,16 +156,17 @@ export default function RegisterPage() {
               required
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+              className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 transition bg-white shadow-inner"
               placeholder="Min 8 chars, with special character"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-2 ml-1">
               At least 8 characters with one special character
             </p>
           </div>
 
           <div>
-            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="dateOfBirth" className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+              <span className="text-xl">🎂</span>
               Date of Birth <span className="text-red-500">*</span>
             </label>
             <input
@@ -141,9 +176,9 @@ export default function RegisterPage() {
               value={formData.dateOfBirth}
               onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
               max={new Date().toISOString().split('T')[0]}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+              className="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 transition bg-white shadow-inner"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-2 ml-1">
               Required for COPPA compliance. Users under 13 need parental consent.
             </p>
           </div>
@@ -151,37 +186,57 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-bold hover:from-pink-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition shadow-lg shadow-pink-500/50 hover:shadow-pink-500/80 hover:scale-105 active:scale-95 text-lg mt-2"
           >
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-3">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Creating Account...
+              </span>
+            ) : (
+              'Create Account'
+            )}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        {/* Sign In Link */}
+        <div className="mt-8 text-center">
           <p className="text-gray-600">
             Already have an account?{' '}
-            <Link href="/auth/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+            <Link href="/auth/login" className="text-purple-600 hover:text-purple-700 font-bold transition">
               Sign In
             </Link>
           </p>
         </div>
 
-        <div className="mt-6 border-t pt-6">
-          <p className="text-center text-gray-500 text-sm mb-4">Or continue with</p>
-          <div className="space-y-2">
+        {/* Social Login */}
+        <div className="mt-8 border-t-2 border-gray-200 pt-8">
+          <p className="text-center text-gray-500 text-sm mb-4 font-medium">Or continue with</p>
+          <div className="space-y-3">
             <button
               disabled
-              className="w-full py-2 border border-gray-300 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full py-3 border-2 border-gray-300 rounded-xl text-gray-400 cursor-not-allowed font-medium bg-gray-50"
             >
-              Google (Coming Soon)
+              🔍 Google (Coming Soon)
             </button>
             <button
               disabled
-              className="w-full py-2 border border-gray-300 rounded-lg text-gray-400 cursor-not-allowed"
+              className="w-full py-3 border-2 border-gray-300 rounded-xl text-gray-400 cursor-not-allowed font-medium bg-gray-50"
             >
-              Apple (Coming Soon)
+              🍎 Apple (Coming Soon)
             </button>
           </div>
+        </div>
+
+        {/* Back to Home */}
+        <div className="mt-8 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition"
+          >
+            <span>←</span>
+            <span>Back to Home</span>
+          </Link>
         </div>
       </div>
     </div>
