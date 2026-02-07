@@ -1109,8 +1109,8 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* AR Pet Viewer - US-005 */}
-      {arViewerPetId && (
+      {/* AR Pet Viewer - US-005, US-020 */}
+      {arViewerPetId && user && (
         <ARPetViewer
           traitNames={
             pets
@@ -1120,7 +1120,23 @@ export default function DashboardPage() {
           }
           health={pets.find(p => p.id === arViewerPetId)?.health || 100}
           petName={pets.find(p => p.id === arViewerPetId)?.name || 'Pet'}
+          petId={parseInt(arViewerPetId)}
+          userId={user.id}
           onClose={() => setArViewerPetId(null)}
+          onFeed={() => {
+            // Refresh pets after feeding
+            fetchPets(user.id);
+          }}
+          onChat={async (message: string) => {
+            // Send message to chat API
+            const response = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ petId: parseInt(arViewerPetId), userId: user.id, message })
+            });
+            const data = await response.json();
+            return data.response || 'Sorry, I could not respond.';
+          }}
         />
       )}
     </div>

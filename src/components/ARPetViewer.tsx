@@ -9,18 +9,24 @@ interface ARPetViewerProps {
   traitNames: string[];
   health?: number;
   petName: string;
+  petId: number;
+  userId: number;
   onClose: () => void;
+  onFeed?: () => void;
+  onChat?: (message: string) => Promise<string>;
 }
 
 // Low-poly pet creature component (reused from PetModel3D with animation states)
 function PetCreature({
   config,
   health = 100,
-  animationState = 'idle'
+  animationState = 'idle',
+  onClick
 }: {
   config: PetModelConfig;
   health?: number;
   animationState?: 'idle' | 'happy' | 'hungry';
+  onClick?: () => void;
 }) {
   const groupRef = useRef<THREE.Group>(null);
 
@@ -129,7 +135,7 @@ function PetCreature({
   }, []);
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} onClick={onClick}>
       {/* Body */}
       <mesh position={[0, 0, 0]}>
         <boxGeometry args={[1, 0.8, 1.2]} />
@@ -238,11 +244,13 @@ function PetCreature({
 function ARScene({
   config,
   health,
-  animationState
+  animationState,
+  onPetTap
 }: {
   config: PetModelConfig;
   health: number;
   animationState: 'idle' | 'happy' | 'hungry';
+  onPetTap: () => void;
 }) {
   const { gl } = useThree();
 
@@ -262,7 +270,7 @@ function ARScene({
       <pointLight position={[-5, 5, -5]} intensity={0.6} />
 
       {/* Pet positioned on detected surface */}
-      <PetCreature config={config} health={health} animationState={animationState} />
+      <PetCreature config={config} health={health} animationState={animationState} onClick={onPetTap} />
     </>
   );
 }
@@ -272,12 +280,21 @@ export default function ARPetViewer({
   traitNames,
   health = 100,
   petName,
-  onClose
+  petId,
+  userId,
+  onClose,
+  onFeed,
+  onChat
 }: ARPetViewerProps) {
   const [isARSupported, setIsARSupported] = useState<boolean | null>(null);
   const [arSessionActive, setARSessionActive] = useState(false);
   const [animationState, setAnimationState] = useState<'idle' | 'happy' | 'hungry'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [isFeeding, setIsFeeding] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceMessage, setVoiceMessage] = useState('');
+  const [chatResponse, setChatResponse] = useState('');
+  const [showOverlay, setShowOverlay] = useState(true);
   const config = useMemo(() => getPetModelConfig(traitNames), [traitNames]);
 
   // Check AR support on mount
@@ -313,6 +330,158 @@ export default function ARPetViewer({
     setARSessionActive(false);
     onClose();
   };
+
+  // Handle pet tap interaction
+  const handlePetTap = () => {
+    const animations: ('idle' | 'happy' | 'hungry')[] = ['idle', 'happy', 'hungry'];
+    const currentIndex = animations.indexOf(animationState);
+    const nextIndex = (currentIndex + 1) % animations.length;
+    setAnimationState(animations[nextIndex]);
+  };
+
+  // Handle feeding in AR
+  const handleFeedInAR = async () => {
+    if (isFeeding) return;
+    setIsFeeding(true);
+    try {
+      const response = await fetch('/api/pets/feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ petId, userId })
+      });
+      if (response.ok) {
+        setAnimationState('happy');
+        setTimeout(() => setAnimationState('idle'), 3000);
+        if (onFeed) onFeed();
+      } else {
+        const data = await response.json();
+        setError(data.error || 'Failed to feed pet');
+      }
+    } catch (err) {
+      setError('Network error while feeding pet');
+    } finally {
+      setIsFeeding(false);
+    }
+  };
+
+  // Handle voice chat activation
+  const startVoiceChat = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      setError('Voice recognition is not supported on this device');
+      return;
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setVoiceMessage('Listening...');
+    };
+
+    recognition.onresult = async (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setVoiceMessage(transcript);
+      setIsListening(false);
+
+      // Send to chat API
+      if (onChat) {
+        try {
+          const response = await onChat(transcript);
+          setChatResponse(response);
+
+          // Speak the response if TTS is available
+          if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(response);
+            window.speechSynthesis.speak(utterance);
+          }
+
+          // Show happy animation during response
+          setAnimationState('happy');
+          setTimeout(() => setAnimationState('idle'), 5000);
+        } catch (err) {
+          setError('Failed to get response from pet');
+        }
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      setIsListening(false);
+      setError(`Voice recognition error: ${event.error}`);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
+
+  // Gesture recognition using device motion
+  useEffect(() => {
+    if (!arSessionActive) return;
+
+    let lastShakeTime = 0;
+    const SHAKE_THRESHOLD = 15;
+    const SHAKE_COOLDOWN = 1000;
+
+    const handleMotion = (event: DeviceMotionEvent) => {
+      const acceleration = event.accelerationIncludingGravity;
+      if (!acceleration) return;
+
+      const now = Date.now();
+      if (now - lastShakeTime < SHAKE_COOLDOWN) return;
+
+      const totalAcceleration = Math.abs(acceleration.x || 0) +
+                                Math.abs(acceleration.y || 0) +
+                                Math.abs(acceleration.z || 0);
+
+      if (totalAcceleration > SHAKE_THRESHOLD) {
+        lastShakeTime = now;
+        // Pet comes to user on shake/wave
+        setAnimationState('happy');
+        setTimeout(() => setAnimationState('idle'), 2000);
+      }
+    };
+
+    window.addEventListener('devicemotion', handleMotion);
+    return () => window.removeEventListener('devicemotion', handleMotion);
+  }, [arSessionActive]);
+
+  // AR session stability: prevent screen sleep and memory leaks
+  useEffect(() => {
+    if (!arSessionActive) return;
+
+    // Request wake lock to prevent screen sleep during AR session
+    let wakeLock: any = null;
+    if ('wakeLock' in navigator) {
+      (navigator as any).wakeLock.request('screen').then((lock: any) => {
+        wakeLock = lock;
+      }).catch((err: any) => {
+        console.warn('Wake lock request failed:', err);
+      });
+    }
+
+    // Clear error messages periodically to prevent UI clutter
+    const errorClearInterval = setInterval(() => {
+      if (error) {
+        setError(null);
+      }
+    }, 30000); // Clear errors after 30 seconds
+
+    // Cleanup on unmount
+    return () => {
+      if (wakeLock) {
+        wakeLock.release().catch((err: any) => {
+          console.warn('Wake lock release failed:', err);
+        });
+      }
+      clearInterval(errorClearInterval);
+    };
+  }, [arSessionActive, error]);
 
   // Loading state while checking AR support
   if (isARSupported === null) {
@@ -359,6 +528,7 @@ export default function ARPetViewer({
                 config={config}
                 health={health}
                 animationState={animationState}
+                onPetTap={handlePetTap}
               />
             </Suspense>
           </Canvas>
@@ -434,42 +604,117 @@ export default function ARPetViewer({
         </div>
       )}
 
-      {/* AR Controls (shown during active session) */}
-      {arSessionActive && (
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-10">
-          <div className="flex justify-center gap-4">
+      {/* AR Overlay Controls (shown during active session) */}
+      {arSessionActive && showOverlay && (
+        <>
+          {/* Top-right action buttons */}
+          <div className="absolute top-20 right-4 flex flex-col gap-3 z-20">
             <button
-              onClick={() => setAnimationState('idle')}
-              className={`px-6 py-3 rounded-lg font-bold ${
-                animationState === 'idle'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
+              onClick={handleFeedInAR}
+              disabled={isFeeding}
+              className="bg-green-600 text-white p-4 rounded-full shadow-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Feed Pet"
             >
-              😌 Idle
+              {isFeeding ? '⏳' : '🍖'}
             </button>
             <button
-              onClick={() => setAnimationState('happy')}
-              className={`px-6 py-3 rounded-lg font-bold ${
-                animationState === 'happy'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
+              onClick={startVoiceChat}
+              disabled={isListening}
+              className={`text-white p-4 rounded-full shadow-lg ${
+                isListening ? 'bg-red-600 animate-pulse' : 'bg-blue-600 hover:bg-blue-700'
+              } disabled:cursor-not-allowed`}
+              title="Voice Chat"
             >
-              😊 Happy
+              {isListening ? '🎤' : '💬'}
             </button>
             <button
-              onClick={() => setAnimationState('hungry')}
-              className={`px-6 py-3 rounded-lg font-bold ${
-                animationState === 'hungry'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-              }`}
+              onClick={() => setShowOverlay(false)}
+              className="bg-gray-700 text-white p-4 rounded-full shadow-lg hover:bg-gray-600"
+              title="Hide Controls"
             >
-              🍖 Hungry
+              👁️
             </button>
           </div>
-        </div>
+
+          {/* Voice/Chat feedback panel */}
+          {(voiceMessage || chatResponse) && (
+            <div className="absolute top-20 left-4 right-20 bg-black/80 rounded-lg p-4 z-20 max-w-md">
+              {voiceMessage && (
+                <div className="mb-2">
+                  <p className="text-gray-400 text-xs mb-1">You said:</p>
+                  <p className="text-white text-sm">{voiceMessage}</p>
+                </div>
+              )}
+              {chatResponse && (
+                <div>
+                  <p className="text-gray-400 text-xs mb-1">{petName} says:</p>
+                  <p className="text-purple-300 text-sm">{chatResponse}</p>
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  setVoiceMessage('');
+                  setChatResponse('');
+                }}
+                className="mt-2 text-gray-400 text-xs hover:text-white"
+              >
+                ✕ Clear
+              </button>
+            </div>
+          )}
+
+          {/* Animation state controls at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 z-10">
+            <div className="text-center mb-3">
+              <p className="text-white text-sm opacity-75">
+                👆 Tap pet to cycle animations | 👋 Shake device to get pet's attention
+              </p>
+            </div>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setAnimationState('idle')}
+                className={`px-6 py-3 rounded-lg font-bold ${
+                  animationState === 'idle'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                😌 Idle
+              </button>
+              <button
+                onClick={() => setAnimationState('happy')}
+                className={`px-6 py-3 rounded-lg font-bold ${
+                  animationState === 'happy'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                😊 Happy
+              </button>
+              <button
+                onClick={() => setAnimationState('hungry')}
+                className={`px-6 py-3 rounded-lg font-bold ${
+                  animationState === 'hungry'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                }`}
+              >
+                🍖 Hungry
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Show controls button (when overlay hidden) */}
+      {arSessionActive && !showOverlay && (
+        <button
+          onClick={() => setShowOverlay(true)}
+          className="absolute top-20 right-4 bg-purple-600 text-white p-4 rounded-full shadow-lg hover:bg-purple-700 z-20"
+          title="Show Controls"
+        >
+          👁️
+        </button>
       )}
     </div>
   );
