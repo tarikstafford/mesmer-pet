@@ -37,6 +37,18 @@ const FamilyTree = dynamic(() => import('@/components/FamilyTree'), {
   ),
 })
 
+// Dynamically import Chess Board (US-019)
+const ChessBoard = dynamic(() => import('@/components/ChessBoard'), {
+  ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg">
+        <p className="text-gray-600">Loading chess board...</p>
+      </div>
+    </div>
+  ),
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -115,6 +127,7 @@ export default function DashboardPage() {
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]) // US-008
   const [chatOpenPetId, setChatOpenPetId] = useState<string | null>(null) // US-009
   const [familyTreePetId, setFamilyTreePetId] = useState<string | null>(null) // US-014
+  const [chessOpenPetId, setChessOpenPetId] = useState<string | null>(null) // US-019
   // US-023: Multi-Pet Management
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null) // For pet switcher
   const [bulkFeedingInProgress, setBulkFeedingInProgress] = useState(false)
@@ -844,6 +857,26 @@ export default function DashboardPage() {
                   </div>
                 )}
 
+                {/* Play Chess Button - US-019: Only show if pet has Chess Master skill */}
+                {pet.petSkills.some(ps => ps.skill.skillName === 'Chess Master') && (
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setChessOpenPetId(chessOpenPetId === pet.id ? null : pet.id)}
+                      disabled={pet.isCritical}
+                      className={`w-full px-4 py-3 rounded-lg font-semibold transition ${
+                        pet.isCritical
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : chessOpenPetId === pet.id
+                          ? 'bg-gray-600 text-white hover:bg-gray-700'
+                          : 'bg-purple-600 text-white hover:bg-purple-700'
+                      }`}
+                      title={pet.isCritical ? 'Pet must be recovered before playing chess' : ''}
+                    >
+                      {pet.isCritical ? '❌ Cannot Play (Critical)' : chessOpenPetId === pet.id ? '▼ Close Chess' : '♟️ Play Chess'}
+                    </button>
+                  </div>
+                )}
+
                 {/* View Family Tree Button - US-014 */}
                 <div className="mt-4">
                   <button
@@ -1008,6 +1041,17 @@ export default function DashboardPage() {
           petId={familyTreePetId}
           onClose={() => setFamilyTreePetId(null)}
         />
+      )}
+
+      {/* Chess Game Modal - US-019 */}
+      {chessOpenPetId && user && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <ChessBoard
+            petId={chessOpenPetId}
+            userId={user.id}
+            onClose={() => setChessOpenPetId(null)}
+          />
+        </div>
       )}
     </div>
   )

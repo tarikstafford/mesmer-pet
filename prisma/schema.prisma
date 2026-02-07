@@ -114,6 +114,7 @@ model Pet {
   warnings     Warning[]
   interactions Interaction[]
   memorySummaries MemorySummary[]
+  gameStates GameState[]
 
   @@index([userId])
   @@index([parent1Id])
@@ -275,4 +276,23 @@ model MemorySummary {
   @@index([petId])
   @@index([periodStart])
   @@index([periodEnd])
+}
+
+// US-019: Game Skill Implementation (Chess)
+model GameState {
+  id        String   @id @default(uuid())
+  petId     String
+  gameType  String   // 'chess', 'tic-tac-toe', etc.
+  state     String   // JSON string of game state (e.g., FEN notation for chess)
+  turn      String   // 'user' or 'pet'
+  status    String   // 'active', 'completed', 'abandoned'
+  winner    String?  // 'user', 'pet', 'draw', null
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
+  @@index([gameType])
+  @@index([status])
 }

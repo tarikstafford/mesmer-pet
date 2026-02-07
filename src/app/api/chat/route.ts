@@ -4,7 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { storeInteraction } from '@/lib/memory';
 import { generatePersonalityPrompt } from '@/lib/personality';
 import { formatMemoryForPrompt } from '@/lib/memory';
-import { generateSkillPrompts } from '@/lib/skillPrompts';
+import { generateSkillPrompts, hasChessSkill } from '@/lib/skillPrompts';
+import { FENToGame, boardToASCII } from '@/lib/chess';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -71,8 +72,36 @@ export async function POST(req: NextRequest) {
     // Get memory context
     const memoryContext = await formatMemoryForPrompt(petId);
 
-    // Get skill prompts for teaching abilities (US-018)
+    // Get skill prompts for teaching abilities (US-018) and game skills (US-019)
     const skillPrompts = generateSkillPrompts(pet.petSkills);
+
+    // Check for active chess game (US-019)
+    let chessContext = '';
+    if (hasChessSkill(pet.petSkills)) {
+      const activeChessGame = await prisma.gameState.findFirst({
+        where: {
+          petId,
+          gameType: 'chess',
+          status: 'active'
+        },
+        orderBy: {
+          createdAt: 'desc'
+        }
+      });
+
+      if (activeChessGame) {
+        const game = FENToGame(activeChessGame.state);
+        chessContext = `
+Active Chess Game:
+You are currently playing chess with your owner. The current board state is:
+${boardToASCII(game)}
+
+It is currently ${activeChessGame.turn === 'user' ? "the user's" : "your"} turn.
+If they mention a chess move, respond naturally and acknowledge it.
+You can explain your strategy, analyze the position, or teach chess concepts.
+`;
+      }
+    }
 
     // Build system prompt
     const systemPrompt = `You are ${pet.name}, a virtual pet companion with a unique personality.
@@ -80,6 +109,8 @@ export async function POST(req: NextRequest) {
 ${personalityPrompt}
 
 ${memoryContext ? `Memory Context:\n${memoryContext}` : ''}
+
+${chessContext}
 
 ${skillPrompts}
 
