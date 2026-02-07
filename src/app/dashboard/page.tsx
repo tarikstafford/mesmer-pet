@@ -70,6 +70,7 @@ interface Pet {
   warnings?: PetWarning[] // US-007: Active warnings for this pet
   isCritical: boolean // US-008: Critical state flag
   maxHealthPenalty: number // US-008: Max health penalty from recoveries
+  personalitySummary?: string // US-011: Personality summary
 }
 
 interface RecoveryItem {
@@ -126,16 +127,23 @@ export default function DashboardPage() {
         const petsData = data.pets || []
 
         // US-007: Fetch warnings for each pet
+        // US-011: Fetch personality summary for each pet
         const petsWithWarnings = await Promise.all(
           petsData.map(async (pet: Pet) => {
             try {
               const warningResponse = await fetch(`/api/warnings/${pet.id}`)
-              if (warningResponse.ok) {
-                const warningData = await warningResponse.json()
-                return { ...pet, warnings: warningData.warnings || [] }
+              const personalityResponse = await fetch(`/api/personality/${pet.id}`)
+
+              const warningData = warningResponse.ok ? await warningResponse.json() : { warnings: [] }
+              const personalityData = personalityResponse.ok ? await personalityResponse.json() : { personalitySummary: null }
+
+              return {
+                ...pet,
+                warnings: warningData.warnings || [],
+                personalitySummary: personalityData.personalitySummary
               }
             } catch (error) {
-              console.error(`Failed to fetch warnings for pet ${pet.id}:`, error)
+              console.error(`Failed to fetch data for pet ${pet.id}:`, error)
             }
             return { ...pet, warnings: [] }
           })
@@ -564,29 +572,84 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Personality Traits */}
+                {/* Personality Traits - US-011: Enhanced with summary and visual bars */}
                 <div className="border-t pt-4 mt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Personality</h4>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Friendliness:</span>
-                      <span className="font-semibold">{pet.friendliness}</span>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Personality Profile</h4>
+
+                  {/* Personality Summary Badge */}
+                  {pet.personalitySummary && (
+                    <div className="mb-3 p-2 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg">
+                      <p className="text-sm text-purple-800 font-medium text-center italic">
+                        "{pet.personalitySummary}"
+                      </p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Energy:</span>
-                      <span className="font-semibold">{pet.energyTrait}</span>
+                  )}
+
+                  {/* Personality Trait Bars */}
+                  <div className="space-y-2">
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-600 font-medium">😊 Friendliness</span>
+                        <span className="font-semibold text-purple-600">{pet.friendliness}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-gradient-to-r from-purple-400 to-purple-600 h-1.5 rounded-full transition-all"
+                          style={{ width: `${pet.friendliness}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Curiosity:</span>
-                      <span className="font-semibold">{pet.curiosity}</span>
+
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-600 font-medium">⚡ Energy</span>
+                        <span className="font-semibold text-yellow-600">{pet.energyTrait}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-gradient-to-r from-yellow-400 to-yellow-600 h-1.5 rounded-full transition-all"
+                          style={{ width: `${pet.energyTrait}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Patience:</span>
-                      <span className="font-semibold">{pet.patience}</span>
+
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-600 font-medium">🔍 Curiosity</span>
+                        <span className="font-semibold text-blue-600">{pet.curiosity}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-gradient-to-r from-blue-400 to-blue-600 h-1.5 rounded-full transition-all"
+                          style={{ width: `${pet.curiosity}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between col-span-2">
-                      <span className="text-gray-600">Playfulness:</span>
-                      <span className="font-semibold">{pet.playfulness}</span>
+
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-600 font-medium">🕰️ Patience</span>
+                        <span className="font-semibold text-teal-600">{pet.patience}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-gradient-to-r from-teal-400 to-teal-600 h-1.5 rounded-full transition-all"
+                          style={{ width: `${pet.patience}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-gray-600 font-medium">🎮 Playfulness</span>
+                        <span className="font-semibold text-pink-600">{pet.playfulness}/100</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div
+                          className="bg-gradient-to-r from-pink-400 to-pink-600 h-1.5 rounded-full transition-all"
+                          style={{ width: `${pet.playfulness}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
