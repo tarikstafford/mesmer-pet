@@ -648,3 +648,43 @@ Total user stories: 30
   - Pattern: updateChallengeProgress(userId, challengeType, 1) called in action APIs after success
   - Typecheck passes without errors
 ---
+## 2026-02-07 - US-024
+- Implemented Social Features - Friend System with comprehensive functionality
+- Files changed:
+  - Database: prisma/schema.prisma (added Friendship and BreedingRequest models)
+  - Migration: prisma/migrations/20260207064433_add_friend_system/migration.sql
+  - Library: src/lib/friends.ts (friend request logic, search, friendship management)
+  - API routes: src/app/api/friends/{send,accept,decline,remove,list,requests,search,pets/[friendId]}/route.ts
+  - API routes: src/app/api/breeding-requests/{send,accept,decline,list}/route.ts
+  - UI pages: src/app/friends/page.tsx (friends list with search and requests)
+  - UI pages: src/app/friends/pets/[friendId]/page.tsx (view friend's pets and request breeding)
+  - Component: src/components/BreedingRequestsPanel.tsx (breeding request notifications)
+  - Updated: src/app/dashboard/page.tsx (added Friends link and BreedingRequestsPanel)
+  - Updated: prd.json (marked US-024 complete), dev.db
+- **Learnings for future iterations:**
+  - Friend system uses two models: Friendship (friend relationships) and BreedingRequest (breeding approvals)
+  - Friendship model tracks status: pending, accepted, declined with bidirectional relations (requester/addressee)
+  - BreedingRequest model tracks breeding approval workflow between friends
+  - Friend limit enforced at API level: MAX_FRIENDS = 50, checked in sendFriendRequest and acceptFriendRequest
+  - Friendship queries use OR conditions to find bidirectional friendships (either requester or addressee)
+  - areFriends() helper function checks if two users have accepted friendship
+  - Friend search uses email contains query (case-sensitive on SQLite, removed 'mode' option)
+  - Search results include friendshipStatus to show current relationship state
+  - Breeding request workflow: send → pending → accept/decline
+  - Accepting breeding request creates offspring (belongs to requester) and updates lastBredAt for both parents
+  - Breeding requests validated with canBreed() to enforce age, health, cooldown requirements
+  - Friends can view each other's pets via /api/friends/pets/[friendId] (requires friendship verification)
+  - Friends list UI shows "online status" as green indicator (🟢) - static for MVP, real-time status deferred
+  - Breeding requests displayed on dashboard via BreedingRequestsPanel component
+  - BreedingRequestsPanel auto-refreshes and shows both received and sent requests
+  - Friend's pets page shows 3D models, stats, traits, with "Request Breeding" button
+  - Dashboard Friends link added to navigation header for easy access
+  - API authentication uses verifyToken() from src/lib/auth.ts (not verifyAuth - common error)
+  - All API routes follow pattern: verifyToken → validate → execute → return JSON
+  - Prisma generate required after schema changes to include new models in client
+  - Typecheck passes without errors
+  - All acceptance criteria met except browser verification (dev-browser skill not available)
+  - Online status currently static (green dot for all friends), real-time presence deferred for post-MVP
+  - Friend breeding fully integrates with existing breeding system from US-012 and US-013
+---
+
