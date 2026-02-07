@@ -120,8 +120,8 @@
         "Typecheck passes"
       ],
       "priority": 7,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Full stat degradation system with background jobs running every 15 minutes. Added lastStatUpdate to Pet model, calculation logic with timezone-aware sleep detection, API endpoint for manual updates, and Next.js instrumentation hook for auto-start. All stats properly clamped 0-100."
     },
     {
       "id": "US-006",

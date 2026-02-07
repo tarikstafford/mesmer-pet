@@ -151,3 +151,31 @@ Total user stories: 30
   - Layout uses border-top separators between sections for clean visual hierarchy
 ---
 
+## 2026-02-07 - US-021
+- Implemented Stat Degradation System with background jobs
+- Files changed:
+  - Database: prisma/schema.prisma (added lastStatUpdate to Pet model)
+  - Migration: prisma/migrations/20260207052259_add_last_stat_update/migration.sql
+  - Library: src/lib/statDegradation.ts (core degradation logic)
+  - Background jobs: src/lib/backgroundJobs.ts (15-minute interval runner)
+  - API: src/app/api/pets/update-stats/route.ts (manual update endpoint)
+  - Instrumentation: src/instrumentation.ts (Next.js startup hook)
+  - Config: next.config.ts (removed experimental flag, not needed in Next.js 16)
+- **Learnings for future iterations:**
+  - Stat degradation rates: hunger +1/hr, happiness -0.5/hr (no interaction), energy -0.3/hr or +5/hr (sleep)
+  - Health degrades at -2/hr when hunger > 80 (hunger-driven health loss)
+  - Sleep time detection: midnight-6am based on timezone offset parameter
+  - All stats clamped with `Math.max(0, Math.min(100, value))` to enforce boundaries
+  - Background jobs use Node.js setInterval() running every 15 minutes (900000ms)
+  - Next.js instrumentation hook in src/instrumentation.ts starts jobs on server boot
+  - Instrumentation only runs when `process.env.NEXT_RUNTIME === 'nodejs'` (not in Edge runtime)
+  - Jobs run immediately on startup, then every 15 minutes thereafter
+  - API endpoint /api/pets/update-stats supports both single pet (petId) and batch (all pets) updates
+  - GET endpoint added for easy cron job integration (e.g., Vercel Cron)
+  - Graceful shutdown: jobs stop on SIGTERM/SIGINT signals
+  - Time calculations use milliseconds: `(now - lastUpdate) / (1000 * 60 * 60)` for hours
+  - Skip updates if less than 1 minute elapsed to prevent excessive database writes
+  - Always regenerate Prisma client after schema changes: `npx prisma generate`
+  - Background jobs import Prisma and logic dynamically to avoid circular dependencies
+---
+
