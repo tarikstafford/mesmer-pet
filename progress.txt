@@ -19,6 +19,8 @@ Total user stories: 30
 - Environment variables in `.env` file, database config in `prisma.config.ts`
 - TailwindCSS v4 requires `@tailwindcss/postcss` plugin
 - Auth pattern: JWT stored in localStorage, session stored in Prisma Session table
+- Prisma 7 seed: Configure in prisma.config.ts under `migrations.seed`, always use adapter in seed scripts
+- After schema changes, run `npx prisma generate` before running seed to regenerate client
 
 ## Iteration Log
 
@@ -42,5 +44,24 @@ Total user stories: 30
   - Email verification API exists but email sending not implemented (needs email service)
   - Authentication uses JWT tokens stored in localStorage + Prisma sessions
   - All acceptance criteria met except OAuth implementation (UI placeholders present)
+---
+
+## 2026-02-07 - US-003
+- Implemented Pet Trait System database schema with genetic inheritance support
+- Files changed:
+  - Database: prisma/schema.prisma (added Trait and PetTrait models)
+  - Migration: prisma/migrations/20260207023531_add_trait_system/migration.sql
+  - Seed: prisma/seed.ts (30 predefined traits with rarity distribution)
+  - Config: prisma.config.ts (added seed command), package.json (added tsx dev dependency)
+  - Updated: dev.db (seeded with traits)
+- **Learnings for future iterations:**
+  - Prisma 7 seed configuration goes in `prisma.config.ts` under `migrations.seed`, not `package.json`
+  - Seed scripts must use the same adapter configuration as the main Prisma client
+  - Always run `npx prisma generate` after schema changes to regenerate client before running seed
+  - Traits are organized by type: visual (12), personality (10), skill (8) - total 30 traits
+  - Rarity distribution in seed: ~37% common, 30% uncommon, 17% rare, 17% legendary (fixed set)
+  - PetTrait junction table tracks inheritance_source for genetics (parent1/parent2/mutation/initial)
+  - Each trait has: id, traitName (unique), traitType, rarity, description
+  - Future breeding logic will use this schema to implement genetic inheritance
 ---
 
