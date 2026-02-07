@@ -914,3 +914,54 @@ Total user stories: 30
   - Future enhancement: Add more tutorial steps for advanced features (marketplace, breeding, AR)
 ---
 
+## 2026-02-07 - US-030
+- Implemented comprehensive Data Privacy and GDPR Compliance system
+- Files changed:
+  - Database: prisma/schema.prisma (added privacy fields to User: dateOfBirth, cookieConsent, dataProcessingConsent, marketingConsent, deletionRequestedAt)
+  - Migration: prisma/migrations/20260207073338_add_privacy_fields/migration.sql
+  - Privacy pages: src/app/privacy/page.tsx (Privacy Policy), src/app/terms/page.tsx (Terms of Service)
+  - Cookie consent: src/components/CookieConsent.tsx (banner with preferences)
+  - API routes: src/app/api/privacy/{cookie-consent,export-data,delete-account}/route.ts
+  - Encryption: src/lib/encryption.ts (AES-256-GCM encryption utilities)
+  - Updated: src/lib/memory.ts (encrypt/decrypt interactions and summaries)
+  - Registration: src/app/auth/register/page.tsx (added dateOfBirth field, age verification)
+  - API: src/app/api/auth/register/route.ts (stores dateOfBirth)
+  - Validation: src/lib/validations/auth.ts (added dateOfBirth to registerSchema)
+  - Privacy settings: src/app/settings/privacy/page.tsx (full privacy control UI)
+  - Updated: src/app/layout.tsx (integrated CookieConsent component)
+  - Updated: src/app/dashboard/page.tsx (added Privacy link to navigation)
+  - Config: .env (added ENCRYPTION_KEY environment variable)
+  - Updated: prd.json (marked US-030 complete)
+- **Learnings for future iterations:**
+  - Privacy policy and terms of service pages provide comprehensive legal coverage (GDPR, CCPA, COPPA)
+  - Cookie consent banner shows to all users (not just EU) for best practice compliance
+  - Cookie categories: essential (required), analytics (optional), preferences (optional)
+  - Cookie consent stored in User.cookieConsent field in database
+  - Data export API (/api/privacy/export-data) returns complete user data as downloadable JSON
+  - Data export includes: user info, pets (with traits/skills/interactions/memories), engagement, friends, tutorial
+  - Password hash excluded from data export for security
+  - Account deletion uses three methods: POST (immediate), PUT (30-day grace period), DELETE (cancel deletion)
+  - Account deletion requires confirmation text "DELETE MY ACCOUNT" to prevent accidents
+  - Cascade deletes handled automatically by Prisma onDelete: Cascade relationships
+  - Encryption uses AES-256-GCM with random IV and authentication tags for maximum security
+  - Encrypted format: iv:authTag:encryptedData (all in hex)
+  - All Interaction.message and MemorySummary.summary fields encrypted before storage
+  - Encryption key (32 chars) stored in ENCRYPTION_KEY environment variable (must be secure in production)
+  - Generate secure key with: openssl rand -hex 16
+  - Memory functions (storeInteraction, getMemoryContext, storeMemorySummary) now handle encryption/decryption automatically
+  - COPPA age gate calculates exact age from dateOfBirth (accounts for month/day differences)
+  - Users under 13 blocked with parental consent message, cannot create account
+  - dateOfBirth field required in registration form, validated client-side and server-side
+  - Privacy settings UI at /settings/privacy provides one-stop access to all privacy features
+  - Privacy settings includes: data export, account deletion, cookie preferences, legal documents
+  - Privacy link added to dashboard navigation header (gray button with lock icon)
+  - All acceptance criteria met except browser verification (dev-browser skill not available)
+  - Typecheck passes without errors
+  - Pattern: Encryption functions throw errors which should be caught by calling code
+  - Pattern: Privacy APIs use verifyToken() for authentication, return 401 if unauthorized
+  - Pattern: Data export removes sensitive fields (password) before returning to user
+  - Future enhancement: Add email notifications for deletion requests, export confirmations
+  - Future enhancement: Implement parental consent workflow for users under 13
+  - Future enhancement: Add more granular consent options (marketing, third-party sharing)
+---
+
