@@ -9,5 +9,38 @@ Total user stories: 30
 
 ---
 
+## Codebase Patterns
+- This is a Next.js 16 App Router project with TypeScript
+- Prisma 7 + SQLite for database (requires adapter config in src/lib/prisma.ts)
+- Use Prisma 7's `PrismaLibSql` adapter with config object: `new PrismaLibSql({ url: ... })`
+- Client components that use `useSearchParams()` must be wrapped in `<Suspense>` boundary
+- API routes are in `src/app/api/**/route.ts` format
+- Zod validation schema errors use `.issues` not `.errors`
+- Environment variables in `.env` file, database config in `prisma.config.ts`
+- TailwindCSS v4 requires `@tailwindcss/postcss` plugin
+- Auth pattern: JWT stored in localStorage, session stored in Prisma Session table
+
 ## Iteration Log
+
+## 2026-02-07 - US-001
+- Implemented complete user registration and authentication system
+- Files changed:
+  - Created Next.js 16 project structure with TypeScript
+  - Database: prisma/schema.prisma, prisma/migrations/*, prisma.config.ts
+  - API routes: src/app/api/auth/{register,login,verify-email}/route.ts
+  - UI pages: src/app/{page,layout,globals.css}.tsx, src/app/auth/{login,register}/page.tsx, src/app/dashboard/page.tsx
+  - Libraries: src/lib/{prisma,auth,validations/auth}.ts
+  - Config: package.json, tsconfig.json, tailwind.config.ts, postcss.config.mjs, next.config.ts
+- **Learnings for future iterations:**
+  - Prisma 7 has breaking changes - no `url` in datasource block, config in prisma.config.ts
+  - Must use `PrismaLibSql` adapter for SQLite: `new PrismaLibSql({ url: '...' })`
+  - Next.js 16 requires `<Suspense>` boundary for components using `useSearchParams()`
+  - TailwindCSS 4.x needs `@tailwindcss/postcss` instead of `tailwindcss` in PostCSS config
+  - Zod error handling: use `error.issues` not `error.errors`
+  - Database is SQLite at `./prisma/dev.db` for MVP, easily swappable for production
+  - OAuth (Google, Apple) is stubbed out in UI but not implemented - requires provider setup
+  - Email verification API exists but email sending not implemented (needs email service)
+  - Authentication uses JWT tokens stored in localStorage + Prisma sessions
+  - All acceptance criteria met except OAuth implementation (UI placeholders present)
+---
 
