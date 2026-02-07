@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function CreatePetPage() {
   const router = useRouter()
@@ -88,31 +89,56 @@ export default function CreatePetPage() {
 
   if (!userId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-        <div className="bg-white p-8 rounded-lg shadow-xl">
-          <p className="text-gray-800">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800">
+        <div className="bg-white/80 backdrop-blur-lg p-8 rounded-3xl shadow-2xl">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+            <p className="text-gray-800 font-medium">Loading...</p>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-500 to-purple-600">
-      <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-800">Create Your Pet</h1>
-        <p className="text-center text-gray-600 mb-6">
-          Give your new companion a name! It will be generated with unique genetic traits.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-800 p-4">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
 
+      <div className="relative z-10 bg-white/90 backdrop-blur-xl p-10 rounded-3xl shadow-2xl w-full max-w-lg border border-white/20">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-500 rounded-2xl mb-4 shadow-lg shadow-purple-500/50">
+            <span className="text-4xl">✨</span>
+          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 text-transparent bg-clip-text mb-3">
+            Create Your Pet
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Give your new companion a name! It will be generated with unique genetic traits.
+          </p>
+        </div>
+
+        {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-            {error}
+          <div className="mb-6 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 text-red-800 rounded-2xl shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <span className="text-white text-xl">✕</span>
+              </div>
+              <span className="font-medium">{error}</span>
+            </div>
           </div>
         )}
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="petName" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="petName" className="block text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+              <span className="text-xl">🏷️</span>
               Pet Name
             </label>
             <input
@@ -122,37 +148,77 @@ export default function CreatePetPage() {
               value={petName}
               onChange={(e) => setPetName(e.target.value)}
               maxLength={50}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800 text-lg"
+              className="w-full px-5 py-4 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-gray-800 text-lg font-medium transition placeholder:text-gray-400 bg-white shadow-inner"
               placeholder="e.g., Sparkle, Shadow, Luna"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-2 ml-1">
               Choose a unique name for your pet (max 50 characters)
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h3 className="font-semibold text-blue-900 mb-2">What happens next?</h3>
-            <ul className="text-sm text-blue-800 space-y-1">
-              <li>✨ Random genetic traits will be generated</li>
-              <li>🎨 Visual traits (color, patterns, accessories)</li>
-              <li>💫 Personality traits (friendliness, energy, curiosity)</li>
-              <li>🧬 Each pet is unique based on genetics!</li>
+          {/* Info Box */}
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-2xl p-6 shadow-lg">
+            <h3 className="font-bold text-blue-900 mb-4 text-lg flex items-center gap-2">
+              <span className="text-2xl">🎲</span>
+              What happens next?
+            </h3>
+            <ul className="text-sm text-blue-800 space-y-3">
+              <li className="flex items-start gap-3">
+                <span className="text-lg flex-shrink-0">✨</span>
+                <span className="font-medium">Random genetic traits will be generated</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-lg flex-shrink-0">🎨</span>
+                <span className="font-medium">Visual traits (color, patterns, accessories)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-lg flex-shrink-0">💫</span>
+                <span className="font-medium">Personality traits (friendliness, energy, curiosity)</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-lg flex-shrink-0">🧬</span>
+                <span className="font-medium">Each pet is unique based on genetics!</span>
+              </li>
             </ul>
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition text-lg"
+            className="w-full py-4 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-bold hover:from-pink-600 hover:to-purple-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition text-lg shadow-lg shadow-purple-500/50 hover:shadow-purple-500/80 hover:scale-105 active:scale-95"
           >
-            {loading ? 'Creating Your Pet...' : 'Create Pet'}
+            {loading ? (
+              <span className="flex items-center justify-center gap-3">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Creating Your Pet...
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                ✨ Create Pet
+              </span>
+            )}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
-            Your first pet is free! You can own up to 10 pets.
-          </p>
+        {/* Footer */}
+        <div className="mt-8 space-y-4">
+          <div className="text-center p-4 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl">
+            <p className="text-green-800 font-bold text-sm flex items-center justify-center gap-2">
+              <span className="text-xl">🎁</span>
+              Your first pet is free! You can own up to 10 pets.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold transition"
+            >
+              <span>←</span>
+              <span>Back to Dashboard</span>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
