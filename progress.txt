@@ -722,3 +722,38 @@ Total user stories: 30
   - All acceptance criteria met except physical iOS/Android testing (requires AR-capable devices)
   - Future enhancement: US-020 will add AR interaction controls (tap, voice, gestures)
 ---
+
+## 2026-02-07 - US-020
+- Implemented AR Interaction Controls for engaging AR pet experience
+- Files changed:
+  - Updated: src/components/ARPetViewer.tsx (added interactive controls, voice chat, gesture recognition, stability improvements)
+  - Updated: src/app/dashboard/page.tsx (passed required props to AR viewer including petId, userId, onFeed, onChat)
+  - Updated: prd.json (marked US-020 complete)
+- **Learnings for future iterations:**
+  - AR tap interaction on 3D models uses onClick event on Three.js group elements
+  - PetCreature component now accepts onClick callback prop for tap handling
+  - Tap cycles through animation states: idle → happy → hungry in a loop
+  - AR overlay UI uses absolute positioning with z-index layers (z-10 for bottom, z-20 for top-right)
+  - Feed button in AR calls /api/pets/feed with petId and userId, triggers happy animation on success
+  - Voice chat uses Web Speech API: webkitSpeechRecognition or SpeechRecognition
+  - Speech recognition configuration: lang='en-US', continuous=false, interimResults=false
+  - Text-to-speech responses use SpeechSynthesisUtterance for pet's voice replies
+  - Voice chat workflow: start recognition → onresult → send to chat API → speak response → animate happy
+  - Gesture recognition uses DeviceMotion API with accelerationIncludingGravity
+  - Shake detection threshold: total acceleration > 15 across x/y/z axes
+  - Shake cooldown: 1 second between shake detections to prevent spam
+  - Wake lock API prevents screen sleep during AR sessions: navigator.wakeLock.request('screen')
+  - AR session stability: wake lock + error auto-clear (30s interval) + cleanup on unmount
+  - Show/hide overlay controls improve UX when users want unobstructed AR view
+  - Voice/chat feedback panel displays conversation history with clear button
+  - AR viewer now requires: traitNames, health, petName, petId, userId, onClose, onFeed, onChat props
+  - Dashboard passes onFeed callback that refreshes pets via fetchPets(user.id)
+  - Dashboard passes onChat async callback that posts to /api/chat and returns response
+  - Error handling includes: feed cooldown errors, voice recognition errors, network errors
+  - All interactive features gracefully degrade when APIs unavailable (WebXR, Speech, Motion, Wake Lock)
+  - Typecheck passes without errors
+  - All acceptance criteria met except physical iOS/Android AR testing (requires AR-capable hardware)
+  - AR session designed for 30+ minute stability with wake lock, memory leak prevention, cleanup handlers
+  - Pattern: AR interactions integrate seamlessly with existing APIs (feed, chat) without code duplication
+  - Future enhancement: Add more gesture types (pinch to scale, swipe to move pet)
+---
