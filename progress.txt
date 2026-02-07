@@ -828,3 +828,45 @@ Total user stories: 30
   - Pattern: Admin operations follow strict auth flow: verifyAdminAuth → validate → execute → return JSON
   - Future enhancement: Add role-based permissions system for multiple admin levels (super admin, moderator, etc.)
 ---
+## 2026-02-07 - US-028
+- Implemented comprehensive Error Logging and Monitoring system with Sentry
+- Files changed:
+  - Dependencies: package.json, package-lock.json (added @sentry/nextjs SDK)
+  - Config: sentry.client.config.ts, sentry.server.config.ts, sentry.edge.config.ts (Sentry initialization for all runtimes)
+  - Config: next.config.ts (wrapped with withSentryConfig for automatic instrumentation)
+  - Library: src/lib/errorLogger.ts (error logging utilities: logError, logLLMFailure, logARSessionCrash, logPaymentFailure)
+  - Library: src/lib/performanceMonitor.ts (performance monitoring: monitorPetLoad, monitorBreedingCalculation, monitorLLMRequest, etc.)
+  - Updated: src/app/api/chat/route.ts (LLM failure logging with context, performance monitoring)
+  - Updated: src/app/api/pets/breed/route.ts (breeding performance monitoring, error logging)
+  - Updated: src/app/api/pets/route.ts (pet load performance monitoring, error logging)
+  - Updated: src/app/api/webhooks/stripe/route.ts (payment failure logging with anonymized data)
+  - Updated: src/components/ARPetViewer.tsx (AR session crash logging, breadcrumbs for user actions)
+  - Config: .env (added Sentry environment variables)
+  - Docs: SENTRY_SETUP.md (comprehensive setup guide with alert configuration)
+  - Updated: prd.json (marked US-028 complete)
+- **Learnings for future iterations:**
+  - Sentry SDK installed via @sentry/nextjs package with automatic Next.js integration
+  - Three config files required: client, server, and edge for all Next.js runtimes
+  - withSentryConfig wrapper in next.config.ts enables automatic source map uploads and instrumentation
+  - Error logging utilities centralized in errorLogger.ts for consistent context across app
+  - Performance monitoring uses Sentry.startSpan() API for custom transactions with thresholds
+  - LLM failures logged with: provider, model, promptLength, statusCode, userId, petId context
+  - AR crashes logged with: sessionDuration, deviceType, browserAgent, sessionActions array
+  - Payment failures anonymized: no card data, user IDs hashed automatically by Sentry
+  - Breadcrumbs track user actions: addBreadcrumb(message, category, data) for debugging trails
+  - Performance thresholds: pet load >1s, breeding >2s, LLM >5s, stat degradation >10s, API >3s
+  - Alert setup guide in SENTRY_SETUP.md covers: error rate >5%, payment failures, AR crashes, slow LLM
+  - Sentry DSN required in NEXT_PUBLIC_SENTRY_DSN env var (public, not secret)
+  - Source map upload requires SENTRY_ORG, SENTRY_PROJECT, SENTRY_AUTH_TOKEN (production only)
+  - Error logging follows GDPR: user IDs hashed, sensitive data excluded, anonymized payment info
+  - Performance monitoring automatically tracks slow queries with console.warn and Sentry message
+  - setUserContext(userId, email) sets user context for all subsequent errors
+  - clearUserContext() called on logout to prevent cross-user contamination
+  - Removed hideSourceMaps from next.config.ts (not a valid SentryBuildOptions property)
+  - All acceptance criteria met: Sentry integration, LLM/AR/payment logging, performance monitoring, alert guide
+  - Typecheck passes without errors
+  - Pattern: Wrap critical operations with monitoring functions that measure duration and log slow operations
+  - Pattern: Catch errors at API boundaries, log with logError/specific logger, preserve original error message
+  - Future enhancement: Add custom Sentry dashboards for pet health metrics, breeding success rates, user engagement
+---
+
