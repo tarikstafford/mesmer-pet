@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { breedPets, canBreed } from '@/lib/breeding';
 import jwt from 'jsonwebtoken';
 import { updateChallengeProgress } from '@/lib/engagement';
+import { monitorBreedingCalculation } from '@/lib/performanceMonitor';
+import { logError } from '@/lib/errorLogger';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -91,8 +93,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Breed the pets
-    const offspring = await breedPets(parent1, parent2, userId, offspringName);
+    // Breed the pets with performance monitoring
+    const offspring = await monitorBreedingCalculation(parent1Id, parent2Id, async () => {
+      return await breedPets(parent1, parent2, userId, offspringName);
+    });
 
     // Update lastBredAt for both parents
     const now = new Date();
@@ -117,7 +121,13 @@ export async function POST(req: NextRequest) {
       offspring,
     });
   } catch (error) {
-    console.error('Error breeding pets:', error);
+    const err = error as Error;
+    logError(err, {
+      component: 'breeding_api',
+      action: 'breed_pets',
+      parent1Id: (req as any).body?.parent1Id,
+      parent2Id: (req as any).body?.parent2Id,
+    });
     return NextResponse.json({ error: 'Failed to breed pets' }, { status: 500 });
   }
 }

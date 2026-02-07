@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { constructWebhookEvent } from '@/lib/stripe';
 import Stripe from 'stripe';
+import { logPaymentFailure, logError, addBreadcrumb } from '@/lib/errorLogger';
 
 // Disable Next.js body parser for raw body access
 export const runtime = 'nodejs';
@@ -39,12 +40,34 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+        addBreadcrumb('Payment completed', 'payment', {
+          sessionId: session.id,
+          userId: session.metadata?.userId,
+        });
         await handleSuccessfulPayment(session);
         break;
       }
       case 'checkout.session.expired': {
         const session = event.data.object as Stripe.Checkout.Session;
         console.log('Checkout session expired:', session.id);
+        addBreadcrumb('Checkout session expired', 'payment', {
+          sessionId: session.id,
+          userId: session.metadata?.userId,
+        });
+        break;
+      }
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const error = new Error('Payment failed');
+        logPaymentFailure(error, {
+          userId: paymentIntent.metadata?.userId || 'unknown',
+          skillId: paymentIntent.metadata?.skillId,
+          amount: paymentIntent.amount / 100,
+          currency: paymentIntent.currency,
+          provider: 'stripe',
+          errorCode: paymentIntent.last_payment_error?.code,
+          failureReason: paymentIntent.last_payment_error?.message,
+        });
         break;
       }
       default:
@@ -100,7 +123,19 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
 
     console.log(`Successfully granted skill ${skillId} to user ${userId} via Stripe session ${session.id}`);
   } catch (error) {
+    const err = error as Error;
     console.error('Error granting skill after payment:', error);
+
+    // Log payment failure with anonymized data
+    logPaymentFailure(err, {
+      userId,
+      skillId,
+      amount: (session.amount_total || 0) / 100,
+      currency: session.currency || 'usd',
+      provider: 'stripe',
+      failureReason: 'Failed to grant skill after successful payment',
+    });
+
     throw error;
   }
 }

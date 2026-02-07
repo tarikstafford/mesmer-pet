@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { createPetWithGenetics } from '@/lib/genetics';
 import { z } from 'zod';
+import { monitorPetLoad } from '@/lib/performanceMonitor';
+import { logError } from '@/lib/errorLogger';
 
 // Validation schema for pet creation
 const createPetSchema = z.object({
@@ -60,7 +62,12 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Pet creation error:', error);
+    const err = error as Error;
+    logError(err, {
+      component: 'pets_api',
+      action: 'create_pet',
+      userId: (request as any).body?.userId,
+    });
     return NextResponse.json(
       { error: 'Failed to create pet' },
       { status: 500 }
@@ -81,28 +88,36 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const pets = await prisma.pet.findMany({
-      where: { userId },
-      include: {
-        petTraits: {
-          include: {
-            trait: true,
+    // Monitor pet loading performance
+    const pets = await monitorPetLoad(userId, async () => {
+      return await prisma.pet.findMany({
+        where: { userId },
+        include: {
+          petTraits: {
+            include: {
+              trait: true,
+            },
+          },
+          petSkills: {
+            include: {
+              skill: true,
+            },
           },
         },
-        petSkills: {
-          include: {
-            skill: true,
-          },
+        orderBy: {
+          createdAt: 'desc',
         },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
+      });
     });
 
     return NextResponse.json({ pets }, { status: 200 });
   } catch (error) {
-    console.error('Pet fetch error:', error);
+    const err = error as Error;
+    logError(err, {
+      component: 'pets_api',
+      action: 'fetch_pets',
+      userId: new URL(request.url).searchParams.get('userId') || undefined,
+    });
     return NextResponse.json(
       { error: 'Failed to fetch pets' },
       { status: 500 }

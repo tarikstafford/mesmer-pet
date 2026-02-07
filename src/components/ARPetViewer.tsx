@@ -4,6 +4,7 @@ import { useRef, useState, useMemo, useEffect, Suspense } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { getPetModelConfig, type PetModelConfig } from '@/lib/petModelConfig';
+import { logARSessionCrash, addBreadcrumb } from '@/lib/errorLogger';
 
 interface ARPetViewerProps {
   traitNames: string[];
@@ -295,6 +296,8 @@ export default function ARPetViewer({
   const [voiceMessage, setVoiceMessage] = useState('');
   const [chatResponse, setChatResponse] = useState('');
   const [showOverlay, setShowOverlay] = useState(true);
+  const [sessionStartTime] = useState(Date.now());
+  const [sessionActions, setSessionActions] = useState<string[]>([]);
   const config = useMemo(() => getPetModelConfig(traitNames), [traitNames]);
 
   // Check AR support on mount
@@ -317,16 +320,36 @@ export default function ARPetViewer({
         return;
       }
 
+      addBreadcrumb('AR session started', 'ar', { petId, userId, petName });
       setARSessionActive(true);
       setError(null);
+      setSessionActions(['session_started']);
     } catch (err) {
+      const error = err as Error;
       console.error('Failed to start AR session:', err);
+
+      logARSessionCrash(error, {
+        userId: userId.toString(),
+        petId: petId.toString(),
+        sessionDuration: 0,
+        deviceType: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        browserAgent: navigator.userAgent,
+        sessionActions: ['session_start_failed'],
+      });
+
       setError('Failed to start AR session. Please ensure you have granted camera permissions.');
       setARSessionActive(false);
     }
   };
 
   const endARSession = () => {
+    const sessionDuration = Date.now() - sessionStartTime;
+    addBreadcrumb('AR session ended', 'ar', {
+      petId,
+      userId,
+      sessionDuration,
+      actionsPerformed: sessionActions.length,
+    });
     setARSessionActive(false);
     onClose();
   };
@@ -337,6 +360,8 @@ export default function ARPetViewer({
     const currentIndex = animations.indexOf(animationState);
     const nextIndex = (currentIndex + 1) % animations.length;
     setAnimationState(animations[nextIndex]);
+    setSessionActions(prev => [...prev, `pet_tapped_${animations[nextIndex]}`]);
+    addBreadcrumb('Pet tapped in AR', 'interaction', { animationState: animations[nextIndex] });
   };
 
   // Handle feeding in AR
@@ -344,6 +369,7 @@ export default function ARPetViewer({
     if (isFeeding) return;
     setIsFeeding(true);
     try {
+      addBreadcrumb('Feed attempt in AR', 'interaction', { petId });
       const response = await fetch('/api/pets/feed', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -352,12 +378,22 @@ export default function ARPetViewer({
       if (response.ok) {
         setAnimationState('happy');
         setTimeout(() => setAnimationState('idle'), 3000);
+        setSessionActions(prev => [...prev, 'fed_pet']);
         if (onFeed) onFeed();
       } else {
         const data = await response.json();
         setError(data.error || 'Failed to feed pet');
       }
     } catch (err) {
+      const error = err as Error;
+      logARSessionCrash(error, {
+        userId: userId.toString(),
+        petId: petId.toString(),
+        sessionDuration: Date.now() - sessionStartTime,
+        deviceType: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop',
+        browserAgent: navigator.userAgent,
+        sessionActions: [...sessionActions, 'feed_failed'],
+      });
       setError('Network error while feeding pet');
     } finally {
       setIsFeeding(false);
@@ -390,8 +426,10 @@ export default function ARPetViewer({
       // Send to chat API
       if (onChat) {
         try {
+          addBreadcrumb('Voice chat in AR', 'interaction', { transcript });
           const response = await onChat(transcript);
           setChatResponse(response);
+          setSessionActions(prev => [...prev, 'voice_chat']);
 
           // Speak the response if TTS is available
           if ('speechSynthesis' in window) {
@@ -403,6 +441,15 @@ export default function ARPetViewer({
           setAnimationState('happy');
           setTimeout(() => setAnimationState('idle'), 5000);
         } catch (err) {
+          const error = err as Error;
+          logARSessionCrash(error, {
+            userId: userId.toString(),
+            petId: petId.toString(),
+            sessionDuration: Date.now() - sessionStartTime,
+            deviceType: /Mobile|Android|iPhone|iPad/.test(navigator.userAgent) ? 'mobile' : 'desktop',
+            browserAgent: navigator.userAgent,
+            sessionActions: [...sessionActions, 'voice_chat_failed'],
+          });
           setError('Failed to get response from pet');
         }
       }
@@ -410,7 +457,9 @@ export default function ARPetViewer({
 
     recognition.onerror = (event: any) => {
       setIsListening(false);
-      setError(`Voice recognition error: ${event.error}`);
+      const errorMsg = `Voice recognition error: ${event.error}`;
+      setError(errorMsg);
+      addBreadcrumb('Voice recognition error in AR', 'error', { error: event.error });
     };
 
     recognition.onend = () => {

@@ -8,6 +8,8 @@ import { generateSkillPrompts, hasChessSkill } from '@/lib/skillPrompts';
 import { FENToGame, boardToASCII } from '@/lib/chess';
 import { updateChallengeProgress } from '@/lib/engagement';
 import { updateSyncState } from '@/lib/sync';
+import { logLLMFailure, logError } from '@/lib/errorLogger';
+import { monitorLLMRequest } from '@/lib/performanceMonitor';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -126,29 +128,43 @@ Guidelines:
 - Use emojis occasionally to express emotion
 `;
 
-    // Call GPT-4o-mini
-    const startTime = Date.now();
+    // Call GPT-4o-mini with performance monitoring
     let assistantMessage: string;
+    let responseTime = 0;
 
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message },
-        ],
-        max_tokens: 200,
-        temperature: 0.8,
+      const result = await monitorLLMRequest(userId, petId, 'gpt-4o-mini', async () => {
+        const startTime = Date.now();
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: message },
+          ],
+          max_tokens: 200,
+          temperature: 0.8,
+        });
+        responseTime = Date.now() - startTime;
+        return completion;
       });
 
-      assistantMessage = completion.choices[0]?.message?.content ||
+      assistantMessage = result.choices[0]?.message?.content ||
         "I'm having trouble thinking right now. Can you try again? 🤔";
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      const err = error as Error;
+
+      // Log LLM failure with detailed context
+      logLLMFailure(err, {
+        userId,
+        petId,
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        promptLength: systemPrompt.length + message.length,
+        statusCode: (error as any).status,
+      });
+
       assistantMessage = "Sorry, I'm feeling a bit distracted right now. Can you say that again? 💭";
     }
-
-    const responseTime = Date.now() - startTime;
 
     // Store assistant response
     await storeInteraction(petId, userId, 'assistant', assistantMessage);
@@ -176,7 +192,14 @@ Guidelines:
       petName: pet.name,
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    const err = error as Error;
+    logError(err, {
+      component: 'chat_api',
+      action: 'chat',
+      userId: (req as any).body?.userId,
+      petId: (req as any).body?.petId,
+    });
+
     return NextResponse.json(
       {
         error: 'Internal server error',
