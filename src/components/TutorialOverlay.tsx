@@ -140,10 +140,10 @@ export default function TutorialOverlay({ userId, onComplete, onSkip }: Tutorial
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">Welcome Tutorial</h2>
             <button
@@ -167,7 +167,7 @@ export default function TutorialOverlay({ userId, onComplete, onSkip }: Tutorial
         </div>
 
         {/* Current Step */}
-        <div className="p-8">
+        <div className="p-8 overflow-y-auto flex-1">
           <div className="text-center mb-6">
             <div className="text-6xl mb-4">{currentStep.icon}</div>
             <h3 className="text-2xl font-bold mb-2 text-gray-800">{currentStep.title}</h3>
@@ -229,7 +229,7 @@ export default function TutorialOverlay({ userId, onComplete, onSkip }: Tutorial
         </div>
 
         {/* Footer */}
-        <div className="bg-gray-50 p-4 flex justify-between items-center">
+        <div className="bg-gray-50 p-4 flex justify-between items-center flex-shrink-0 border-t border-gray-200">
           <p className="text-sm text-gray-600">Complete all steps to earn your reward!</p>
           <button
             onClick={handleSkip}

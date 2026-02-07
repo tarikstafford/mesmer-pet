@@ -13,7 +13,7 @@ export default function CreatePetPage() {
 
   useEffect(() => {
     // Get userId from localStorage (where JWT is stored)
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('authToken')
     if (!token) {
       router.push('/auth/login')
       return
