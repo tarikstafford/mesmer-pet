@@ -7,6 +7,7 @@ import { formatMemoryForPrompt } from '@/lib/memory';
 import { generateSkillPrompts, hasChessSkill } from '@/lib/skillPrompts';
 import { FENToGame, boardToASCII } from '@/lib/chess';
 import { updateChallengeProgress } from '@/lib/engagement';
+import { updateSyncState } from '@/lib/sync';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -161,6 +162,12 @@ Guidelines:
     // US-022: Track challenge progress for chatting
     await updateChallengeProgress(userId, 'chat', 1).catch((err) => {
       console.warn('Failed to update chat challenge:', err);
+    });
+
+    // US-025: Update sync state for interactions
+    const interactionId = `${petId}-${Date.now()}`;
+    await updateSyncState(userId, petId, 'interaction', interactionId, 'web').catch((err) => {
+      console.warn('Failed to update sync state:', err);
     });
 
     return NextResponse.json({

@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { feedPet } from '@/lib/feeding';
 import { updateChallengeProgress } from '@/lib/engagement';
+import { updateSyncState } from '@/lib/sync';
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,6 +26,11 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       await updateChallengeProgress(userId, 'feed', 1).catch((err) => {
         console.warn('Failed to update feed challenge:', err);
+      });
+
+      // US-025: Update sync state for pet stats
+      await updateSyncState(userId, petId, 'stats', petId, 'web').catch((err) => {
+        console.warn('Failed to update sync state:', err);
       });
     }
 

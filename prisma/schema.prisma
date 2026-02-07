@@ -391,3 +391,44 @@ model BreedingRequest {
   @@index([addresseeId])
   @@index([status])
 }
+
+// US-025: Cross-Platform Pet Sync
+model SyncState {
+  id           String   @id @default(uuid())
+  userId       String
+  petId        String?  // null for user-level sync
+  entityType   String   // 'pet', 'interaction', 'stats', 'memory'
+  entityId     String   // ID of the entity being synced
+  version      Int      @default(1)  // Increments on each update for conflict detection
+  lastSyncedAt DateTime @default(now())
+  platform     String   // 'web', 'ar', 'mobile'
+  deviceId     String?  // Optional device identifier
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, entityType, entityId])
+  @@index([userId])
+  @@index([petId])
+  @@index([entityType])
+  @@index([lastSyncedAt])
+}
+
+model OfflineAction {
+  id          String   @id @default(uuid())
+  userId      String
+  petId       String?
+  actionType  String   // 'feed', 'chat', 'breed', 'recover', 'assign_skill'
+  actionData  String   // JSON string of action parameters
+  status      String   @default("pending") // 'pending', 'synced', 'failed', 'conflict'
+  attempts    Int      @default(0)
+  platform    String   // 'web', 'ar', 'mobile'
+  deviceId    String?
+  createdAt   DateTime @default(now())
+  syncedAt    DateTime?
+  error       String?  // Error message if sync failed
+
+  @@index([userId])
+  @@index([petId])
+  @@index([status])
+  @@index([createdAt])
+}

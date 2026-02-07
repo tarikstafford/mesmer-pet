@@ -79,6 +79,12 @@ const ARPetViewer = dynamic(() => import('@/components/ARPetViewer'), {
   ),
 })
 
+// Dynamically import Sync Status (US-025)
+const SyncStatus = dynamic(() => import('@/components/SyncStatus'), {
+  ssr: false,
+  loading: () => null,
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -1139,6 +1145,9 @@ export default function DashboardPage() {
           }}
         />
       )}
+
+      {/* US-025: Cross-Platform Sync Status */}
+      <SyncStatus userId={user.id} />
     </div>
   )
 }
