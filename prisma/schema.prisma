@@ -70,18 +70,43 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// Placeholder for future user stories
+// US-002: Pet Creation with Genetics Initialization
 model Pet {
   id        String   @id @default(uuid())
   name      String
   userId    String
-  createdAt DateTime @default(now())
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  petTraits PetTrait[]
-  petSkills PetSkill[]
+  // Stats (0-100 scale)
+  health    Int      @default(100)
+  hunger    Int      @default(0)
+  happiness Int      @default(100)
+  energy    Int      @default(100)
+
+  // Personality traits (0-100 scale)
+  friendliness Int    @default(50)
+  energyTrait  Int    @default(50) // renamed from 'energy' to avoid conflict
+  curiosity    Int    @default(50)
+  patience     Int    @default(50)
+  playfulness  Int    @default(50)
+
+  // Genetics and lineage
+  generation   Int    @default(1)
+  parent1Id    String?
+  parent2Id    String?
+
+  // Timestamps
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  lastFedAt    DateTime?
+  lastInteractionAt DateTime?
+
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  petTraits    PetTrait[]
+  petSkills    PetSkill[]
 
   @@index([userId])
+  @@index([parent1Id])
+  @@index([parent2Id])
 }
 
 // US-003: Pet Trait System
