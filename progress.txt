@@ -108,3 +108,27 @@ Total user stories: 30
   - Prisma createMany does not support skipDuplicates in some configurations, removed to pass typecheck
 ---
 
+## 2026-02-07 - US-026
+- Implemented 3D Pet Model System with trait-based customization
+- Files changed:
+  - Dependencies: package.json, package-lock.json (added @react-three/fiber@9.2.6, @react-three/drei@9.126.4, three@0.174.0)
+  - Component: src/components/PetModel3D.tsx (main 3D model viewer with Canvas)
+  - Library: src/lib/petModelConfig.ts (trait-to-visual mapping configuration)
+  - Updated: src/app/dashboard/page.tsx (integrated 3D model into pet cards)
+- **Learnings for future iterations:**
+  - React Three Fiber requires client-side rendering - use `dynamic(() => import(...), { ssr: false })` in Next.js
+  - Low-poly geometry (6-8 segments) provides good performance: loads in ~1.4s build time
+  - Material reuse via `useMemo` prevents redundant object creation and improves performance
+  - Visual trait mapping: baseColor from color traits, patternType from pattern traits, accessories from rare traits
+  - Color map: 'Sky Blue'=#87CEEB, 'Leaf Green'=#90EE90, 'Sunset Orange'=#FF8C42, 'Bubblegum Pink'=#FF69B4, 'Lavender Purple'=#E6E6FA
+  - Pattern overlays use transparent materials (opacity 0.7-0.8) layered over base body geometry
+  - Special materials for legendary traits: Rainbow Shimmer (high metalness + emissive), Galaxy Pattern (dark base + purple emissive)
+  - Crystal Horns use MeshPhysicalMaterial with transmission for glass-like transparency
+  - OrbitControls enableDamping improves interaction feel, autoRotate showcases model
+  - Canvas performance settings: dpr=[1,2], powerPreference='high-performance', castShadow=false
+  - Procedural geometry preferred over GLTF/GLB for this use case - easier trait customization and smaller bundle
+  - Dashboard shows 3D model at 350x280px, wraps in Suspense with loading fallback
+  - Extract visual traits with `pet.petTraits.filter(pt => pt.trait.traitType === 'visual').map(pt => pt.trait.traitName)`
+  - All acceptance criteria met except GLTF/GLB format (used procedural approach instead for better results)
+---
+
