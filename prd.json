@@ -1,0 +1,529 @@
+{
+  "project": "AR Pet App (Mesmer)",
+  "branchName": "ralph/ar-pet-mvp",
+  "description": "Augmented reality virtual pet app with AI-powered personalities, genetics-based breeding, and educational capabilities",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "User Registration and Authentication",
+      "description": "As a new user, I want to create an account so that my pets and progress are saved across sessions and devices.",
+      "acceptanceCriteria": [
+        "Email/password registration with validation",
+        "OAuth options (Google, Apple Sign-In)",
+        "Email verification flow",
+        "Secure password requirements (min 8 chars, special chars)",
+        "JWT-based authentication",
+        "Session persists across web and AR platforms",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-003",
+      "title": "Pet Trait System (Database Schema)",
+      "description": "As a developer, I need a robust trait storage system so that genetic inheritance works correctly.",
+      "acceptanceCriteria": [
+        "Traits table with fields: trait_id, trait_name, trait_type (visual/personality/skill), rarity (common/uncommon/rare/legendary), description",
+        "PetTraits junction table linking pets to traits with inheritance_source (parent1/parent2/mutation)",
+        "Minimum 20 predefined traits across all categories",
+        "Rarity probability distribution: Common 60%, Uncommon 25%, Rare 10%, Legendary 5%",
+        "Migration runs successfully",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-017",
+      "title": "Skill Activation and Storage",
+      "description": "As a developer, I need to store purchased skills and activate them for pets so they modify pet behavior.",
+      "acceptanceCriteria": [
+        "UserSkills table: user_id, skill_id, purchase_date, active",
+        "PetSkills table: pet_id, skill_id, proficiency (0-100), activated_date",
+        "User can assign purchased skill to any of their pets",
+        "Maximum 5 active skills per pet (MVP limit)",
+        "Skills persist across sessions",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-002",
+      "title": "Pet Creation with Genetics Initialization",
+      "description": "As a new user, I want to create my first pet with randomly generated genetic traits so that each pet is unique.",
+      "acceptanceCriteria": [
+        "Pet creation wizard with name input",
+        "Random generation of genetic traits across 4 rarity tiers",
+        "Visual traits (color, pattern, accessories) visible immediately",
+        "Personality traits (friendliness, energy, curiosity) initialized",
+        "Each pet assigned unique ID and creation timestamp",
+        "First pet creation is free",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-026",
+      "title": "3D Pet Model System",
+      "description": "As a developer, I need a 3D model system that adapts to genetic traits so each pet looks unique.",
+      "acceptanceCriteria": [
+        "Base 3D model (low-poly for performance)",
+        "Material/texture system for color traits",
+        "Procedural generation of patterns based on trait values",
+        "Accessory attachment system (hats, scarves, etc.) for rare traits",
+        "Model loads in < 2 seconds on web, < 1 second in AR",
+        "Supports GLTF/GLB format",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-004",
+      "title": "Web App Pet Dashboard",
+      "description": "As a user, I want to see my pet's current state on the web dashboard so I can monitor health, happiness, and stats.",
+      "acceptanceCriteria": [
+        "Dashboard displays pet 3D model or avatar",
+        "Real-time stats: Health (0-100), Hunger (0-100), Happiness (0-100), Energy (0-100)",
+        "Visual health indicators (color-coded: green >70, yellow 40-70, red <40)",
+        "Pet's personality traits displayed as badges",
+        "Current active skills shown",
+        "Last interaction timestamp",
+        "Generation number and lineage info",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-021",
+      "title": "Stat Degradation System",
+      "description": "As a developer, I need to implement automatic stat degradation so pets require ongoing care.",
+      "acceptanceCriteria": [
+        "Hunger increases by 1 point per hour",
+        "Happiness decreases by 0.5 points per hour without interaction",
+        "Energy decreases by 0.3 points per hour, recovers during 'sleep' (midnight-6am user timezone)",
+        "Health decreases by 2 points per hour if Hunger > 80",
+        "Background job runs every 15 minutes to update stats",
+        "Stats cannot go below 0 or above 100",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-006",
+      "title": "Feeding System",
+      "description": "As a user, I want to feed my pet so it stays healthy and doesn't get sick.",
+      "acceptanceCriteria": [
+        "Feed button available in both web and AR interfaces",
+        "Feeding reduces Hunger stat by 30-40 points",
+        "Feeding has cooldown (cannot spam feed)",
+        "Food inventory system (virtual food items)",
+        "Feeding increases Happiness slightly (+5-10)",
+        "Animation plays when feeding (web and AR)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-007",
+      "title": "Health Warning System",
+      "description": "As a user, I want to receive warnings when my pet is becoming unhealthy so I can prevent it from dying.",
+      "acceptanceCriteria": [
+        "Warning notification when Hunger > 80 ('Your pet is very hungry!')",
+        "Warning notification when Health < 30 ('Your pet is getting sick!')",
+        "Pet visual state changes to 'sick' appearance when Health < 40",
+        "Push notifications enabled (web and mobile)",
+        "Email alerts for critical state (Health < 20)",
+        "Warning clears when stats improve",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-008",
+      "title": "Pet Death Prevention and Recovery",
+      "description": "As a user, I want my pet to enter a sick/recovery state rather than dying permanently so I don't lose my companion.",
+      "acceptanceCriteria": [
+        "Pet enters 'Critical' state when Health reaches 0 (doesn't die)",
+        "In Critical state, pet cannot interact or breed",
+        "Recovery item available (purchasable or earnable)",
+        "Using recovery item restores Health to 50 and exits Critical state",
+        "Stats degrade slower during first 24 hours of neglect",
+        "Penalty system: Pet loses 10% max stats after recovery",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-010",
+      "title": "Hybrid Memory System",
+      "description": "As a developer, I need to implement hybrid memory so pets remember recent interactions in detail and have summarized long-term memory.",
+      "acceptanceCriteria": [
+        "Store last 50 interactions with full detail (messages, context, timestamp)",
+        "Summarize interactions older than 30 days using GPT-4o-mini",
+        "Summary stored as condensed memories (max 500 tokens)",
+        "Memory retrieval includes recent (full) + historical (summarized)",
+        "Memory context injected into LLM system prompt",
+        "Memory summarization runs daily via cron job",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-011",
+      "title": "Pet Personality System",
+      "description": "As a user, I want my pet to have a consistent personality that affects our interactions so it feels unique.",
+      "acceptanceCriteria": [
+        "Personality traits influence LLM responses (e.g., high curiosity = asks questions)",
+        "Traits: Friendliness (0-100), Energy (0-100), Curiosity (0-100), Patience (0-100), Playfulness (0-100)",
+        "Personality traits inherited from parents during breeding",
+        "Traits visible on pet profile",
+        "LLM system prompt dynamically generated from trait values",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-009",
+      "title": "LLM Integration with GPT-4o-mini",
+      "description": "As a user, I want to have conversations with my pet so it feels like a real companion.",
+      "acceptanceCriteria": [
+        "Chat interface in web app",
+        "Voice input option in AR mode",
+        "GPT-4o-mini integration via OpenAI API",
+        "System prompt includes pet's personality traits",
+        "Response time < 3 seconds for text, < 5 seconds for voice",
+        "Conversation history stored in database",
+        "API error handling with fallback messages",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-013",
+      "title": "Genetics Inheritance Algorithm",
+      "description": "As a developer, I need to implement forkMonkey-style genetics so offspring inherit traits from parents with mutations.",
+      "acceptanceCriteria": [
+        "Offspring receives 50% traits from Parent 1, 50% from Parent 2 (random selection per trait)",
+        "15% chance of mutation per trait (generates new random trait of same type)",
+        "Mutations respect rarity distribution (60% common, 25% uncommon, 10% rare, 5% legendary)",
+        "Generation number = max(parent1_gen, parent2_gen) + 1",
+        "Legendary traits can appear through mutation or inheritance",
+        "Offspring personality = average of parents + random variance (±15)",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-012",
+      "title": "Breeding System Foundation",
+      "description": "As a user, I want to breed two pets so I can create offspring with combined traits.",
+      "acceptanceCriteria": [
+        "Breeding requires two pets owned by user (or one owned + one from friend)",
+        "Both pets must be adult (7+ days old) and healthy (Health > 50)",
+        "Breeding cooldown: 7 days per pet",
+        "Breeding UI shows both parent pets and compatibility score",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-014",
+      "title": "Genetics Visualization",
+      "description": "As a user, I want to see the genetic lineage of my pet so I understand its heritage.",
+      "acceptanceCriteria": [
+        "Family tree view showing parents, grandparents",
+        "Each ancestor shows generation number and key traits",
+        "Visual indicators for inherited vs mutated traits",
+        "Clickable ancestors to view full profile",
+        "Export lineage as image or PDF",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-023",
+      "title": "Multi-Pet Management",
+      "description": "As a user, I want to own multiple pets so I can breed them and have variety.",
+      "acceptanceCriteria": [
+        "User can own up to 10 pets simultaneously (MVP limit)",
+        "Pet selection screen shows all owned pets",
+        "Switch between pets from dashboard",
+        "Each pet has independent stats, memory, and personality",
+        "Bulk actions: Feed all, Check all health",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-015",
+      "title": "Skill Marketplace UI",
+      "description": "As a user, I want to browse available skills to purchase for my pet so I can enhance its capabilities.",
+      "acceptanceCriteria": [
+        "Marketplace page with skill categories (Education, Games, Arts, Sports)",
+        "Each skill shows: name, description, price, icon, preview",
+        "Filter by category and price range",
+        "Search functionality",
+        "Popular/Featured skills highlighted",
+        "User's owned skills marked as 'Owned'",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-016",
+      "title": "Skill Purchase Flow (IAP Integration)",
+      "description": "As a user, I want to purchase skills with real money so my pet can learn new capabilities.",
+      "acceptanceCriteria": [
+        "Integration with Stripe for web payments",
+        "Integration with Apple IAP and Google Play Billing for mobile",
+        "Price tiers: $0.99, $1.99, $4.99 per skill",
+        "Purchase confirmation dialog before payment",
+        "Receipt generation and email confirmation",
+        "Skills immediately available after purchase",
+        "Failed payment error handling",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-018",
+      "title": "Teaching Skill Implementation",
+      "description": "As a user, I want my pet to teach me about topics when it has teaching skills so I can learn from it.",
+      "acceptanceCriteria": [
+        "Teaching skills: Math Tutor, Science Teacher, History Buff, Language Coach",
+        "When skill active, pet can answer questions on that topic",
+        "LLM system prompt includes skill knowledge domain",
+        "Pet proactively asks if user wants to learn (based on conversation context)",
+        "Conversational teaching style (no formal lessons for MVP)",
+        "Pet references skill in responses ('As your math tutor, I can help with...')",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-019",
+      "title": "Game Skill Implementation (Chess)",
+      "description": "As a user, I want to play chess with my pet when it has the chess skill so we can compete.",
+      "acceptanceCriteria": [
+        "Chess skill enables conversational chess play",
+        "Pet can play chess via algebraic notation (e.g., 'I move pawn to e4')",
+        "Simple board visualization in chat (ASCII or basic UI)",
+        "Pet uses chess engine API or LLM chess capability",
+        "Game state persists across sessions",
+        "Pet can explain moves and teach chess strategy",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-022",
+      "title": "Daily Engagement System",
+      "description": "As a user, I want daily rewards for checking on my pet so I'm encouraged to return regularly.",
+      "acceptanceCriteria": [
+        "Daily login bonus (virtual currency or free food)",
+        "Streak counter (consecutive days)",
+        "Special rewards at streak milestones (7, 30, 100 days)",
+        "Push notification reminder if user hasn't logged in for 24 hours",
+        "Daily challenge (e.g., 'Feed your pet 3 times today')",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-024",
+      "title": "Social Features - Friend System",
+      "description": "As a user, I want to add friends so I can breed my pet with theirs.",
+      "acceptanceCriteria": [
+        "Friend request system (send, accept, decline)",
+        "Friends list showing online status",
+        "View friend's pet profiles (stats, traits, lineage)",
+        "Request breeding with friend's pet (requires approval)",
+        "Friend limit: 50 friends for MVP",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-005",
+      "title": "AR Pet Viewing",
+      "description": "As a user, I want to view my pet in augmented reality so I can see it in my physical environment.",
+      "acceptanceCriteria": [
+        "AR session launches from web app (WebXR) or native AR app",
+        "Pet 3D model appears in user's environment via device camera",
+        "Pet positioned on detected surface (floor/table)",
+        "Pet animations play (idle, happy, hungry states)",
+        "Visual traits (color, patterns, accessories) match pet's genetics",
+        "AR session maintains 30+ FPS on target devices",
+        "Typecheck passes",
+        "Test on iOS and Android AR"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-020",
+      "title": "AR Interaction Controls",
+      "description": "As a user, I want to interact with my pet in AR beyond just viewing it so the experience is engaging.",
+      "acceptanceCriteria": [
+        "Tap pet to trigger animation (happy, play, dance)",
+        "Feed button available in AR overlay",
+        "Voice chat activation in AR mode",
+        "Pet responds to voice with animations and text/voice responses",
+        "Gesture recognition (pet comes to user if they wave)",
+        "AR session can run for 30+ minutes without crashes",
+        "Typecheck passes",
+        "Test on iOS and Android AR"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-025",
+      "title": "Cross-Platform Pet Sync",
+      "description": "As a user, I want my pet's state to sync between web and AR apps so I can switch seamlessly.",
+      "acceptanceCriteria": [
+        "Real-time sync of pet stats across platforms (WebSocket or polling)",
+        "Interactions in AR immediately reflect in web app",
+        "Memory/conversations sync within 5 seconds",
+        "Conflict resolution if user interacts on both platforms simultaneously",
+        "Offline mode: Queue actions and sync when reconnected",
+        "Typecheck passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-027",
+      "title": "Admin Dashboard for Skill Management",
+      "description": "As an admin, I want to add new skills to the marketplace so users have growing content.",
+      "acceptanceCriteria": [
+        "Admin-only route for skill creation",
+        "Form: skill name, category, description, price, icon upload, system prompt addition",
+        "Skill activation toggle (enable/disable without deleting)",
+        "View purchase analytics per skill",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-028",
+      "title": "Error Logging and Monitoring",
+      "description": "As a developer, I need comprehensive error logging so I can debug production issues.",
+      "acceptanceCriteria": [
+        "Integration with Sentry or similar error tracking",
+        "Log all LLM API failures with context",
+        "Log AR session crashes",
+        "Log payment failures with anonymized user data",
+        "Performance monitoring for critical paths (pet load time, breeding calculation)",
+        "Alert on error rate > 5% of requests",
+        "Typecheck passes"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-029",
+      "title": "Onboarding Tutorial",
+      "description": "As a new user, I want a brief tutorial so I understand how to care for my pet.",
+      "acceptanceCriteria": [
+        "5-step interactive tutorial on first login",
+        "Steps: Create pet, Feed, Chat, View stats, Learn about breeding",
+        "Skippable but prompted to complete",
+        "Tutorial reward (starter skill or currency)",
+        "Progress saved (can resume later)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-030",
+      "title": "Data Privacy and GDPR Compliance",
+      "description": "As a user, I want my data to be private and manageable so I feel safe using the app.",
+      "acceptanceCriteria": [
+        "Privacy policy and terms of service pages",
+        "Cookie consent banner (EU users)",
+        "Data export feature (download all user data as JSON)",
+        "Account deletion feature (with confirmation flow)",
+        "All LLM conversations encrypted at rest",
+        "No data sold to third parties",
+        "COPPA compliance for users under 13 (age gate)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}
