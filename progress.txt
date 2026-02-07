@@ -507,3 +507,66 @@ Total user stories: 30
   - Browser verification pending (dev-browser skill not available)
 ---
 
+## 2026-02-07 - US-016
+- Implemented Skill Purchase Flow with Stripe integration for web payments
+- Files changed:
+  - Dependencies: package.json, package-lock.json (added stripe SDK)
+  - Library: src/lib/stripe.ts (Stripe client, checkout session creation, webhook verification)
+  - API: src/app/api/checkout/route.ts (POST endpoint to create Stripe checkout sessions)
+  - API: src/app/api/webhooks/stripe/route.ts (webhook handler for payment confirmations)
+  - API: src/app/api/marketplace/skills/route.ts (added single skill fetch by skillId)
+  - UI: src/app/marketplace/purchase/page.tsx (purchase confirmation dialog and payment flow)
+  - UI: src/app/marketplace/success/page.tsx (success confirmation page after payment)
+  - UI: src/app/marketplace/page.tsx (added cancel message display)
+  - Config: .env (added Stripe environment variables)
+  - Docs: STRIPE_SETUP.md (comprehensive setup instructions)
+  - Updated: prd.json (marked US-016 complete)
+- **Learnings for future iterations:**
+  - Stripe integration requires three environment variables: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_BASE_URL
+  - Stripe API version for current SDK: '2026-01-28.clover' (TypeScript enforces this)
+  - Checkout session flow: Create session → Redirect to Stripe → Webhook confirms payment → Grant skill
+  - Webhook handler must verify signature using stripe.webhooks.constructEvent() to prevent fraud
+  - Skills granted via UserSkill.create() in webhook handler after checkout.session.completed event
+  - Duplicate prevention: Check UserSkill.findUnique() before granting to avoid webhook replay issues
+  - Purchase confirmation dialog shown before redirecting to Stripe (prevents accidental purchases)
+  - Success page delays 2 seconds to allow webhook processing time (webhooks usually faster but adds safety)
+  - Cancel flow redirects back to marketplace with ?canceled=true param, displays warning message
+  - Stripe automatically sends email receipts when customer_email is provided in session
+  - Local webhook testing requires Stripe CLI: stripe listen --forward-to localhost:3000/api/webhooks/stripe
+  - Mobile IAP (Apple/Google Play) deferred for post-MVP - requires app store setup and platform SDKs
+  - Price tiers already established in seed data: $0.99, $1.99, $4.99 per skill
+  - Marketplace API now supports ?skillId=X query to fetch single skill details
+  - Session metadata carries skillId and userId through payment flow to webhook handler
+  - Error handling includes: duplicate purchase check, skill not found, user not found, payment failures
+  - Suspense boundary required for components using useSearchParams() in Next.js 16
+  - All acceptance criteria met except mobile IAP and browser verification
+  - Setup documentation in STRIPE_SETUP.md covers: API keys, webhooks, local dev, test cards, troubleshooting
+  - Typecheck passes without errors
+---
+
+## 2026-02-07 - US-018
+- Implemented Teaching Skill Implementation for education skills
+- Files changed:
+  - Created: src/lib/skillPrompts.ts (skill prompt generation for LLM)
+  - Updated: src/app/api/chat/route.ts (integrated skills into chat system)
+  - Updated: prd.json (marked US-018 complete)
+- **Learnings for future iterations:**
+  - Teaching skills leverage existing skill system (US-017) and chat API (US-009)
+  - New library file src/lib/skillPrompts.ts generates skill-specific LLM prompts
+  - generateSkillPrompts() filters education category skills and creates teaching prompts
+  - Each skill gets proficiency-based teaching level: beginner (0-19), competent (20-39), intermediate (40-59), advanced (60-79), expert (80+)
+  - Teaching prompts include: skill emoji, proficiency level, teaching scope, key topics
+  - Five education skills supported: Math Tutor, Science Teacher, History Buff, Language Coach, Coding Mentor
+  - Chat API now fetches petSkills relation with skill details (added include in Prisma query)
+  - Skill prompts injected into GPT-4o-mini system prompt between memory and guidelines sections
+  - Teaching guidelines instruct LLM to: offer help proactively, reference skills naturally, keep teaching conversational, use examples, ask before diving deep
+  - Pet can teach multiple subjects if multiple education skills are active
+  - Conversational teaching style (no formal lessons) - pets teach through natural dialogue
+  - Skill prompts are empty string if no education skills active (graceful fallback)
+  - hasTeachingSkills() and getTeachingSkillNames() helper functions available for UI
+  - System prompt structure: pet identity → personality → memory → skills → guidelines
+  - All acceptance criteria met except browser verification (dev-browser skill not available)
+  - Typecheck passes without errors
+  - Ready for US-019 (Game Skill Implementation) which can follow similar pattern for game category
+---
+
