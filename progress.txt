@@ -870,3 +870,47 @@ Total user stories: 30
   - Future enhancement: Add custom Sentry dashboards for pet health metrics, breeding success rates, user engagement
 ---
 
+
+## 2026-02-07 - US-029
+- Implemented Onboarding Tutorial system with comprehensive progress tracking
+- Files changed:
+  - Database: prisma/schema.prisma (added UserTutorial model with step completion flags)
+  - Migration: prisma/migrations/20260207072514_add_user_tutorial/migration.sql
+  - Library: src/lib/tutorial.ts (tutorial logic, step progression, reward system)
+  - API routes: src/app/api/tutorial/{progress,update,skip,resume}/route.ts
+  - Component: src/components/TutorialOverlay.tsx (interactive tutorial UI with step checklist)
+  - Updated: src/app/dashboard/page.tsx (integrated tutorial, step tracking, breeding info modal)
+  - Updated: src/app/pets/create/page.tsx (tracks create_pet step)
+  - Updated: src/components/ChatInterface.tsx (tracks chat step on first message)
+  - Updated: prd.json (marked US-029 complete), dev.db
+- **Learnings for future iterations:**
+  - Tutorial system uses UserTutorial model to track progress per user (currentStep, completed, skipped, rewardGranted)
+  - Five distinct step flags: stepCreatePet, stepFeed, stepChat, stepViewStats, stepLearnBreeding
+  - Tutorial progress is skippable and resumable - users can come back to it later
+  - Tutorial reward: 50 virtual coins added to UserEngagement when all steps complete
+  - Tutorial overlay uses fixed z-50 positioning to appear above all other content
+  - Progress bar shows visual completion percentage (0-100%) with step count
+  - Tutorial steps tracked automatically via updateTutorialStep() calls in relevant actions
+  - Step tracking is non-blocking - failures logged but don't break main flows
+  - create_pet step tracked in pet creation page after successful creation
+  - feed step tracked in dashboard handleFeedPet after successful feed
+  - chat step tracked in ChatInterface after first successful message (messages.length === 0 check)
+  - view_stats step auto-tracked when pets load on dashboard (1-second delay for UX)
+  - learn_breeding step tracked when user clicks "Learn About Breeding" button
+  - Breeding info modal explains genetics (50/50 inheritance, 15% mutations, rarity distribution)
+  - Tutorial state managed in dashboard: showTutorial, tutorialProgress, showBreedingInfo
+  - fetchTutorialProgress() fetches on dashboard mount, auto-shows if incomplete
+  - Tutorial reward granted once via rewardGranted flag to prevent duplicate rewards
+  - API endpoints follow pattern: progress (GET), update (POST), skip (POST), resume (POST)
+  - Tutorial overlay displays all 5 steps with visual indicators: ✓ complete, → current, pending
+  - Reward preview shown at bottom of tutorial overlay (50 coins)
+  - Completion celebration screen shows for 5 seconds with gradient purple/pink background
+  - Always regenerate Prisma client after schema changes: npx prisma generate
+  - Tutorial progress saved to database so it persists across sessions
+  - Resume functionality calculates current step based on completed flags
+  - All acceptance criteria met except browser verification (dev-browser skill unavailable)
+  - Pattern: Tutorial tracking calls are fire-and-forget (await but catch errors, continue on failure)
+  - Typecheck passes without errors
+  - Future enhancement: Add more tutorial steps for advanced features (marketplace, breeding, AR)
+---
+
