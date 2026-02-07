@@ -15,6 +15,16 @@ const PetModel3D = dynamic(() => import('@/components/PetModel3D'), {
   ),
 })
 
+// Dynamically import Chat Interface
+const ChatInterface = dynamic(() => import('@/components/ChatInterface'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-64 flex items-center justify-center bg-gray-100 rounded-lg">
+      <div className="text-gray-400">Loading chat...</div>
+    </div>
+  ),
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -91,6 +101,7 @@ export default function DashboardPage() {
   const [errorMessage, setErrorMessage] = useState('')
   const [recoveringPetId, setRecoveringPetId] = useState<string | null>(null) // US-008
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]) // US-008
+  const [chatOpenPetId, setChatOpenPetId] = useState<string | null>(null) // US-009
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -553,6 +564,30 @@ export default function DashboardPage() {
                     {feedingPetId === pet.id ? 'Feeding...' : pet.isCritical ? '❌ Cannot Feed (Critical)' : '🍖 Feed Pet'}
                   </button>
                 </div>
+
+                {/* Chat Interface - US-009 */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => setChatOpenPetId(chatOpenPetId === pet.id ? null : pet.id)}
+                    disabled={pet.isCritical}
+                    className={`w-full px-4 py-3 rounded-lg font-semibold transition ${
+                      pet.isCritical
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : chatOpenPetId === pet.id
+                        ? 'bg-gray-600 text-white hover:bg-gray-700'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                    title={pet.isCritical ? 'Pet must be recovered before chatting' : ''}
+                  >
+                    {pet.isCritical ? '❌ Cannot Chat (Critical)' : chatOpenPetId === pet.id ? '▼ Close Chat' : '💬 Chat with ' + pet.name}
+                  </button>
+                </div>
+
+                {chatOpenPetId === pet.id && user && (
+                  <div className="mt-4">
+                    <ChatInterface petId={pet.id} petName={pet.name} userId={user.id} />
+                  </div>
+                )}
 
                 {/* Visual Traits */}
                 <div className="border-t pt-4 mt-4">
