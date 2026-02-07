@@ -157,12 +157,15 @@ model Skill {
   category    String   // 'education', 'games', 'arts', 'sports'
   description String
   price       Float    // Price in USD
+  featured    Boolean  @default(false) // US-015: Featured/Popular skills
+  icon        String?  // US-015: Skill icon (emoji or URL)
   createdAt   DateTime @default(now())
 
   userSkills  UserSkill[]
   petSkills   PetSkill[]
 
   @@index([category])
+  @@index([featured])
 }
 
 model UserSkill {

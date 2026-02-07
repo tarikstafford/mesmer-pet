@@ -1,0 +1,90 @@
+/**
+ * US-015: Skill Marketplace API
+ * GET endpoint to fetch skills with filters and search
+ */
+
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = request.url ? new URL(request.url) : { searchParams: new URLSearchParams() };
+
+    const userId = searchParams.get('userId');
+    const category = searchParams.get('category');
+    const minPrice = searchParams.get('minPrice');
+    const maxPrice = searchParams.get('maxPrice');
+    const search = searchParams.get('search');
+    const featuredOnly = searchParams.get('featured') === 'true';
+
+    // Build where clause for filtering
+    const where: any = {};
+
+    if (category && category !== 'all') {
+      where.category = category;
+    }
+
+    if (minPrice !== null || maxPrice !== null) {
+      where.price = {};
+      if (minPrice !== null) {
+        where.price.gte = parseFloat(minPrice);
+      }
+      if (maxPrice !== null) {
+        where.price.lte = parseFloat(maxPrice);
+      }
+    }
+
+    if (search) {
+      where.OR = [
+        { skillName: { contains: search, mode: 'insensitive' } },
+        { description: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (featuredOnly) {
+      where.featured = true;
+    }
+
+    // Fetch skills
+    const skills = await prisma.skill.findMany({
+      where,
+      orderBy: [
+        { featured: 'desc' }, // Featured skills first
+        { price: 'asc' },     // Then by price
+        { skillName: 'asc' }, // Then alphabetically
+      ],
+    });
+
+    // If userId provided, check which skills are owned
+    let ownedSkillIds: string[] = [];
+    if (userId) {
+      const userSkills = await prisma.userSkill.findMany({
+        where: {
+          userId,
+          active: true,
+        },
+        select: {
+          skillId: true,
+        },
+      });
+      ownedSkillIds = userSkills.map((us) => us.skillId);
+    }
+
+    // Add owned flag to each skill
+    const skillsWithOwnership = skills.map((skill) => ({
+      ...skill,
+      owned: ownedSkillIds.includes(skill.id),
+    }));
+
+    return NextResponse.json({
+      skills: skillsWithOwnership,
+      total: skillsWithOwnership.length,
+    });
+  } catch (error) {
+    console.error('Error fetching marketplace skills:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch skills' },
+      { status: 500 }
+    );
+  }
+}

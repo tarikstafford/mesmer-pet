@@ -76,6 +76,157 @@ const recoveryItems = [
   },
 ];
 
+// US-015: Predefined Skills for Marketplace
+const predefinedSkills = [
+  // Education Skills
+  {
+    skillName: 'Math Tutor',
+    category: 'education',
+    description: 'Your pet becomes an expert math tutor, helping you solve problems from basic arithmetic to advanced calculus.',
+    price: 1.99,
+    featured: true,
+  },
+  {
+    skillName: 'Science Teacher',
+    category: 'education',
+    description: 'Unlock your pet\'s knowledge of biology, chemistry, and physics. Perfect for homework help and curious minds.',
+    price: 1.99,
+    featured: false,
+  },
+  {
+    skillName: 'History Buff',
+    category: 'education',
+    description: 'Your pet can discuss historical events, civilizations, and important figures from all eras.',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Language Coach',
+    category: 'education',
+    description: 'Learn new languages with your pet! Supports Spanish, French, German, Mandarin, and more.',
+    price: 1.99,
+    featured: false,
+  },
+  {
+    skillName: 'Coding Mentor',
+    category: 'education',
+    description: 'Your pet can teach programming concepts, debug code, and explain algorithms in simple terms.',
+    price: 4.99,
+    featured: true,
+  },
+
+  // Games Skills
+  {
+    skillName: 'Chess Master',
+    category: 'games',
+    description: 'Play chess with your pet! It can teach strategies, explain moves, and play at any skill level.',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Trivia Expert',
+    category: 'games',
+    description: 'Challenge your pet to trivia battles across countless categories. New questions daily!',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Story Weaver',
+    category: 'games',
+    description: 'Create interactive stories together. Your pet will improvise adventures based on your choices.',
+    price: 1.99,
+    featured: true,
+  },
+  {
+    skillName: 'Riddle Master',
+    category: 'games',
+    description: 'Your pet will challenge you with clever riddles and brain teasers. Can you solve them all?',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Word Games Pro',
+    category: 'games',
+    description: 'Play word association, rhyme games, and vocabulary challenges with your pet.',
+    price: 0.99,
+    featured: false,
+  },
+
+  // Arts Skills
+  {
+    skillName: 'Creative Writing Coach',
+    category: 'arts',
+    description: 'Get feedback on your writing, brainstorm ideas, and learn storytelling techniques from your pet.',
+    price: 1.99,
+    featured: false,
+  },
+  {
+    skillName: 'Poetry Composer',
+    category: 'arts',
+    description: 'Your pet can write poems on any topic, explain poetic forms, and help you craft your own verses.',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Music Theory Guide',
+    category: 'arts',
+    description: 'Learn about music theory, chord progressions, and composition from your musically-inclined pet.',
+    price: 1.99,
+    featured: false,
+  },
+  {
+    skillName: 'Art Critic',
+    category: 'arts',
+    description: 'Discuss art history, analyze famous works, and get thoughtful feedback on your creative projects.',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Drawing Assistant',
+    category: 'arts',
+    description: 'Get step-by-step drawing tutorials, tips on shading and perspective, and artistic inspiration.',
+    price: 1.99,
+    featured: true,
+  },
+
+  // Sports Skills
+  {
+    skillName: 'Fitness Coach',
+    category: 'sports',
+    description: 'Your pet becomes your personal trainer! Get workout plans, motivation, and exercise tips.',
+    price: 1.99,
+    featured: true,
+  },
+  {
+    skillName: 'Yoga Instructor',
+    category: 'sports',
+    description: 'Learn yoga poses, breathing techniques, and mindfulness practices from your zen pet.',
+    price: 1.99,
+    featured: false,
+  },
+  {
+    skillName: 'Sports Analyst',
+    category: 'sports',
+    description: 'Discuss game strategies, player stats, and sports history across all major sports leagues.',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Running Buddy',
+    category: 'sports',
+    description: 'Track your runs, get pacing advice, and stay motivated with your supportive running companion.',
+    price: 0.99,
+    featured: false,
+  },
+  {
+    skillName: 'Nutrition Guide',
+    category: 'sports',
+    description: 'Learn about healthy eating, meal planning, and sports nutrition from your health-conscious pet.',
+    price: 1.99,
+    featured: false,
+  },
+];
+
 async function main() {
   console.log('🌱 Starting seed...');
 
@@ -86,6 +237,10 @@ async function main() {
   // US-008: Clear existing recovery items
   await prisma.recoveryItem.deleteMany({});
   console.log('🧹 Cleared existing recovery items');
+
+  // US-015: Clear existing skills
+  await prisma.skill.deleteMany({});
+  console.log('🧹 Cleared existing skills');
 
   // Insert predefined traits
   for (const trait of predefinedTraits) {
@@ -105,6 +260,15 @@ async function main() {
 
   console.log(`✅ Created ${recoveryItems.length} recovery items`);
 
+  // US-015: Insert predefined skills
+  for (const skill of predefinedSkills) {
+    await prisma.skill.create({
+      data: skill,
+    });
+  }
+
+  console.log(`✅ Created ${predefinedSkills.length} skills`);
+
   // Verify rarity distribution
   const rarityCount = await prisma.trait.groupBy({
     by: ['rarity'],
@@ -115,6 +279,18 @@ async function main() {
   rarityCount.forEach((item) => {
     const percentage = ((item._count / predefinedTraits.length) * 100).toFixed(1);
     console.log(`  ${item.rarity}: ${item._count} (${percentage}%)`);
+  });
+
+  // Verify skill category distribution
+  const categoryCount = await prisma.skill.groupBy({
+    by: ['category'],
+    _count: true,
+  });
+
+  console.log('\n📚 Skill Category Distribution:');
+  categoryCount.forEach((item) => {
+    const percentage = ((item._count / predefinedSkills.length) * 100).toFixed(1);
+    console.log(`  ${item.category}: ${item._count} (${percentage}%)`);
   });
 
   console.log('\n🎉 Seed completed successfully!');

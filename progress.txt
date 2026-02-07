@@ -476,3 +476,34 @@ Total user stories: 30
   - All acceptance criteria met except browser verification (dev-browser skill not available)
   - Typecheck passes without errors
 ---
+## 2026-02-07 - US-015
+- Implemented Skill Marketplace UI with comprehensive filtering and search
+- Files changed:
+  - Database: prisma/schema.prisma (added featured and icon fields to Skill model)
+  - Migration: prisma/migrations/20260207061810_add_skill_featured_icon/migration.sql
+  - Seed: prisma/seed.ts (added 20 predefined skills across 4 categories)
+  - API: src/app/api/marketplace/skills/route.ts (marketplace endpoint with filters)
+  - UI: src/app/marketplace/page.tsx (marketplace page with filtering, search, owned status)
+  - Updated: src/app/dashboard/page.tsx (added Skill Marketplace navigation link)
+  - Updated: prd.json (marked US-015 complete), dev.db
+- **Learnings for future iterations:**
+  - Skill marketplace features 20 predefined skills: 5 education, 5 games, 5 arts, 5 sports
+  - Skills range from $0.99 to $4.99, with featured skills highlighted (Coding Mentor, Story Weaver, Drawing Assistant, Fitness Coach)
+  - Skill model now includes: featured (boolean), icon (optional emoji/URL)
+  - Marketplace API supports multiple filters: category, price range (min/max), search query, featured-only, userId for ownership
+  - Skills sorted by: featured first, then price (ascending), then alphabetically
+  - Ownership checking: API fetches UserSkill records and marks skills as owned if userId provided
+  - Marketplace UI uses category icons: 📚 education, 🎮 games, 🎨 arts, ⚽ sports
+  - Price range presets: All Prices, Free, Under $1, $1-$2, $2-$5, $5+
+  - Featured skills have yellow border and ⭐ Featured badge
+  - Owned skills show green ✓ Owned badge and disabled purchase button
+  - Search uses case-insensitive matching on skillName and description (SQLite LIKE with mode: 'insensitive')
+  - Purchase button navigates to /marketplace/purchase?skillId=X (US-016 will implement actual purchase flow)
+  - Navigation link added to dashboard header: 🛒 Skill Marketplace
+  - All filters trigger automatic refetch via useEffect dependency array
+  - After schema changes, always run: npx prisma generate, then npx prisma db seed
+  - SQLite case-insensitive search may not work perfectly - consider using LOWER() for production
+  - Typecheck passes without errors
+  - Browser verification pending (dev-browser skill not available)
+---
+

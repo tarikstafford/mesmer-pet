@@ -483,6 +483,12 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-purple-600">Mesmer</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Link
+                href="/marketplace"
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+              >
+                🛒 Skill Marketplace
+              </Link>
               <span className="text-gray-700">Welcome, {user.name || user.email}!</span>
               <button
                 onClick={handleLogout}
