@@ -106,6 +106,7 @@ model Pet {
   lastFedAt         DateTime?
   lastInteractionAt DateTime?
   lastStatUpdate    DateTime @default(now()) // US-021: Track last stat degradation calculation
+  lastBredAt        DateTime?                // US-012: Track breeding cooldown
 
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   petTraits    PetTrait[]

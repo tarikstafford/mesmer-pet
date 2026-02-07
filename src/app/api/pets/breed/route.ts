@@ -93,6 +93,19 @@ export async function POST(req: NextRequest) {
     // Breed the pets
     const offspring = await breedPets(parent1, parent2, userId, offspringName);
 
+    // Update lastBredAt for both parents
+    const now = new Date();
+    await Promise.all([
+      prisma.pet.update({
+        where: { id: parent1.id },
+        data: { lastBredAt: now },
+      }),
+      prisma.pet.update({
+        where: { id: parent2.id },
+        data: { lastBredAt: now },
+      }),
+    ]);
+
     return NextResponse.json({
       message: 'Breeding successful!',
       offspring,

@@ -224,6 +224,38 @@ export async function breedPets(
 }
 
 /**
+ * Calculate compatibility score between two pets (0-100)
+ * Based on personality similarities, health, and generation difference
+ */
+export function calculateCompatibility(pet1: Pet, pet2: Pet): number {
+  // Personality similarity (higher similarity = better compatibility)
+  const personalityDiff =
+    Math.abs(pet1.friendliness - pet2.friendliness) +
+    Math.abs(pet1.energyTrait - pet2.energyTrait) +
+    Math.abs(pet1.curiosity - pet2.curiosity) +
+    Math.abs(pet1.patience - pet2.patience) +
+    Math.abs(pet1.playfulness - pet2.playfulness);
+
+  // Normalize to 0-100 (max diff is 500, so we invert and scale)
+  const personalityScore = Math.max(0, 100 - (personalityDiff / 5));
+
+  // Health score (average of both pets' health)
+  const healthScore = (pet1.health + pet2.health) / 2;
+
+  // Generation difference penalty (breeding across generations is less ideal)
+  const generationDiff = Math.abs(pet1.generation - pet2.generation);
+  const generationPenalty = Math.max(0, 20 - (generationDiff * 5));
+
+  // Weighted average: 40% personality, 40% health, 20% generation
+  const compatibilityScore =
+    (personalityScore * 0.4) +
+    (healthScore * 0.4) +
+    (generationPenalty * 0.2);
+
+  return Math.round(compatibilityScore);
+}
+
+/**
  * Validate if two pets can breed
  */
 export function canBreed(
@@ -253,8 +285,18 @@ export function canBreed(
   }
 
   // Check breeding cooldown (7 days since last breeding)
-  // Note: This would require tracking last breeding time, which we'll add in US-012
-  // For now, we'll skip this check as the database schema doesn't have this field yet
+  const sevenDaysCooldown = 7 * 24 * 60 * 60 * 1000;
+  const cooldownTime = new Date(currentTime.getTime() - sevenDaysCooldown);
+
+  if (pet1.lastBredAt && pet1.lastBredAt > cooldownTime) {
+    const daysRemaining = Math.ceil((pet1.lastBredAt.getTime() + sevenDaysCooldown - currentTime.getTime()) / (24 * 60 * 60 * 1000));
+    return { canBreed: false, reason: `${pet1.name} must wait ${daysRemaining} more day(s) before breeding again` };
+  }
+
+  if (pet2.lastBredAt && pet2.lastBredAt > cooldownTime) {
+    const daysRemaining = Math.ceil((pet2.lastBredAt.getTime() + sevenDaysCooldown - currentTime.getTime()) / (24 * 60 * 60 * 1000));
+    return { canBreed: false, reason: `${pet2.name} must wait ${daysRemaining} more day(s) before breeding again` };
+  }
 
   return { canBreed: true };
 }

@@ -122,6 +122,11 @@ export default function DashboardPage() {
       // Clear the URL parameter
       window.history.replaceState({}, '', '/dashboard')
     }
+    if (params.get('breedSuccess') === 'true') {
+      setSuccessMessage('Breeding successful! Your new pet has been born!')
+      // Clear the URL parameter
+      window.history.replaceState({}, '', '/dashboard')
+    }
 
     // Fetch user's pets
     fetchPets(parsedUser.id)
@@ -396,14 +401,24 @@ export default function DashboardPage() {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Your Pets</h2>
-          {pets.length < 10 && (
-            <Link
-              href="/pets/create"
-              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold"
-            >
-              + Create Pet
-            </Link>
-          )}
+          <div className="flex gap-3">
+            {pets.length < 10 && (
+              <Link
+                href="/pets/create"
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-semibold"
+              >
+                + Create Pet
+              </Link>
+            )}
+            {pets.length >= 2 && (
+              <Link
+                href="/breed"
+                className="px-6 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition font-semibold"
+              >
+                🐣 Breed Pets
+              </Link>
+            )}
+          </div>
         </div>
 
         {pets.length === 0 ? (
