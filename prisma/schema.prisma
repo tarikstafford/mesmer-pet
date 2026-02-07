@@ -77,6 +77,37 @@ model Pet {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  petTraits PetTrait[]
 
   @@index([userId])
+}
+
+// US-003: Pet Trait System
+model Trait {
+  id          String   @id @default(uuid())
+  traitName   String   @unique
+  traitType   String   // 'visual', 'personality', 'skill'
+  rarity      String   // 'common', 'uncommon', 'rare', 'legendary'
+  description String
+  createdAt   DateTime @default(now())
+
+  petTraits   PetTrait[]
+
+  @@index([traitType])
+  @@index([rarity])
+}
+
+model PetTrait {
+  id                 String   @id @default(uuid())
+  petId              String
+  traitId            String
+  inheritanceSource  String   // 'parent1', 'parent2', 'mutation', 'initial'
+  createdAt          DateTime @default(now())
+
+  pet                Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  trait              Trait    @relation(fields: [traitId], references: [id], onDelete: Cascade)
+
+  @@unique([petId, traitId])
+  @@index([petId])
+  @@index([traitId])
 }
