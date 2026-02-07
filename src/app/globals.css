@@ -1,27 +1,459 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Base Surfaces — Warm parchment world */
+  --parchment: #fdfaf5;
+  --parchment-deep: #f9f5ed;
+  --parchment-rich: #f4ede0;
+
+  /* Text — Warm ink */
+  --ink: #3d2f1f;
+  --ink-soft: #6b5d4f;
+  --ink-whisper: #9a8a7a;
+
+  /* Borders — Subtle definition */
+  --border-faint: rgba(139, 108, 76, 0.12);
+  --border-soft: rgba(139, 108, 76, 0.18);
+  --border-warm: rgba(139, 108, 76, 0.25);
+
+  /* Magical Essence Colors */
+  --ember: #f59e42;
+  --ember-glow: #ffc875;
+  --ember-dim: #d68536;
+
+  --lavender: #b8a3d9;
+  --lavender-bright: #d4c4f0;
+  --lavender-deep: #9880c2;
+
+  --rose: #f4a5ae;
+  --rose-bright: #ffc4cd;
+  --rose-deep: #e88896;
+
+  --moss: #9fc088;
+  --moss-bright: #c0dbaf;
+  --moss-deep: #7ea76a;
+
+  --cyan: #6fc6c5;
+  --cyan-bright: #9ae0df;
+  --cyan-deep: #51aba9;
+
+  --gold: #daa55f;
+  --gold-bright: #f0c785;
+  --gold-deep: #c18d47;
+
+  /* Shadows and Glows — Enhanced for depth */
+  --shadow-inset: inset 0 2px 6px rgba(139, 108, 76, 0.15);
+  --shadow-sm: 0 2px 4px rgba(139, 108, 76, 0.1), 0 1px 2px rgba(139, 108, 76, 0.08);
+  --shadow-md: 0 4px 12px rgba(139, 108, 76, 0.15), 0 2px 4px rgba(139, 108, 76, 0.1);
+  --shadow-lg: 0 8px 24px rgba(139, 108, 76, 0.2), 0 4px 8px rgba(139, 108, 76, 0.15);
+
+  /* Button shadows with color tints */
+  --shadow-button: 0 4px 12px rgba(139, 108, 76, 0.25), 0 2px 4px rgba(139, 108, 76, 0.15);
+  --shadow-button-hover: 0 6px 20px rgba(139, 108, 76, 0.3), 0 3px 8px rgba(139, 108, 76, 0.2);
+
+  --glow-ember: 0 0 24px rgba(245, 158, 66, 0.4), 0 0 12px rgba(245, 158, 66, 0.3);
+  --glow-lavender: 0 0 24px rgba(184, 163, 217, 0.4), 0 0 12px rgba(184, 163, 217, 0.3);
+  --glow-rose: 0 0 24px rgba(244, 165, 174, 0.4), 0 0 12px rgba(244, 165, 174, 0.3);
+  --glow-moss: 0 0 24px rgba(159, 192, 136, 0.4), 0 0 12px rgba(159, 192, 136, 0.3);
+  --glow-cyan: 0 0 24px rgba(111, 198, 197, 0.4), 0 0 12px rgba(111, 198, 197, 0.3);
+  --glow-gold: 0 0 32px rgba(218, 165, 95, 0.5), 0 0 16px rgba(218, 165, 95, 0.4);
+  }
+
+  body {
+    color: var(--ink) !important;
+    background: var(--parchment) !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "San Francisco", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+      radial-gradient(circle at 20% 50%, rgba(184, 163, 217, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(244, 165, 174, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(218, 165, 95, 0.02) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  html {
+    background: var(--parchment) !important;
+  }
+
+  @layer utilities {
+    .text-balance {
+      text-wrap: balance;
+    }
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Enhanced Card Styles */
+.card-enchanted {
+    background: var(--parchment-rich);
+    border: 2px solid var(--border-warm);
+    border-radius: 16px;
+    box-shadow:
+      0 4px 12px rgba(139, 108, 76, 0.15),
+      0 2px 4px rgba(139, 108, 76, 0.1),
+      inset 0 1px 2px rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .card-enchanted:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 8px 24px rgba(139, 108, 76, 0.2),
+      0 4px 8px rgba(139, 108, 76, 0.15),
+      inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  }
+
+  .card-pet {
+    background: var(--parchment-rich);
+    border: 2px solid var(--border-warm);
+    border-radius: 20px;
+    box-shadow:
+      0 6px 16px rgba(139, 108, 76, 0.2),
+      0 3px 6px rgba(139, 108, 76, 0.15),
+      inset 0 2px 3px rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .card-pet:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow:
+      0 12px 32px rgba(139, 108, 76, 0.25),
+      0 6px 12px rgba(139, 108, 76, 0.2),
+      inset 0 2px 3px rgba(255, 255, 255, 0.5);
+  }
+
+  .card-pet.critical {
+    border: 3px solid var(--rose-deep);
+    box-shadow:
+      0 6px 16px rgba(232, 136, 150, 0.4),
+      0 3px 6px rgba(232, 136, 150, 0.3),
+      0 0 24px rgba(244, 165, 174, 0.3),
+      inset 0 2px 3px rgba(255, 255, 255, 0.4);
+  }
+
+/* Gradient Text */
+.text-gradient-lavender {
+  background: linear-gradient(135deg, #b8a3d9, #f4a5ae, #daa55f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Vitality Orb Component */
+.vitality-orb {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .orb-container {
+    position: relative;
+    flex: 1;
+    height: 24px;
+    background: var(--parchment-deep);
+    border-radius: 9999px;
+    overflow: hidden;
+    box-shadow: var(--shadow-inset);
+  }
+
+  .orb-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    border-radius: 9999px;
+    transition: width 0.5s ease, box-shadow 0.3s ease;
+  }
+
+  .orb-fill.health {
+    background: linear-gradient(90deg, var(--ember), var(--ember-glow));
+  }
+
+  .orb-fill.health.high {
+    box-shadow: var(--glow-ember);
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .orb-fill.health.medium {
+    background: linear-gradient(90deg, var(--ember-dim), var(--ember));
+  }
+
+  .orb-fill.health.low {
+    background: linear-gradient(90deg, #c17035, var(--ember-dim));
+    animation: pulse-urgent 1s ease-in-out infinite;
+  }
+
+  .orb-fill.happiness {
+    background: linear-gradient(90deg, var(--rose), var(--rose-bright));
+    box-shadow: var(--glow-rose);
+  }
+
+  .orb-fill.energy {
+    background: linear-gradient(90deg, var(--cyan), var(--cyan-bright));
+    box-shadow: var(--glow-cyan);
+  }
+
+  .orb-fill.hunger {
+    background: linear-gradient(90deg, var(--moss), var(--moss-bright));
+    box-shadow: var(--glow-moss);
+  }
+
+  .orb-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 100px;
+  }
+
+  .stat-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+
+  .stat-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin-left: auto;
+  }
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
   }
 }
+
+@keyframes pulse-urgent {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Enhanced Button Styles with Real Depth */
+.btn-enchanted {
+  position: relative !important;
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+  overflow: hidden !important;
+  display: inline-block !important;
+}
+
+.btn-enchanted::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent);
+  pointer-events: none;
+}
+
+.btn-enchanted::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 2px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Primary Magical Button */
+.btn-primary {
+  background: linear-gradient(135deg, #b8a3d9 0%, #9880c2 100%) !important;
+  color: white !important;
+  box-shadow:
+    0 4px 12px rgba(152, 128, 194, 0.4),
+    0 2px 4px rgba(152, 128, 194, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    0 6px 20px rgba(152, 128, 194, 0.5),
+    0 3px 8px rgba(152, 128, 194, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+  background: linear-gradient(135deg, #c4b4e3 0%, #a38fcc 100%) !important;
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(152, 128, 194, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Nurture Button */
+.btn-nurture {
+  background: linear-gradient(135deg, #9fc088 0%, #7ea76a 100%);
+  color: white;
+  box-shadow:
+    0 4px 12px rgba(126, 167, 106, 0.4),
+    0 2px 4px rgba(126, 167, 106, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.btn-nurture:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(126, 167, 106, 0.5),
+    0 3px 8px rgba(126, 167, 106, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #aecf95 0%, #8bb874 100%);
+}
+
+.btn-nurture:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(126, 167, 106, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Rose/Affection Button */
+.btn-rose {
+  background: linear-gradient(135deg, #f4a5ae 0%, #e88896 100%);
+  color: white;
+  box-shadow:
+    0 4px 12px rgba(232, 136, 150, 0.4),
+    0 2px 4px rgba(232, 136, 150, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.btn-rose:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(232, 136, 150, 0.5),
+    0 3px 8px rgba(232, 136, 150, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #f7b6bd 0%, #eda0a8 100%);
+}
+
+.btn-rose:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(232, 136, 150, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Gold/Legendary Button */
+.btn-gold {
+  background: linear-gradient(135deg, #daa55f 0%, #c18d47 100%);
+  color: white;
+  box-shadow:
+    0 4px 12px rgba(193, 141, 71, 0.5),
+    0 2px 4px rgba(193, 141, 71, 0.4),
+    0 0 20px rgba(218, 165, 95, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(193, 141, 71, 0.6),
+    0 3px 8px rgba(193, 141, 71, 0.5),
+    0 0 30px rgba(218, 165, 95, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #e6b56f 0%, #cc9d55 100%);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(193, 141, 71, 0.5),
+    inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Cyan/Energy Button */
+.btn-cyan {
+  background: linear-gradient(135deg, #6fc6c5 0%, #51aba9 100%);
+  color: white;
+  box-shadow:
+    0 4px 12px rgba(81, 171, 169, 0.4),
+    0 2px 4px rgba(81, 171, 169, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+.btn-cyan:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(81, 171, 169, 0.5),
+    0 3px 8px rgba(81, 171, 169, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #84d3d2 0%, #63bcba 100%);
+}
+
+.btn-cyan:active {
+  transform: translateY(0);
+  box-shadow:
+    0 2px 8px rgba(81, 171, 169, 0.4),
+    inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Secondary Button (outlined) */
+.btn-secondary {
+  background: var(--parchment-deep);
+  color: var(--ink);
+  border: 2px solid var(--border-warm);
+  box-shadow:
+    0 2px 8px rgba(139, 108, 76, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  background: var(--parchment);
+  box-shadow:
+    0 4px 12px rgba(139, 108, 76, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 4px rgba(139, 108, 76, 0.15),
+    inset 0 2px 4px rgba(139, 108, 76, 0.1);
+}
+
+/* Disabled State */
+.btn-enchanted:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(139, 108, 76, 0.1);
+  }
