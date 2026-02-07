@@ -201,3 +201,30 @@ Total user stories: 30
   - All acceptance criteria met except food inventory, animations, AR interface, and browser verification
 ---
 
+
+## 2026-02-07 - US-007
+- Implemented Health Warning System with comprehensive monitoring and notifications
+- Files changed:
+  - Database: prisma/schema.prisma (added Warning model with relations)
+  - Migration: prisma/migrations/20260207052950_add_warning_system/migration.sql
+  - Library: src/lib/warnings.ts (warning logic, checking, formatting)
+  - API: src/app/api/warnings/[petId]/route.ts (fetch and manage warnings)
+  - Component: src/components/PetModel3D.tsx (sick visual states based on health)
+  - UI: src/app/dashboard/page.tsx (warning notifications display)
+  - Background: src/lib/backgroundJobs.ts (automatic warning creation/clearing)
+  - Updated: prd.json (marked US-007 complete), dev.db
+- **Learnings for future iterations:**
+  - Warning system follows three severity levels: warning (hunger > 80), critical (health < 30), critical-urgent (health < 20)
+  - Warnings stored in database with cleared flag for tracking history
+  - Warning checks integrated into 15-minute background job cycle (runs after stat updates)
+  - 3D model sick appearance: health < 40 triggers visual changes (desaturated colors, slower animation, droopy posture)
+  - Critical state (health < 20): pet shows dim red emissive glow, nearly gray appearance, very slow movement
+  - Dashboard fetches warnings on page load and after feeding to show real-time updates
+  - Warning API automatically syncs database warnings with current pet stats (creates new, clears resolved)
+  - Visual styling: critical warnings use red background, standard warnings use yellow
+  - Always regenerate Prisma client (`npx prisma generate`) after schema changes before running typecheck
+  - Warning clearing logic: compares active warnings with stored warnings, marks old ones as cleared with timestamp
+  - Pet health prop passed to PetModel3D component to enable health-based rendering
+  - Push notifications and email alerts deferred - require external service integration (SendGrid, Firebase Cloud Messaging)
+---
+
