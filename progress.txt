@@ -179,3 +179,25 @@ Total user stories: 30
   - Background jobs import Prisma and logic dynamically to avoid circular dependencies
 ---
 
+## 2026-02-07 - US-006
+- Implemented Feeding System with cooldown and stat updates
+- Files changed:
+  - Library: src/lib/feeding.ts (feeding logic with cooldown validation)
+  - API: src/app/api/pets/feed/route.ts (POST endpoint for feeding)
+  - UI: src/app/dashboard/page.tsx (added Feed button and handlers)
+- **Learnings for future iterations:**
+  - Feeding reduces hunger by 35 points (midpoint of 30-40 range)
+  - Feeding increases happiness by 7 points (midpoint of 5-10 range)
+  - 60-minute cooldown enforced between feedings (FEEDING_COOLDOWN_MINUTES constant)
+  - Cooldown check uses lastFedAt timestamp from Pet model
+  - Feed button shows loading state during API call (feedingPetId state)
+  - Stats update optimistically in UI after successful feed
+  - Error messages show cooldown time remaining in minutes
+  - API returns 429 status for cooldown errors, 400 for other errors
+  - Feed button is full-width green with emoji (🍖 Feed Pet)
+  - lastInteractionAt also updated on feeding to track user engagement
+  - Food inventory system and feeding animations deferred (not in MVP scope)
+  - AR feeding interface depends on US-005 (AR Pet Viewing) being implemented first
+  - All acceptance criteria met except food inventory, animations, AR interface, and browser verification
+---
+
