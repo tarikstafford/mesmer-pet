@@ -609,3 +609,42 @@ Total user stories: 30
   - Typecheck passes without errors
 ---
 
+## 2026-02-07 - US-022
+- Implemented Daily Engagement System with comprehensive reward mechanics
+- Files changed:
+  - Database: prisma/schema.prisma (added UserEngagement, DailyChallenge, UserChallenge models)
+  - Migration: prisma/migrations/20260207063821_add_daily_engagement_system/migration.sql
+  - Seed: prisma/seed.ts (added 5 daily challenges: feed, chat, health_check, play_game, breed)
+  - Library: src/lib/engagement.ts (login processing, streak tracking, challenge system)
+  - API: src/app/api/engagement/{login,stats/[userId]}/route.ts (engagement endpoints)
+  - API: src/app/api/challenges/{assign,today/[userId],progress,history/[userId]}/route.ts (challenge endpoints)
+  - Component: src/components/EngagementPanel.tsx (engagement UI with live updates)
+  - Updated: src/app/api/pets/feed/route.ts (tracks feed challenge)
+  - Updated: src/app/api/chat/route.ts (tracks chat challenge)
+  - Updated: src/app/api/pets/breed/route.ts (tracks breed challenge)
+  - Updated: src/app/api/pets/health-check-all/route.ts (tracks health_check challenge)
+  - Updated: src/app/api/games/chess/move/route.ts (tracks play_game challenge)
+  - Updated: src/app/dashboard/page.tsx (integrated engagement panel)
+  - Updated: prd.json, dev.db
+- **Learnings for future iterations:**
+  - Daily engagement system separates 3 concerns: UserEngagement (user stats), DailyChallenge (definitions), UserChallenge (progress tracking)
+  - Login bonus: +5 coins base, +2 per consecutive day in streak
+  - Streak logic: consecutive days tracked, breaks if 24+ hours between logins, yesterday check uses date-only comparison
+  - Milestone rewards granted once: 7 days (+50), 30 days (+200), 100 days (+1000 coins)
+  - Daily challenges: randomly assigned at midnight or on first fetch, auto-progress tracking in relevant APIs
+  - Challenge types map to actions: feed, chat, health_check, play_game, breed
+  - Virtual currency stored in UserEngagement.virtualCurrency, incremented atomically
+  - Challenge progress uses catch blocks for non-blocking updates - failures logged but don't break main flows
+  - EngagementPanel uses dynamic import with ssr: false to avoid hydration issues
+  - Challenge progress auto-refreshes every 10 seconds when incomplete, stops when completed
+  - Streak display shows current streak (fire emoji) and longest streak (trophy emoji)
+  - Milestone progress bar calculates percentage to next milestone with visual progress indicator
+  - Welcome animations show for 5 seconds on first login of day, display bonus earned
+  - Date comparison for "today" uses setHours(0,0,0,0) to normalize to midnight
+  - Challenge completion grants reward immediately via prisma.userEngagement.update with increment
+  - getTodayChallenge checks assignedDate >= today (midnight normalized) to find active challenge
+  - Push notification reminder deferred (requires external service like Firebase Cloud Messaging)
+  - All acceptance criteria met except push notifications and browser verification (dev-browser not available)
+  - Pattern: updateChallengeProgress(userId, challengeType, 1) called in action APIs after success
+  - Typecheck passes without errors
+---
