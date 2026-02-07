@@ -28,6 +28,19 @@ interface PetTrait {
   inheritanceSource: string
 }
 
+interface Skill {
+  id: string
+  skillName: string
+  category: string
+  description: string
+}
+
+interface PetSkill {
+  skill: Skill
+  proficiency: number
+  activatedDate: string
+}
+
 interface Pet {
   id: string
   name: string
@@ -41,8 +54,12 @@ interface Pet {
   patience: number
   playfulness: number
   generation: number
+  parent1Id: string | null
+  parent2Id: string | null
   createdAt: string
+  lastInteractionAt: string | null
   petTraits: PetTrait[]
+  petSkills: PetSkill[]
 }
 
 export default function DashboardPage() {
@@ -107,6 +124,28 @@ export default function DashboardPage() {
       default:
         return 'text-gray-600 bg-gray-100'
     }
+  }
+
+  // Color-code stats based on value: green >70, yellow 40-70, red <40
+  const getStatColor = (value: number) => {
+    if (value > 70) return { bar: 'bg-green-500', text: 'text-green-600' }
+    if (value >= 40) return { bar: 'bg-yellow-500', text: 'text-yellow-600' }
+    return { bar: 'bg-red-500', text: 'text-red-600' }
+  }
+
+  const formatTimestamp = (timestamp: string | null) => {
+    if (!timestamp) return 'Never'
+    const date = new Date(timestamp)
+    const now = new Date()
+    const diffMs = now.getTime() - date.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffHours < 24) return `${diffHours}h ago`
+    return `${diffDays}d ago`
   }
 
   if (!user || loading) {
@@ -192,16 +231,16 @@ export default function DashboardPage() {
                     <p className="text-sm text-gray-500">Generation {pet.generation}</p>
                   </div>
 
-                {/* Stats */}
+                {/* Stats with dynamic color-coding */}
                 <div className="space-y-2 mb-4">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">Health</span>
-                      <span className="font-semibold text-green-600">{pet.health}/100</span>
+                      <span className={`font-semibold ${getStatColor(pet.health).text}`}>{pet.health}/100</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-green-500 h-2 rounded-full"
+                        className={`${getStatColor(pet.health).bar} h-2 rounded-full transition-all`}
                         style={{ width: `${pet.health}%` }}
                       />
                     </div>
@@ -210,11 +249,11 @@ export default function DashboardPage() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">Happiness</span>
-                      <span className="font-semibold text-yellow-600">{pet.happiness}/100</span>
+                      <span className={`font-semibold ${getStatColor(pet.happiness).text}`}>{pet.happiness}/100</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-yellow-500 h-2 rounded-full"
+                        className={`${getStatColor(pet.happiness).bar} h-2 rounded-full transition-all`}
                         style={{ width: `${pet.happiness}%` }}
                       />
                     </div>
@@ -223,11 +262,11 @@ export default function DashboardPage() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">Energy</span>
-                      <span className="font-semibold text-blue-600">{pet.energy}/100</span>
+                      <span className={`font-semibold ${getStatColor(pet.energy).text}`}>{pet.energy}/100</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-blue-500 h-2 rounded-full"
+                        className={`${getStatColor(pet.energy).bar} h-2 rounded-full transition-all`}
                         style={{ width: `${pet.energy}%` }}
                       />
                     </div>
@@ -236,22 +275,22 @@ export default function DashboardPage() {
                   <div>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="text-gray-600">Hunger</span>
-                      <span className="font-semibold text-red-600">{pet.hunger}/100</span>
+                      <span className={`font-semibold ${getStatColor(100 - pet.hunger).text}`}>{pet.hunger}/100</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-red-500 h-2 rounded-full"
+                        className={`${getStatColor(100 - pet.hunger).bar} h-2 rounded-full transition-all`}
                         style={{ width: `${pet.hunger}%` }}
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Traits */}
+                {/* Visual Traits */}
                 <div className="border-t pt-4">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Genetic Traits</h4>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Visual Traits</h4>
                   <div className="flex flex-wrap gap-2">
-                    {pet.petTraits.slice(0, 4).map((petTrait) => (
+                    {pet.petTraits.filter(pt => pt.trait.traitType === 'visual').slice(0, 4).map((petTrait) => (
                       <span
                         key={petTrait.trait.id}
                         className={`text-xs px-2 py-1 rounded-full font-semibold ${getRarityColor(
@@ -262,18 +301,67 @@ export default function DashboardPage() {
                         {petTrait.trait.traitName}
                       </span>
                     ))}
-                    {pet.petTraits.length > 4 && (
-                      <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600 font-semibold">
-                        +{pet.petTraits.length - 4} more
-                      </span>
-                    )}
                   </div>
                 </div>
 
-                {/* Created date */}
-                <div className="mt-4 pt-4 border-t">
+                {/* Personality Traits */}
+                <div className="border-t pt-4 mt-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Personality</h4>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Friendliness:</span>
+                      <span className="font-semibold">{pet.friendliness}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Energy:</span>
+                      <span className="font-semibold">{pet.energyTrait}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Curiosity:</span>
+                      <span className="font-semibold">{pet.curiosity}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Patience:</span>
+                      <span className="font-semibold">{pet.patience}</span>
+                    </div>
+                    <div className="flex justify-between col-span-2">
+                      <span className="text-gray-600">Playfulness:</span>
+                      <span className="font-semibold">{pet.playfulness}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Skills */}
+                {pet.petSkills.length > 0 && (
+                  <div className="border-t pt-4 mt-4">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Active Skills</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {pet.petSkills.map((petSkill) => (
+                        <span
+                          key={petSkill.skill.id}
+                          className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-semibold"
+                          title={`${petSkill.skill.description} (Proficiency: ${petSkill.proficiency})`}
+                        >
+                          {petSkill.skill.skillName}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Lineage and timestamps */}
+                <div className="mt-4 pt-4 border-t space-y-1">
                   <p className="text-xs text-gray-500">
-                    Created {new Date(pet.createdAt).toLocaleDateString()}
+                    <span className="font-semibold">Generation:</span> {pet.generation}
+                    {(pet.parent1Id || pet.parent2Id) && (
+                      <span className="ml-2 text-gray-400">(Bred from parents)</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    <span className="font-semibold">Created:</span> {new Date(pet.createdAt).toLocaleDateString()}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    <span className="font-semibold">Last interaction:</span> {formatTimestamp(pet.lastInteractionAt)}
                   </p>
                 </div>
               </div>
