@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { storeInteraction } from '@/lib/memory';
 import { generatePersonalityPrompt } from '@/lib/personality';
 import { formatMemoryForPrompt } from '@/lib/memory';
+import { generateSkillPrompts } from '@/lib/skillPrompts';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -21,13 +22,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch pet with personality traits
+    // Fetch pet with personality traits and active skills
     const pet = await prisma.pet.findUnique({
       where: { id: petId },
       include: {
         petTraits: {
           include: {
             trait: true,
+          },
+        },
+        petSkills: {
+          include: {
+            skill: true,
           },
         },
       },
@@ -65,12 +71,17 @@ export async function POST(req: NextRequest) {
     // Get memory context
     const memoryContext = await formatMemoryForPrompt(petId);
 
+    // Get skill prompts for teaching abilities (US-018)
+    const skillPrompts = generateSkillPrompts(pet.petSkills);
+
     // Build system prompt
     const systemPrompt = `You are ${pet.name}, a virtual pet companion with a unique personality.
 
 ${personalityPrompt}
 
 ${memoryContext ? `Memory Context:\n${memoryContext}` : ''}
+
+${skillPrompts}
 
 Guidelines:
 - Always respond in character as ${pet.name}
