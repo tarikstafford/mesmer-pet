@@ -42,6 +42,7 @@ export default function MarketplacePage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [cancelMessage, setCancelMessage] = useState(false);
 
   // Filters
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -49,7 +50,7 @@ export default function MarketplacePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
 
-  // Get userId from auth token
+  // Get userId from auth token and check for cancel message
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
@@ -60,7 +61,18 @@ export default function MarketplacePage() {
         console.error('Error decoding token:', error);
       }
     }
-  }, []);
+
+    // Check if payment was canceled
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('canceled') === 'true') {
+      setCancelMessage(true);
+      // Clear the URL parameter after 5 seconds
+      setTimeout(() => {
+        setCancelMessage(false);
+        router.replace('/marketplace');
+      }, 5000);
+    }
+  }, [router]);
 
   // Fetch skills when filters change
   useEffect(() => {
@@ -116,6 +128,15 @@ export default function MarketplacePage() {
           <h1 className="text-4xl font-bold text-gray-800 mb-2">Skill Marketplace</h1>
           <p className="text-gray-600">Unlock new abilities for your pets</p>
         </div>
+
+        {/* Cancel Message */}
+        {cancelMessage && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="text-yellow-800 font-medium">
+              ⚠️ Payment was canceled. Your purchase was not completed.
+            </p>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">

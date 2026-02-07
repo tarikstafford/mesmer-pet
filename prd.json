@@ -331,8 +331,8 @@
         "Verify in browser using dev-browser skill"
       ],
       "priority": 19,
-      "passes": false,
-      "notes": ""
+      "passes": true,
+      "notes": "Completed - Full Stripe integration for web payments with checkout sessions, webhook handler for payment confirmation, purchase confirmation dialog, success/cancel pages, error handling. Skills granted immediately via webhook after successful payment. Stripe sends email receipts automatically. Mobile IAP (Apple/Google) deferred for post-MVP. Setup instructions in STRIPE_SETUP.md."
     },
     {
       "id": "US-018",
