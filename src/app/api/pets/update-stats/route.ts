@@ -31,6 +31,8 @@ export async function POST(request: NextRequest) {
         },
         pet.lastStatUpdate,
         pet.lastInteractionAt,
+        pet.neglectStartedAt,
+        pet.isCritical,
         timezoneOffset
       );
 
@@ -42,6 +44,8 @@ export async function POST(request: NextRequest) {
           happiness: updatedStats.happiness,
           energy: updatedStats.energy,
           lastStatUpdate: updatedStats.lastStatUpdate,
+          isCritical: updatedStats.isCritical || false,
+          neglectStartedAt: updatedStats.neglectStartedAt,
         },
       });
 
@@ -66,6 +70,8 @@ export async function POST(request: NextRequest) {
           },
           pet.lastStatUpdate,
           pet.lastInteractionAt,
+          pet.neglectStartedAt,
+          pet.isCritical,
           timezoneOffset
         );
 
@@ -77,6 +83,8 @@ export async function POST(request: NextRequest) {
             happiness: updatedStats.happiness,
             energy: updatedStats.energy,
             lastStatUpdate: updatedStats.lastStatUpdate,
+            isCritical: updatedStats.isCritical || false,
+            neglectStartedAt: updatedStats.neglectStartedAt,
           },
         });
       });
@@ -115,6 +123,8 @@ export async function GET(request: NextRequest) {
         },
         pet.lastStatUpdate,
         pet.lastInteractionAt,
+        pet.neglectStartedAt,
+        pet.isCritical,
         0 // Default timezone offset for cron jobs
       );
 
@@ -126,6 +136,8 @@ export async function GET(request: NextRequest) {
           happiness: updatedStats.happiness,
           energy: updatedStats.energy,
           lastStatUpdate: updatedStats.lastStatUpdate,
+          isCritical: updatedStats.isCritical || false,
+          neglectStartedAt: updatedStats.neglectStartedAt,
         },
       });
     });

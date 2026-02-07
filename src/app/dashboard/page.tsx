@@ -68,6 +68,16 @@ interface Pet {
   petTraits: PetTrait[]
   petSkills: PetSkill[]
   warnings?: PetWarning[] // US-007: Active warnings for this pet
+  isCritical: boolean // US-008: Critical state flag
+  maxHealthPenalty: number // US-008: Max health penalty from recoveries
+}
+
+interface RecoveryItem {
+  id: string
+  itemName: string
+  description: string
+  itemType: string
+  quantity: number
 }
 
 export default function DashboardPage() {
@@ -78,6 +88,8 @@ export default function DashboardPage() {
   const [successMessage, setSuccessMessage] = useState('')
   const [feedingPetId, setFeedingPetId] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
+  const [recoveringPetId, setRecoveringPetId] = useState<string | null>(null) // US-008
+  const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]) // US-008
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -101,6 +113,9 @@ export default function DashboardPage() {
 
     // Fetch user's pets
     fetchPets(parsedUser.id)
+
+    // US-008: Fetch user's recovery items
+    fetchRecoveryItems(parsedUser.id)
   }, [router])
 
   const fetchPets = async (userId: string) => {
@@ -132,6 +147,19 @@ export default function DashboardPage() {
       console.error('Failed to fetch pets:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // US-008: Fetch user's recovery items
+  const fetchRecoveryItems = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/recovery-items/user/${userId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setRecoveryItems(data.items || [])
+      }
+    } catch (error) {
+      console.error('Failed to fetch recovery items:', error)
     }
   }
 
@@ -247,6 +275,64 @@ export default function DashboardPage() {
     }
   }
 
+  // US-008: Handle pet recovery
+  const handleRecoverPet = async (petId: string) => {
+    if (!user) return
+
+    setRecoveringPetId(petId)
+    setErrorMessage('')
+    setSuccessMessage('')
+
+    try {
+      const response = await fetch('/api/pets/recover', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          petId,
+          userId: user.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.error || 'Failed to recover pet')
+        return
+      }
+
+      // Refetch warnings after recovery
+      const warningResponse = await fetch(`/api/warnings/${petId}`)
+      const warningData = warningResponse.ok ? await warningResponse.json() : { warnings: [] }
+
+      // Update the pet in the local state
+      setPets((prevPets) =>
+        prevPets.map((p) =>
+          p.id === petId
+            ? {
+                ...p,
+                health: data.pet.health,
+                isCritical: data.pet.isCritical,
+                maxHealthPenalty: data.pet.maxHealthPenalty,
+                warnings: warningData.warnings,
+              }
+            : p
+        )
+      )
+
+      // Refresh recovery items
+      fetchRecoveryItems(user.id)
+
+      setSuccessMessage(data.message)
+    } catch (error) {
+      console.error('Failed to recover pet:', error)
+      setErrorMessage('An error occurred while recovering your pet')
+    } finally {
+      setRecoveringPetId(null)
+    }
+  }
+
   if (!user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -323,9 +409,44 @@ export default function DashboardPage() {
                 .map((pt) => pt.trait.traitName);
 
               return (
-                <div key={pet.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                <div key={pet.id} className={`bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition ${pet.isCritical ? 'border-4 border-red-500' : ''}`}>
+                  {/* US-008: Critical State Banner */}
+                  {pet.isCritical && (
+                    <div className="mb-4 p-4 bg-red-600 text-white rounded-lg">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-3xl">💀</span>
+                        <div className="flex-1">
+                          <h4 className="text-lg font-bold">CRITICAL STATE</h4>
+                          <p className="text-sm text-red-100">Your pet needs immediate recovery!</p>
+                        </div>
+                      </div>
+                      {recoveryItems.length > 0 ? (
+                        <button
+                          onClick={() => handleRecoverPet(pet.id)}
+                          disabled={recoveringPetId === pet.id}
+                          className={`w-full px-4 py-3 rounded-lg font-semibold transition ${
+                            recoveringPetId === pet.id
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              : 'bg-white text-red-600 hover:bg-red-50'
+                          }`}
+                        >
+                          {recoveringPetId === pet.id ? 'Recovering...' : `💊 Use Health Potion (${recoveryItems.find(i => i.itemName === 'Health Potion')?.quantity || 0} available)`}
+                        </button>
+                      ) : (
+                        <div className="text-sm text-red-100">
+                          No recovery items available. Purchase from marketplace (coming soon).
+                        </div>
+                      )}
+                      {pet.maxHealthPenalty > 0 && (
+                        <div className="mt-2 text-xs text-red-100">
+                          ⚠️ Max health reduced by {pet.maxHealthPenalty}% due to previous recoveries
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* US-007: Warning notifications */}
-                  {pet.warnings && pet.warnings.length > 0 && (
+                  {pet.warnings && pet.warnings.length > 0 && !pet.isCritical && (
                     <div className="mb-4 space-y-2">
                       {pet.warnings.map((warning, index) => {
                         const style = getWarningStyle(warning.severity)
@@ -409,18 +530,19 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Feed Button */}
+                {/* Feed Button - US-008: Disabled when Critical */}
                 <div className="mt-4">
                   <button
                     onClick={() => handleFeedPet(pet.id)}
-                    disabled={feedingPetId === pet.id}
+                    disabled={feedingPetId === pet.id || pet.isCritical}
                     className={`w-full px-4 py-3 rounded-lg font-semibold transition ${
-                      feedingPetId === pet.id
+                      feedingPetId === pet.id || pet.isCritical
                         ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         : 'bg-green-600 text-white hover:bg-green-700'
                     }`}
+                    title={pet.isCritical ? 'Pet must be recovered before feeding' : ''}
                   >
-                    {feedingPetId === pet.id ? 'Feeding...' : '🍖 Feed Pet'}
+                    {feedingPetId === pet.id ? 'Feeding...' : pet.isCritical ? '❌ Cannot Feed (Critical)' : '🍖 Feed Pet'}
                   </button>
                 </div>
 

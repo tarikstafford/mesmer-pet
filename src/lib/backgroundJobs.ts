@@ -53,7 +53,7 @@ async function runStatUpdateJob() {
     const allPets = await prisma.pet.findMany();
 
     const updatePromises = allPets.map(async (pet) => {
-      // Calculate updated stats
+      // Calculate updated stats (US-008: includes Critical state and grace period)
       const updatedStats = calculateStatDegradation(
         {
           health: pet.health,
@@ -63,6 +63,8 @@ async function runStatUpdateJob() {
         },
         pet.lastStatUpdate,
         pet.lastInteractionAt,
+        pet.neglectStartedAt,
+        pet.isCritical,
         0 // Default timezone offset
       );
 
@@ -75,6 +77,8 @@ async function runStatUpdateJob() {
           happiness: updatedStats.happiness,
           energy: updatedStats.energy,
           lastStatUpdate: updatedStats.lastStatUpdate,
+          isCritical: updatedStats.isCritical || false,
+          neglectStartedAt: updatedStats.neglectStartedAt,
         },
       });
 

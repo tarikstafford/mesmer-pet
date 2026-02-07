@@ -28,6 +28,7 @@ model User {
   sessions          Session[]
   accounts          Account[]
   userSkills        UserSkill[]
+  recoveryItems     UserRecoveryItem[]
 
   @@index([email])
 }
@@ -81,6 +82,11 @@ model Pet {
   hunger    Int      @default(0)
   happiness Int      @default(100)
   energy    Int      @default(100)
+
+  // US-008: Pet Death Prevention and Recovery
+  isCritical       Boolean  @default(false)  // True when health reaches 0
+  maxHealthPenalty Int      @default(0)      // Accumulated penalty (0-100), reduces effective max health
+  neglectStartedAt DateTime?                 // When pet first entered neglected state (for grace period)
 
   // Personality traits (0-100 scale)
   friendliness Int    @default(50)
@@ -201,4 +207,34 @@ model Warning {
 
   @@index([petId])
   @@index([cleared])
+}
+
+// US-008: Pet Death Prevention and Recovery
+model RecoveryItem {
+  id          String   @id @default(uuid())
+  itemName    String   @unique
+  description String
+  itemType    String   @default("potion") // 'potion', 'medicine', 'spell'
+  price       Float    // Price in USD (0 for earnable items)
+  earnable    Boolean  @default(false)  // Can be earned through gameplay
+  createdAt   DateTime @default(now())
+
+  userItems   UserRecoveryItem[]
+
+  @@index([earnable])
+}
+
+model UserRecoveryItem {
+  id           String   @id @default(uuid())
+  userId       String
+  itemId       String
+  quantity     Int      @default(1)
+  acquiredDate DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  item         RecoveryItem  @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemId])
+  @@index([userId])
+  @@index([itemId])
 }

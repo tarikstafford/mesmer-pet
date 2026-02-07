@@ -51,12 +51,41 @@ const predefinedTraits = [
   { traitName: 'Universal Translator', traitType: 'skill', rarity: 'legendary', description: 'Can understand and speak any language' },
 ];
 
+// US-008: Recovery Items for pets in Critical state
+const recoveryItems = [
+  {
+    itemName: 'Health Potion',
+    description: 'Restores pet from Critical state. Restores health to 50.',
+    itemType: 'potion',
+    price: 0.99,
+    earnable: true, // Can be earned through gameplay
+  },
+  {
+    itemName: 'Super Health Potion',
+    description: 'Premium recovery item with additional benefits.',
+    itemType: 'potion',
+    price: 1.99,
+    earnable: false,
+  },
+  {
+    itemName: 'Revival Spell',
+    description: 'Magical recovery that restores pet instantly.',
+    itemType: 'spell',
+    price: 4.99,
+    earnable: false,
+  },
+];
+
 async function main() {
   console.log('🌱 Starting seed...');
 
   // Clear existing traits (idempotent seeding)
   await prisma.trait.deleteMany({});
   console.log('🧹 Cleared existing traits');
+
+  // US-008: Clear existing recovery items
+  await prisma.recoveryItem.deleteMany({});
+  console.log('🧹 Cleared existing recovery items');
 
   // Insert predefined traits
   for (const trait of predefinedTraits) {
@@ -66,6 +95,15 @@ async function main() {
   }
 
   console.log(`✅ Created ${predefinedTraits.length} traits`);
+
+  // US-008: Insert recovery items
+  for (const item of recoveryItems) {
+    await prisma.recoveryItem.create({
+      data: item,
+    });
+  }
+
+  console.log(`✅ Created ${recoveryItems.length} recovery items`);
 
   // Verify rarity distribution
   const rarityCount = await prisma.trait.groupBy({
