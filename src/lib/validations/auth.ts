@@ -10,6 +10,7 @@ export const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: passwordSchema,
   name: z.string().optional(),
+  dateOfBirth: z.string().optional(), // US-030: COPPA compliance
 })
 
 export const loginSchema = z.object({

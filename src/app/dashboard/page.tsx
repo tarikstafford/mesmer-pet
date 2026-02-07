@@ -668,6 +668,12 @@ export default function DashboardPage() {
                   🔧 Admin
                 </Link>
               )}
+              <Link
+                href="/settings/privacy"
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition"
+              >
+                🔒 Privacy
+              </Link>
               <span className="text-gray-700">Welcome, {user.name || user.email}!</span>
               <button
                 onClick={handleLogout}

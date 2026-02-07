@@ -1,13 +1,16 @@
 /**
  * US-010: Hybrid Memory System
+ * US-030: Data Privacy - Encryption at Rest
  *
  * Manages pet memory with a hybrid approach:
  * - Recent interactions (last 50) stored with full detail
  * - Older interactions (30+ days) summarized using GPT-4o-mini
  * - Memory retrieval combines both for LLM context
+ * - All messages encrypted at rest for privacy compliance
  */
 
 import { prisma } from './prisma';
+import { encrypt, decrypt } from './encryption';
 
 const MAX_RECENT_INTERACTIONS = 50;
 const SUMMARIZATION_AGE_DAYS = 30;
@@ -26,6 +29,7 @@ export interface MemoryContext {
 
 /**
  * Store a new interaction (message) for a pet
+ * Messages are encrypted at rest for privacy compliance (US-030)
  */
 export async function storeInteraction(
   petId: string,
@@ -34,14 +38,18 @@ export async function storeInteraction(
   message: string,
   context?: string
 ) {
-  // Store the new interaction
+  // Encrypt the message before storing
+  const encryptedMessage = encrypt(message);
+  const encryptedContext = context ? encrypt(context) : undefined;
+
+  // Store the encrypted interaction
   await prisma.interaction.create({
     data: {
       petId,
       userId,
       role,
-      message,
-      context,
+      message: encryptedMessage,
+      context: encryptedContext,
     },
   });
 
@@ -78,6 +86,7 @@ async function pruneOldInteractions(petId: string) {
 /**
  * Retrieve full memory context for a pet (recent + summarized)
  * This is used to build the LLM system prompt
+ * Decrypts messages when retrieving (US-030)
  */
 export async function getMemoryContext(petId: string): Promise<MemoryContext> {
   // Get recent interactions (last 50, newest first, then reverse for chronological order)
@@ -92,7 +101,7 @@ export async function getMemoryContext(petId: string): Promise<MemoryContext> {
     },
   });
 
-  // Get all memory summaries
+  // Get all memory summaries (these are encrypted too)
   const summaries = await prisma.memorySummary.findMany({
     where: { petId },
     orderBy: { periodStart: 'asc' },
@@ -106,11 +115,11 @@ export async function getMemoryContext(petId: string): Promise<MemoryContext> {
   return {
     recentInteractions: recentInteractions.reverse().map((interaction: { role: string; message: string; createdAt: Date }) => ({
       role: interaction.role as 'user' | 'assistant',
-      content: interaction.message,
+      content: decrypt(interaction.message), // Decrypt message when retrieving
       timestamp: interaction.createdAt,
     })),
     historicalSummaries: summaries.map((s: { summary: string; periodStart: Date; periodEnd: Date }) => ({
-      summary: s.summary,
+      summary: decrypt(s.summary), // Decrypt summary when retrieving
       period: `${s.periodStart.toISOString().split('T')[0]} to ${s.periodEnd.toISOString().split('T')[0]}`,
     })),
   };
@@ -164,6 +173,7 @@ export async function getInteractionsForSummarization(petId: string) {
 
 /**
  * Store a memory summary and delete the interactions it summarizes
+ * Encrypts summary before storing (US-030)
  */
 export async function storeMemorySummary(
   petId: string,
@@ -171,11 +181,14 @@ export async function storeMemorySummary(
   periodStart: Date,
   periodEnd: Date
 ) {
+  // Encrypt the summary before storing
+  const encryptedSummary = encrypt(summary);
+
   // Create the summary
   await prisma.memorySummary.create({
     data: {
       petId,
-      summary,
+      summary: encryptedSummary,
       periodStart,
       periodEnd,
     },

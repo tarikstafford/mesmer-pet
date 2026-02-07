@@ -10,14 +10,35 @@ export default function RegisterPage() {
     email: '',
     password: '',
     name: '',
+    dateOfBirth: '',
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [ageWarning, setAgeWarning] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setAgeWarning(null)
     setLoading(true)
+
+    // COPPA compliance: Check if user is under 13
+    if (formData.dateOfBirth) {
+      const birthDate = new Date(formData.dateOfBirth)
+      const today = new Date()
+      const age = today.getFullYear() - birthDate.getFullYear()
+      const monthDiff = today.getMonth() - birthDate.getMonth()
+      const dayDiff = today.getDate() - birthDate.getDate()
+
+      // Calculate exact age
+      const exactAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0) ? age - 1 : age
+
+      if (exactAge < 13) {
+        setAgeWarning('Users under 13 require parental consent. Please have a parent or guardian create an account.')
+        setLoading(false)
+        return
+      }
+    }
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -52,6 +73,12 @@ export default function RegisterPage() {
         {error && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             {error}
+          </div>
+        )}
+
+        {ageWarning && (
+          <div className="mb-4 p-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded">
+            <strong>Age Requirement:</strong> {ageWarning}
           </div>
         )}
 
@@ -100,6 +127,24 @@ export default function RegisterPage() {
             />
             <p className="text-xs text-gray-500 mt-1">
               At least 8 characters with one special character
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="dateOfBirth" className="block text-sm font-medium text-gray-700 mb-1">
+              Date of Birth <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="dateOfBirth"
+              type="date"
+              required
+              value={formData.dateOfBirth}
+              onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+              max={new Date().toISOString().split('T')[0]}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-800"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Required for COPPA compliance. Users under 13 need parental consent.
             </p>
           </div>
 

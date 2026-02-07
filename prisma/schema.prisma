@@ -21,6 +21,13 @@ model User {
   providerId        String?
   isAdmin           Boolean   @default(false)  // US-027: Admin role flag
 
+  // US-030: Data Privacy and GDPR Compliance
+  dateOfBirth       DateTime?  // COPPA compliance - age verification
+  cookieConsent     Boolean   @default(false)  // EU cookie consent tracking
+  dataProcessingConsent Boolean @default(true) // GDPR data processing consent
+  marketingConsent  Boolean   @default(false)  // Marketing communications consent
+  deletionRequestedAt DateTime? // Account deletion request timestamp
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
