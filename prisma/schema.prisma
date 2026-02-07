@@ -111,6 +111,8 @@ model Pet {
   petTraits    PetTrait[]
   petSkills    PetSkill[]
   warnings     Warning[]
+  interactions Interaction[]
+  memorySummaries MemorySummary[]
 
   @@index([userId])
   @@index([parent1Id])
@@ -237,4 +239,36 @@ model UserRecoveryItem {
   @@unique([userId, itemId])
   @@index([userId])
   @@index([itemId])
+}
+
+// US-010: Hybrid Memory System
+model Interaction {
+  id        String   @id @default(uuid())
+  petId     String
+  userId    String   // Stored for quick access
+  role      String   // 'user' or 'assistant'
+  message   String   // The actual message content
+  context   String?  // Additional context (e.g., action performed, mood)
+  createdAt DateTime @default(now())
+
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId, createdAt(sort: Desc)]) // Optimized for recent interactions query
+  @@index([createdAt])
+}
+
+model MemorySummary {
+  id          String   @id @default(uuid())
+  petId       String
+  summary     String   // Condensed memory (max 500 tokens)
+  periodStart DateTime // Start of the period this summary covers
+  periodEnd   DateTime // End of the period this summary covers
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pet         Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@index([petId])
+  @@index([periodStart])
+  @@index([periodEnd])
 }

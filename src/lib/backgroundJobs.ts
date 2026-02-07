@@ -1,7 +1,10 @@
 // US-021: Background Job System for Stat Degradation
 // Runs every 15 minutes to update all pet stats
+// US-010: Daily memory summarization job
 
 let jobInterval: NodeJS.Timeout | null = null;
+let memorySummarizationInterval: NodeJS.Timeout | null = null;
+let lastSummarizationDate: string | null = null;
 
 /**
  * Start the background job system
@@ -24,6 +27,9 @@ export function startBackgroundJobs() {
   }, 15 * 60 * 1000);
 
   console.log('✅ Background jobs started (15-minute interval)');
+
+  // US-010: Start daily memory summarization job
+  startMemorySummarizationJob();
 }
 
 /**
@@ -34,6 +40,12 @@ export function stopBackgroundJobs() {
     clearInterval(jobInterval);
     jobInterval = null;
     console.log('🛑 Background jobs stopped');
+  }
+
+  if (memorySummarizationInterval) {
+    clearInterval(memorySummarizationInterval);
+    memorySummarizationInterval = null;
+    console.log('🛑 Memory summarization job stopped');
   }
 }
 
@@ -134,6 +146,52 @@ async function runStatUpdateJob() {
     console.log(`✅ Updated stats and warnings for ${allPets.length} pets`);
   } catch (error) {
     console.error('❌ Stat update job failed:', error);
+  }
+}
+
+/**
+ * US-010: Start the daily memory summarization job
+ * Runs once per day at 2 AM local server time
+ */
+function startMemorySummarizationJob() {
+  if (memorySummarizationInterval) {
+    console.log('⚠️  Memory summarization job already running');
+    return;
+  }
+
+  console.log('🧠 Starting memory summarization job...');
+
+  // Check every hour if we need to run summarization
+  const checkInterval = 60 * 60 * 1000; // 1 hour
+
+  memorySummarizationInterval = setInterval(async () => {
+    const now = new Date();
+    const todayDate = now.toISOString().split('T')[0];
+
+    // Check if it's 2 AM and we haven't run today
+    const hour = now.getHours();
+    if (hour === 2 && lastSummarizationDate !== todayDate) {
+      await runMemorySummarizationJob();
+      lastSummarizationDate = todayDate;
+    }
+  }, checkInterval);
+
+  console.log('✅ Memory summarization job started (daily at 2 AM)');
+}
+
+/**
+ * US-010: Run memory summarization for all pets
+ */
+async function runMemorySummarizationJob() {
+  try {
+    console.log(`[${new Date().toISOString()}] Running memory summarization job...`);
+
+    const { summarizeAllPetMemories } = await import('@/lib/memorySummarization');
+    await summarizeAllPetMemories();
+
+    console.log('✅ Memory summarization job completed');
+  } catch (error) {
+    console.error('❌ Memory summarization job failed:', error);
   }
 }
 
