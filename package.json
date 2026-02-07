@@ -1,0 +1,41 @@
+{
+  "name": "mesmer",
+  "version": "0.1.0",
+  "description": "AR Pet App with AI-powered personalities and genetics-based breeding",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "@prisma/adapter-libsql": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.2.1",
+    "@types/react": "^19.2.13",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.4.24",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.4",
+    "jsonwebtoken": "^9.0.3",
+    "next": "^16.1.6",
+    "next-auth": "^5.0.0-beta.30",
+    "postcss": "^8.5.6",
+    "prisma": "^7.3.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.1.6"
+  }
+}

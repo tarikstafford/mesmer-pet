@@ -1,0 +1,13 @@
+# Ralph Progress Log
+
+This file tracks learnings and context across Ralph iterations.
+
+## Project: AR Pet App (Mesmer) MVP
+
+Feature branch: ralph/ar-pet-mvp
+Total user stories: 30
+
+---
+
+## Iteration Log
+
