@@ -85,6 +85,12 @@ const SyncStatus = dynamic(() => import('@/components/SyncStatus'), {
   loading: () => null,
 })
 
+// Dynamically import Tutorial Overlay (US-029)
+const TutorialOverlay = dynamic(() => import('@/components/TutorialOverlay'), {
+  ssr: false,
+  loading: () => null,
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -171,6 +177,10 @@ export default function DashboardPage() {
   const [bulkFeedingInProgress, setBulkFeedingInProgress] = useState(false)
   const [healthCheckInProgress, setHealthCheckInProgress] = useState(false)
   const [healthSummary, setHealthSummary] = useState<any>(null)
+  // US-029: Tutorial state
+  const [showTutorial, setShowTutorial] = useState(false)
+  const [tutorialProgress, setTutorialProgress] = useState<any>(null)
+  const [showBreedingInfo, setShowBreedingInfo] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -205,6 +215,9 @@ export default function DashboardPage() {
 
     // US-008: Fetch user's recovery items
     fetchRecoveryItems(parsedUser.id)
+
+    // US-029: Fetch tutorial progress
+    fetchTutorialProgress(parsedUser.id)
   }, [router])
 
   // US-027: Check if user is an admin
@@ -256,6 +269,11 @@ export default function DashboardPage() {
         )
 
         setPets(petsWithWarnings)
+
+        // US-029: Track view_stats step when pets are viewed on dashboard
+        if (petsWithWarnings.length > 0) {
+          setTimeout(() => updateTutorialStep('view_stats'), 1000)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch pets:', error)
@@ -274,6 +292,78 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Failed to fetch recovery items:', error)
+    }
+  }
+
+  // US-029: Fetch tutorial progress
+  const fetchTutorialProgress = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken')
+      if (!token) return
+
+      const response = await fetch('/api/tutorial/progress', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setTutorialProgress(data.progress)
+
+        // Show tutorial if not completed and not skipped
+        if (data.progress && !data.progress.completed && !data.progress.skipped) {
+          setShowTutorial(true)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch tutorial progress:', error)
+    }
+  }
+
+  // US-029: Handle tutorial actions
+  const handleTutorialComplete = () => {
+    setShowTutorial(false)
+    setSuccessMessage('Tutorial completed! You earned 50 coins!')
+    // Refresh pets in case tutorial created one
+    if (user) {
+      fetchPets(user.id)
+    }
+  }
+
+  const handleTutorialSkip = () => {
+    setShowTutorial(false)
+  }
+
+  // US-029: Update tutorial step
+  const updateTutorialStep = async (step: string) => {
+    try {
+      const token = localStorage.getItem('authToken')
+      if (!token || !tutorialProgress || tutorialProgress.completed || tutorialProgress.skipped) {
+        return
+      }
+
+      const response = await fetch('/api/tutorial/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ step }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setTutorialProgress(data.progress)
+
+        // If tutorial just completed, show reward message
+        if (data.progress.completed && !tutorialProgress.completed) {
+          setTimeout(() => {
+            setShowTutorial(false)
+            setSuccessMessage('Tutorial completed! You earned 50 coins!')
+          }, 5000)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to update tutorial step:', error)
     }
   }
 
@@ -363,6 +453,9 @@ export default function DashboardPage() {
         )
       )
       setSuccessMessage(data.message)
+
+      // US-029: Update tutorial progress
+      updateTutorialStep('feed')
     } catch (error) {
       console.error('Failed to feed pet:', error)
       setErrorMessage('An error occurred while feeding your pet')
@@ -627,6 +720,16 @@ export default function DashboardPage() {
                 🐣 Breed Pets
               </Link>
             )}
+            {/* US-029: Breeding info button for tutorial */}
+            <button
+              onClick={() => {
+                setShowBreedingInfo(true);
+                updateTutorialStep('learn_breeding');
+              }}
+              className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-semibold"
+            >
+              🧬 Learn About Breeding
+            </button>
           </div>
         </div>
 
@@ -1178,6 +1281,67 @@ export default function DashboardPage() {
 
       {/* US-025: Cross-Platform Sync Status */}
       <SyncStatus userId={user.id} />
+
+      {/* US-029: Tutorial Overlay */}
+      {showTutorial && user && (
+        <TutorialOverlay
+          userId={user.id}
+          onComplete={handleTutorialComplete}
+          onSkip={handleTutorialSkip}
+        />
+      )}
+
+      {/* US-029: Breeding Info Modal */}
+      {showBreedingInfo && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full overflow-hidden">
+            <div className="bg-gradient-to-r from-pink-600 to-purple-600 text-white p-6">
+              <h2 className="text-2xl font-bold">🧬 How Breeding Works</h2>
+            </div>
+            <div className="p-8 space-y-4">
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold text-gray-800">Genetic Inheritance</h3>
+                <p className="text-gray-600">
+                  When you breed two pets, their offspring inherits genetic traits from both parents:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                  <li><strong>50% from Parent 1, 50% from Parent 2</strong> - Traits are randomly selected from each parent</li>
+                  <li><strong>15% Mutation Chance</strong> - Each trait has a chance to mutate into something new and unique</li>
+                  <li><strong>Rarity Distribution</strong> - Legendary traits (5%), Rare (10%), Uncommon (25%), Common (60%)</li>
+                  <li><strong>Personality Averaging</strong> - Personality traits are averaged from both parents with ±15 variance</li>
+                </ul>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t">
+                <h3 className="text-lg font-semibold text-gray-800">Breeding Requirements</h3>
+                <ul className="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                  <li><strong>Age:</strong> Both pets must be at least 7 days old</li>
+                  <li><strong>Health:</strong> Both pets must have health above 50</li>
+                  <li><strong>Cooldown:</strong> 7-day cooldown period between breeding sessions</li>
+                  <li><strong>Pet Limit:</strong> You can own up to 10 pets at once (MVP)</li>
+                </ul>
+              </div>
+
+              <div className="space-y-3 pt-4 border-t">
+                <h3 className="text-lg font-semibold text-gray-800">Getting Started</h3>
+                <p className="text-gray-600">
+                  To breed your first pet, create at least two pets and ensure they meet the requirements above.
+                  Then click the "🐣 Breed Pets" button to select parents and create offspring with unique genetic combinations!
+                </p>
+              </div>
+
+              <div className="pt-6 flex justify-end">
+                <button
+                  onClick={() => setShowBreedingInfo(false)}
+                  className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg hover:from-pink-700 hover:to-purple-700 transition font-semibold"
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

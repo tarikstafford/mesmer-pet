@@ -59,6 +59,24 @@ export default function CreatePetPage() {
         return
       }
 
+      // US-029: Update tutorial step for pet creation
+      const authToken = localStorage.getItem('authToken')
+      if (authToken) {
+        try {
+          await fetch('/api/tutorial/update', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({ step: 'create_pet' }),
+          })
+        } catch (tutorialError) {
+          // Non-blocking, continue even if tutorial update fails
+          console.error('Failed to update tutorial:', tutorialError)
+        }
+      }
+
       // Redirect to dashboard with success
       router.push('/dashboard?petCreated=true')
     } catch (err) {

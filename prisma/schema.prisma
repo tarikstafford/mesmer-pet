@@ -34,6 +34,7 @@ model User {
   challenges        UserChallenge[]
   sentFriendRequests     Friendship[] @relation("SentFriendRequests")
   receivedFriendRequests Friendship[] @relation("ReceivedFriendRequests")
+  tutorial          UserTutorial?
 
   @@index([email])
 }
@@ -434,4 +435,30 @@ model OfflineAction {
   @@index([petId])
   @@index([status])
   @@index([createdAt])
+}
+
+// US-029: Onboarding Tutorial
+model UserTutorial {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  currentStep       Int      @default(0)  // 0-5: 0=not started, 1-5=steps, 6=completed
+  completed         Boolean  @default(false)
+  skipped           Boolean  @default(false)
+  rewardGranted     Boolean  @default(false)
+
+  // Track which steps have been completed
+  stepCreatePet     Boolean  @default(false)
+  stepFeed          Boolean  @default(false)
+  stepChat          Boolean  @default(false)
+  stepViewStats     Boolean  @default(false)
+  stepLearnBreeding Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  completedAt       DateTime?
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([completed])
 }

@@ -77,6 +77,23 @@ export default function ChatInterface({ petId, petName, userId }: ChatInterfaceP
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
+
+        // US-029: Update tutorial step for chat (first successful chat)
+        const authToken = localStorage.getItem('authToken');
+        if (authToken && messages.length === 0) {
+          try {
+            await fetch('/api/tutorial/update', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`,
+              },
+              body: JSON.stringify({ step: 'chat' }),
+            });
+          } catch (tutorialError) {
+            console.error('Failed to update tutorial:', tutorialError);
+          }
+        }
       }
     } catch (err) {
       console.error('Chat error:', err);
