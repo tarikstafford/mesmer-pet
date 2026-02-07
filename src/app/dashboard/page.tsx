@@ -115,6 +115,11 @@ export default function DashboardPage() {
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]) // US-008
   const [chatOpenPetId, setChatOpenPetId] = useState<string | null>(null) // US-009
   const [familyTreePetId, setFamilyTreePetId] = useState<string | null>(null) // US-014
+  // US-023: Multi-Pet Management
+  const [selectedPetId, setSelectedPetId] = useState<string | null>(null) // For pet switcher
+  const [bulkFeedingInProgress, setBulkFeedingInProgress] = useState(false)
+  const [healthCheckInProgress, setHealthCheckInProgress] = useState(false)
+  const [healthSummary, setHealthSummary] = useState<any>(null)
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -370,6 +375,97 @@ export default function DashboardPage() {
     }
   }
 
+  // US-023: Bulk feed all pets
+  const handleFeedAllPets = async () => {
+    if (!user) return
+
+    setBulkFeedingInProgress(true)
+    setErrorMessage('')
+    setSuccessMessage('')
+
+    try {
+      const response = await fetch('/api/pets/feed-all', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.error || 'Failed to feed pets')
+        return
+      }
+
+      // Refresh pets to show updated stats
+      await fetchPets(user.id)
+
+      const { results } = data
+      const messages = []
+      if (results.successful.length > 0) {
+        messages.push(`✅ Fed ${results.successful.length} pet(s) successfully`)
+      }
+      if (results.failed.length > 0) {
+        messages.push(`❌ Failed to feed ${results.failed.length} pet(s)`)
+      }
+      if (results.skipped.length > 0) {
+        messages.push(`⏭️ Skipped ${results.skipped.length} pet(s) (Critical state or cooldown)`)
+      }
+
+      setSuccessMessage(messages.join(' • '))
+    } catch (error) {
+      console.error('Failed to feed all pets:', error)
+      setErrorMessage('An error occurred while feeding your pets')
+    } finally {
+      setBulkFeedingInProgress(false)
+    }
+  }
+
+  // US-023: Check all pets' health
+  const handleCheckAllHealth = async () => {
+    if (!user) return
+
+    setHealthCheckInProgress(true)
+    setErrorMessage('')
+
+    try {
+      const response = await fetch(`/api/pets/health-check-all?userId=${user.id}`)
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrorMessage(data.error || 'Failed to check pet health')
+        return
+      }
+
+      setHealthSummary(data.summary)
+      setSuccessMessage(`Health check complete: ${data.summary.healthyCount}/${data.summary.totalPets} pets are healthy`)
+    } catch (error) {
+      console.error('Failed to check pet health:', error)
+      setErrorMessage('An error occurred while checking pet health')
+    } finally {
+      setHealthCheckInProgress(false)
+    }
+  }
+
+  // US-023: Handle pet selection from dropdown
+  const handlePetSelection = (petId: string) => {
+    setSelectedPetId(petId)
+    // Scroll to the selected pet card
+    const petElement = document.getElementById(`pet-card-${petId}`)
+    if (petElement) {
+      petElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // Briefly highlight the selected pet
+      petElement.classList.add('ring-4', 'ring-purple-500')
+      setTimeout(() => {
+        petElement.classList.remove('ring-4', 'ring-purple-500')
+      }, 2000)
+    }
+  }
+
   if (!user || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -434,6 +530,131 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* US-023: Multi-Pet Management Controls */}
+        {pets.length > 1 && (
+          <div className="mb-6 bg-white rounded-lg shadow p-4">
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Multi-Pet Management</h3>
+            <div className="flex flex-col md:flex-row gap-4">
+              {/* Pet Switcher Dropdown */}
+              <div className="flex-1">
+                <label htmlFor="pet-switcher" className="block text-sm font-medium text-gray-700 mb-2">
+                  Quick Switch to Pet:
+                </label>
+                <select
+                  id="pet-switcher"
+                  value={selectedPetId || ''}
+                  onChange={(e) => handlePetSelection(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                >
+                  <option value="">-- Select a pet --</option>
+                  {pets.map((pet) => (
+                    <option key={pet.id} value={pet.id}>
+                      {pet.name} (Gen {pet.generation}) - Health: {pet.health}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Bulk Actions */}
+              <div className="flex gap-3 items-end">
+                <button
+                  onClick={handleFeedAllPets}
+                  disabled={bulkFeedingInProgress}
+                  className={`px-6 py-2 rounded-lg font-semibold transition ${
+                    bulkFeedingInProgress
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {bulkFeedingInProgress ? '🔄 Feeding...' : '🍖 Feed All'}
+                </button>
+                <button
+                  onClick={handleCheckAllHealth}
+                  disabled={healthCheckInProgress}
+                  className={`px-6 py-2 rounded-lg font-semibold transition ${
+                    healthCheckInProgress
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                  }`}
+                >
+                  {healthCheckInProgress ? '🔄 Checking...' : '🏥 Check All Health'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* US-023: Health Summary Display */}
+        {healthSummary && (
+          <div className="mb-6 bg-white rounded-lg shadow p-4">
+            <h3 className="text-lg font-semibold text-gray-700 mb-3">Health Check Results</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Healthy Pets */}
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">✅</span>
+                  <span className="text-2xl font-bold text-green-700">{healthSummary.healthyCount}</span>
+                </div>
+                <h4 className="font-semibold text-green-800">Healthy</h4>
+                {healthSummary.healthy.length > 0 && (
+                  <ul className="mt-2 text-xs text-green-700">
+                    {healthSummary.healthy.slice(0, 3).map((pet: any) => (
+                      <li key={pet.id}>• {pet.name}</li>
+                    ))}
+                    {healthSummary.healthy.length > 3 && (
+                      <li>• +{healthSummary.healthy.length - 3} more</li>
+                    )}
+                  </ul>
+                )}
+              </div>
+
+              {/* Warning Pets */}
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">⚠️</span>
+                  <span className="text-2xl font-bold text-yellow-700">{healthSummary.warning.length}</span>
+                </div>
+                <h4 className="font-semibold text-yellow-800">Need Attention</h4>
+                {healthSummary.warning.length > 0 && (
+                  <ul className="mt-2 text-xs text-yellow-700">
+                    {healthSummary.warning.slice(0, 3).map((pet: any) => (
+                      <li key={pet.id}>• {pet.name}: {pet.issues.join(', ')}</li>
+                    ))}
+                    {healthSummary.warning.length > 3 && (
+                      <li>• +{healthSummary.warning.length - 3} more</li>
+                    )}
+                  </ul>
+                )}
+              </div>
+
+              {/* Critical Pets */}
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-2xl">🚨</span>
+                  <span className="text-2xl font-bold text-red-700">{healthSummary.critical.length}</span>
+                </div>
+                <h4 className="font-semibold text-red-800">Critical</h4>
+                {healthSummary.critical.length > 0 && (
+                  <ul className="mt-2 text-xs text-red-700">
+                    {healthSummary.critical.slice(0, 3).map((pet: any) => (
+                      <li key={pet.id}>• {pet.name} (Health: {pet.health})</li>
+                    ))}
+                    {healthSummary.critical.length > 3 && (
+                      <li>• +{healthSummary.critical.length - 3} more</li>
+                    )}
+                  </ul>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => setHealthSummary(null)}
+              className="mt-4 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+            >
+              Close Summary
+            </button>
+          </div>
+        )}
+
         {pets.length === 0 ? (
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <div className="text-6xl mb-4">🐾</div>
@@ -456,7 +677,7 @@ export default function DashboardPage() {
                 .map((pt) => pt.trait.traitName);
 
               return (
-                <div key={pet.id} className={`bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition ${pet.isCritical ? 'border-4 border-red-500' : ''}`}>
+                <div key={pet.id} id={`pet-card-${pet.id}`} className={`bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition ${pet.isCritical ? 'border-4 border-red-500' : ''}`}>
                   {/* US-008: Critical State Banner */}
                   {pet.isCritical && (
                     <div className="mb-4 p-4 bg-red-600 text-white rounded-lg">
