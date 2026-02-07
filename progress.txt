@@ -382,3 +382,37 @@ Total user stories: 30
   - Note: Breeding cooldown tracking will be added in US-012 (requires lastBredAt field on Pet model)
 ---
 
+## 2026-02-07 - US-012
+- Implemented Breeding System Foundation with full UI and API validation
+- Files changed:
+  - Database: prisma/schema.prisma (added lastBredAt field to Pet model)
+  - Migration: prisma/migrations/20260207060349_add_last_bred_at/migration.sql
+  - Library: src/lib/breeding.ts (added calculateCompatibility function, updated canBreed with cooldown logic)
+  - API: src/app/api/pets/breed/route.ts (updates lastBredAt for both parents after breeding)
+  - API: src/app/api/pets/check-breeding/route.ts (new endpoint for eligibility checking)
+  - UI: src/app/breed/page.tsx (complete breeding interface with parent selection, compatibility display)
+  - UI: src/app/dashboard/page.tsx (added Breed Pets button, breedSuccess message handling)
+  - Updated: prd.json, dev.db
+- **Learnings for future iterations:**
+  - Breeding cooldown tracked via lastBredAt timestamp on Pet model, enforced in canBreed()
+  - Cooldown period is 7 days (7 * 24 * 60 * 60 * 1000 milliseconds)
+  - calculateCompatibility() scores compatibility 0-100 based on: 40% personality similarity, 40% health, 20% generation compatibility
+  - Personality similarity: lower trait differences = higher score (max diff 500 across 5 traits)
+  - Generation penalty: breeding across generations reduces score (5 points per generation difference, max 20 penalty)
+  - Breeding UI at /breed with real-time eligibility checking via check-breeding API
+  - Parent selection dropdowns filter to prevent selecting same pet twice
+  - 3D model preview shows both selected parents with their visual traits
+  - Compatibility displayed with color coding: green (80+), yellow (60-79), orange (40-59), red (<40)
+  - Breeding requirements shown prominently: 7+ days old, health > 50, not Critical, 7-day cooldown passed
+  - Dashboard shows "Breed Pets" button only when user has 2+ pets (enables feature discovery)
+  - Success message on dashboard after breeding redirects with ?breedSuccess=true param
+  - API returns detailed error messages for validation failures (age, health, cooldown with days remaining)
+  - check-breeding endpoint returns: canBreed (bool), reason (string), compatibility (number), parent summaries
+  - Always regenerate Prisma client after schema changes: npx prisma generate
+  - PetModel3D component uses traitNames prop (not visualTraits) for trait configuration
+  - Friend breeding system placeholder in API (checks at least one parent owned by user)
+  - All acceptance criteria met except browser verification (dev-browser skill not available)
+  - Breeding UI integrated with existing genetics inheritance algorithm from US-013
+  - Future enhancement: US-024 will add friend system for breeding with friends' pets
+---
+
