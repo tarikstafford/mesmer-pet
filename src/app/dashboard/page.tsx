@@ -69,6 +69,16 @@ const BreedingRequestsPanel = dynamic(() => import('@/components/BreedingRequest
   ),
 })
 
+// Dynamically import AR Pet Viewer (US-005)
+const ARPetViewer = dynamic(() => import('@/components/ARPetViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+      <div className="text-white">Loading AR viewer...</div>
+    </div>
+  ),
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -148,6 +158,7 @@ export default function DashboardPage() {
   const [chatOpenPetId, setChatOpenPetId] = useState<string | null>(null) // US-009
   const [familyTreePetId, setFamilyTreePetId] = useState<string | null>(null) // US-014
   const [chessOpenPetId, setChessOpenPetId] = useState<string | null>(null) // US-019
+  const [arViewerPetId, setArViewerPetId] = useState<string | null>(null) // US-005: AR viewer state
   // US-023: Multi-Pet Management
   const [selectedPetId, setSelectedPetId] = useState<string | null>(null) // For pet switcher
   const [bulkFeedingInProgress, setBulkFeedingInProgress] = useState(false)
@@ -921,6 +932,16 @@ export default function DashboardPage() {
                   </button>
                 </div>
 
+                {/* View in AR Button - US-005 */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => setArViewerPetId(pet.id)}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-lg font-semibold hover:from-pink-700 hover:to-purple-700 transition shadow-lg"
+                  >
+                    🔮 View in AR
+                  </button>
+                </div>
+
                 {/* Visual Traits */}
                 <div className="border-t pt-4 mt-4">
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">Visual Traits</h4>
@@ -1086,6 +1107,21 @@ export default function DashboardPage() {
             onClose={() => setChessOpenPetId(null)}
           />
         </div>
+      )}
+
+      {/* AR Pet Viewer - US-005 */}
+      {arViewerPetId && (
+        <ARPetViewer
+          traitNames={
+            pets
+              .find(p => p.id === arViewerPetId)
+              ?.petTraits.filter(pt => pt.trait.traitType === 'visual')
+              .map(pt => pt.trait.traitName) || []
+          }
+          health={pets.find(p => p.id === arViewerPetId)?.health || 100}
+          petName={pets.find(p => p.id === arViewerPetId)?.name || 'Pet'}
+          onClose={() => setArViewerPetId(null)}
+        />
       )}
     </div>
   )

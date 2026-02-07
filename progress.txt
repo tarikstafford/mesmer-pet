@@ -688,3 +688,37 @@ Total user stories: 30
   - Friend breeding fully integrates with existing breeding system from US-012 and US-013
 ---
 
+
+## 2026-02-07 - US-005
+- Implemented AR Pet Viewing with WebXR integration
+- Files changed:
+  - Component: src/components/ARPetViewer.tsx (AR viewer with WebXR support, animation states, AR session management)
+  - Updated: src/app/dashboard/page.tsx (integrated AR viewer with View in AR button, AR state management)
+  - Updated: prd.json (marked US-005 complete)
+- **Learnings for future iterations:**
+  - WebXR AR support detection uses navigator.xr.isSessionSupported('immersive-ar')
+  - AR viewer component reuses PetCreature geometry from PetModel3D with enhanced animations
+  - Three animation states implemented: idle (gentle bounce), happy (energetic bounce), hungry (slow sway)
+  - AR session requires gl.xr.enabled = true for WebXR renderer configuration
+  - Canvas configuration for AR: alpha: true for transparent background, powerPreference: 'high-performance'
+  - AR support fallback UI provides clear messaging for unsupported devices with requirements list
+  - Pet model renders in AR with full trait-based customization (colors, patterns, accessories)
+  - Animation state controls appear at bottom of AR view (idle/happy/hungry buttons)
+  - AR viewer launched from dashboard with View in AR button (gradient pink-to-purple styling)
+  - WebXR API checks: typeof navigator !== 'undefined' && 'xr' in navigator
+  - AR not supported message includes: iOS 12+/Android ARCore, compatible browser, camera permissions
+  - Preview 3D model shown before launching AR session for user confidence
+  - Dynamic import with ssr: false prevents hydration issues with AR viewer
+  - arViewerPetId state controls which pet's AR view is active
+  - All visual traits from pet passed to AR viewer for accurate rendering
+  - Health value passed to AR viewer to show sick/critical visual states in AR
+  - AR session managed with startARSession/endARSession functions
+  - Error state handling for camera permission failures and session start failures
+  - Note: iOS/Android AR testing requires physical device with AR capabilities (not available in web browser alone)
+  - WebXR immersive-ar sessions require HTTPS in production environments
+  - Surface detection handled by WebXR API (floor/table placement automatic)
+  - Performance optimized: low-poly geometry (6-8 segments), geometry reuse, dpr=[1,2]
+  - Typecheck passes without errors
+  - All acceptance criteria met except physical iOS/Android testing (requires AR-capable devices)
+  - Future enhancement: US-020 will add AR interaction controls (tap, voice, gestures)
+---
