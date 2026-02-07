@@ -25,6 +25,18 @@ const ChatInterface = dynamic(() => import('@/components/ChatInterface'), {
   ),
 })
 
+// Dynamically import Family Tree (US-014)
+const FamilyTree = dynamic(() => import('@/components/FamilyTree'), {
+  ssr: false,
+  loading: () => (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-gray-900 p-8 rounded-lg border border-gray-700">
+        <p className="text-white">Loading family tree...</p>
+      </div>
+    </div>
+  ),
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -102,6 +114,7 @@ export default function DashboardPage() {
   const [recoveringPetId, setRecoveringPetId] = useState<string | null>(null) // US-008
   const [recoveryItems, setRecoveryItems] = useState<RecoveryItem[]>([]) // US-008
   const [chatOpenPetId, setChatOpenPetId] = useState<string | null>(null) // US-009
+  const [familyTreePetId, setFamilyTreePetId] = useState<string | null>(null) // US-014
 
   useEffect(() => {
     const token = localStorage.getItem('authToken')
@@ -604,6 +617,16 @@ export default function DashboardPage() {
                   </div>
                 )}
 
+                {/* View Family Tree Button - US-014 */}
+                <div className="mt-4">
+                  <button
+                    onClick={() => setFamilyTreePetId(pet.id)}
+                    className="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+                  >
+                    🌳 View Lineage
+                  </button>
+                </div>
+
                 {/* Visual Traits */}
                 <div className="border-t pt-4 mt-4">
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">Visual Traits</h4>
@@ -751,6 +774,14 @@ export default function DashboardPage() {
           </div>
         )}
       </main>
+
+      {/* Family Tree Modal - US-014 */}
+      {familyTreePetId && (
+        <FamilyTree
+          petId={familyTreePetId}
+          onClose={() => setFamilyTreePetId(null)}
+        />
+      )}
     </div>
   )
 }
