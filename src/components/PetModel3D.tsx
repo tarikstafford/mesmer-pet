@@ -8,34 +8,62 @@ import { getPetModelConfig, type PetModelConfig } from '@/lib/petModelConfig';
 
 interface PetModel3DProps {
   traitNames: string[];
+  health?: number; // US-007: Health value for sick appearance
   width?: number;
   height?: number;
   autoRotate?: boolean;
 }
 
 // Low-poly pet creature component
-function PetCreature({ config }: { config: PetModelConfig }) {
+function PetCreature({ config, health = 100 }: { config: PetModelConfig; health?: number }) {
   const groupRef = useRef<THREE.Group>(null);
 
-  // Idle animation
+  // US-007: Determine if pet is sick based on health
+  const isSick = health < 40;
+  const isCritical = health < 20;
+
+  // Idle animation (slower when sick)
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.1;
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 2) * 0.05;
+      const speedMultiplier = isSick ? 0.3 : 1.0; // Slower animation when sick
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.5 * speedMultiplier) * 0.1;
+
+      // Less bouncy when sick, more droopy
+      const bounceAmount = isSick ? 0.02 : 0.05;
+      const baseY = isSick ? -0.1 : 0; // Lower position when sick
+      groupRef.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 2 * speedMultiplier) * bounceAmount;
     }
   });
 
-  // Create materials based on traits
+  // Create materials based on traits and health state
   const bodyMaterial = useMemo(() => {
-    if (config.hasRainbowShimmer) {
+    // US-007: Sick appearance - desaturated colors, dull finish
+    let baseColor = config.baseColor;
+    let emissiveColor = config.baseColor;
+    let emissiveIntensity = 0.3;
+
+    if (isCritical) {
+      // Critical: very gray, almost lifeless
+      baseColor = '#666666';
+      emissiveColor = '#ff0000';
+      emissiveIntensity = 0.1; // Dim red glow
+    } else if (isSick) {
+      // Sick: desaturated, darker
+      const color = new THREE.Color(baseColor);
+      color.multiplyScalar(0.6); // Darken
+      color.lerp(new THREE.Color('#999999'), 0.4); // Desaturate
+      baseColor = '#' + color.getHexString();
+    }
+
+    if (config.hasRainbowShimmer && !isSick) {
       return new THREE.MeshStandardMaterial({
-        color: config.baseColor,
+        color: baseColor,
         metalness: 0.8,
         roughness: 0.2,
-        emissive: config.baseColor,
+        emissive: emissiveColor,
         emissiveIntensity: 0.3,
       });
-    } else if (config.hasGalaxyPattern) {
+    } else if (config.hasGalaxyPattern && !isSick) {
       return new THREE.MeshStandardMaterial({
         color: '#1a0033',
         metalness: 0.5,
@@ -45,16 +73,30 @@ function PetCreature({ config }: { config: PetModelConfig }) {
       });
     } else {
       return new THREE.MeshStandardMaterial({
-        color: config.baseColor,
-        roughness: 0.6,
-        metalness: 0.1,
+        color: baseColor,
+        roughness: isSick ? 0.9 : 0.6, // Duller when sick
+        metalness: isSick ? 0.0 : 0.1,
+        emissive: isCritical ? emissiveColor : '#000000',
+        emissiveIntensity: isCritical ? emissiveIntensity : 0,
       });
     }
-  }, [config.baseColor, config.hasRainbowShimmer, config.hasGalaxyPattern]);
+  }, [config.baseColor, config.hasRainbowShimmer, config.hasGalaxyPattern, isSick, isCritical]);
 
-  // Eye material
+  // Eye material (dim or closed when sick)
   const eyeMaterial = useMemo(() => {
-    if (config.hasGlowingEyes) {
+    if (isCritical) {
+      // Critical: eyes barely visible
+      return new THREE.MeshStandardMaterial({
+        color: '#330000',
+        emissive: '#330000',
+        emissiveIntensity: 0.1,
+      });
+    } else if (isSick) {
+      // Sick: dull eyes
+      return new THREE.MeshStandardMaterial({
+        color: '#333333',
+      });
+    } else if (config.hasGlowingEyes) {
       return new THREE.MeshStandardMaterial({
         color: '#00ffff',
         emissive: '#00ffff',
@@ -62,7 +104,7 @@ function PetCreature({ config }: { config: PetModelConfig }) {
       });
     }
     return new THREE.MeshStandardMaterial({ color: '#000000' });
-  }, [config.hasGlowingEyes]);
+  }, [config.hasGlowingEyes, isSick, isCritical]);
 
   // Horn material (transparent crystal)
   const hornMaterial = useMemo(() => {
@@ -186,6 +228,7 @@ function PetCreature({ config }: { config: PetModelConfig }) {
 // Main component with Canvas wrapper
 export default function PetModel3D({
   traitNames,
+  health = 100,
   width = 400,
   height = 400,
   autoRotate = true
@@ -205,7 +248,7 @@ export default function PetModel3D({
         <directionalLight position={[5, 5, 5]} intensity={1} castShadow={false} />
         <pointLight position={[-5, 5, -5]} intensity={0.5} />
 
-        <PetCreature config={config} />
+        <PetCreature config={config} health={health} />
 
         <OrbitControls
           enableZoom={true}

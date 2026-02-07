@@ -41,6 +41,13 @@ interface PetSkill {
   activatedDate: string
 }
 
+interface PetWarning {
+  type: string
+  severity: string
+  message: string
+  timestamp: string
+}
+
 interface Pet {
   id: string
   name: string
@@ -60,6 +67,7 @@ interface Pet {
   lastInteractionAt: string | null
   petTraits: PetTrait[]
   petSkills: PetSkill[]
+  warnings?: PetWarning[] // US-007: Active warnings for this pet
 }
 
 export default function DashboardPage() {
@@ -100,7 +108,25 @@ export default function DashboardPage() {
       const response = await fetch(`/api/pets?userId=${userId}`)
       if (response.ok) {
         const data = await response.json()
-        setPets(data.pets || [])
+        const petsData = data.pets || []
+
+        // US-007: Fetch warnings for each pet
+        const petsWithWarnings = await Promise.all(
+          petsData.map(async (pet: Pet) => {
+            try {
+              const warningResponse = await fetch(`/api/warnings/${pet.id}`)
+              if (warningResponse.ok) {
+                const warningData = await warningResponse.json()
+                return { ...pet, warnings: warningData.warnings || [] }
+              }
+            } catch (error) {
+              console.error(`Failed to fetch warnings for pet ${pet.id}:`, error)
+            }
+            return { ...pet, warnings: [] }
+          })
+        )
+
+        setPets(petsWithWarnings)
       }
     } catch (error) {
       console.error('Failed to fetch pets:', error)
@@ -176,6 +202,10 @@ export default function DashboardPage() {
         return
       }
 
+      // US-007: Refetch warnings after feeding
+      const warningResponse = await fetch(`/api/warnings/${petId}`)
+      const warningData = warningResponse.ok ? await warningResponse.json() : { warnings: [] }
+
       // Update the pet in the local state
       setPets((prevPets) =>
         prevPets.map((p) =>
@@ -185,6 +215,7 @@ export default function DashboardPage() {
                 hunger: data.pet.hunger,
                 happiness: data.pet.happiness,
                 health: data.pet.health,
+                warnings: warningData.warnings,
               }
             : p
         )
@@ -195,6 +226,24 @@ export default function DashboardPage() {
       setErrorMessage('An error occurred while feeding your pet')
     } finally {
       setFeedingPetId(null)
+    }
+  }
+
+  // US-007: Get warning styling
+  const getWarningStyle = (severity: string) => {
+    if (severity === 'critical') {
+      return {
+        bg: 'bg-red-100',
+        border: 'border-red-400',
+        text: 'text-red-900',
+        icon: '🚨',
+      }
+    }
+    return {
+      bg: 'bg-yellow-100',
+      border: 'border-yellow-400',
+      text: 'text-yellow-900',
+      icon: '⚠️',
     }
   }
 
@@ -275,10 +324,28 @@ export default function DashboardPage() {
 
               return (
                 <div key={pet.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
-                  {/* 3D Pet Model */}
+                  {/* US-007: Warning notifications */}
+                  {pet.warnings && pet.warnings.length > 0 && (
+                    <div className="mb-4 space-y-2">
+                      {pet.warnings.map((warning, index) => {
+                        const style = getWarningStyle(warning.severity)
+                        return (
+                          <div
+                            key={index}
+                            className={`p-3 ${style.bg} border ${style.border} ${style.text} rounded-lg text-sm font-semibold flex items-center gap-2`}
+                          >
+                            <span className="text-lg">{style.icon}</span>
+                            <span>{warning.message}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* 3D Pet Model - US-007: Pass health for sick appearance */}
                   <div className="mb-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg overflow-hidden">
                     <Suspense fallback={<div className="w-full h-64 flex items-center justify-center"><div className="text-gray-400">Loading...</div></div>}>
-                      <PetModel3D traitNames={visualTraitNames} width={350} height={280} autoRotate={true} />
+                      <PetModel3D traitNames={visualTraitNames} health={pet.health} width={350} height={280} autoRotate={true} />
                     </Suspense>
                   </div>
 
