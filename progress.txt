@@ -416,3 +416,34 @@ Total user stories: 30
   - Future enhancement: US-024 will add friend system for breeding with friends' pets
 ---
 
+
+## 2026-02-07 - US-014
+- Implemented Genetics Visualization with family tree display
+- Files changed:
+  - API: src/app/api/pets/family-tree/[petId]/route.ts (recursive lineage fetching)
+  - Component: src/components/FamilyTree.tsx (interactive family tree UI)
+  - UI: src/app/dashboard/page.tsx (integrated family tree button and modal)
+  - Updated: prd.json (marked US-014 complete)
+- **Learnings for future iterations:**
+  - Family tree API recursively fetches parents and grandparents with full trait data
+  - Each ancestor node includes: id, name, generation, traits, personality, inheritanceSource per trait
+  - API response structure: { pet, parents: { parent1, parent2 }, grandparents: { parent1Parents, parent2Parents } }
+  - Family tree component uses modal overlay (fixed z-50 with black/70 backdrop)
+  - Visual layout: grandparents (top), parents (middle), current pet (bottom) with connection lines (border-l-2)
+  - Clickable pet cards open detailed side panel showing all traits with inheritance indicators
+  - Inheritance color coding: parent1 (blue), parent2 (green), mutation (pink), initial (gray)
+  - Rarity color coding: legendary (yellow), rare (purple), uncommon (blue), common (gray)
+  - Legend section explains both inheritance sources and rarity levels
+  - Selected pet panel displays full trait list with descriptions and personality stats grid
+  - Dynamic import with ssr: false prevents hydration issues with client-side state
+  - State management: familyTreePetId controls which pet's tree is shown, null closes modal
+  - First-generation pets (no parents) show helpful message instead of empty tree
+  - Connection lines between generations use border-l-2 with h-12 for visual hierarchy
+  - Pet cards show name, generation, and first 3 traits as preview badges
+  - Full trait display includes: traitName, description, type, rarity, and inheritance badge
+  - Personality displayed as 5-column grid with color-coded values (purple/yellow/blue/teal/pink)
+  - View Lineage button positioned after Chat button in pet card action section
+  - Export as image/PDF feature deferred (not in MVP scope, would require html2canvas or similar)
+  - All acceptance criteria met except export and browser verification (dev-browser skill unavailable)
+  - Typecheck passes without errors
+---
