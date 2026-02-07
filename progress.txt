@@ -228,3 +228,39 @@ Total user stories: 30
   - Push notifications and email alerts deferred - require external service integration (SendGrid, Firebase Cloud Messaging)
 ---
 
+## 2026-02-07 - US-008
+- Implemented Pet Death Prevention and Recovery System with Critical state mechanics
+- Files changed:
+  - Database: prisma/schema.prisma (added isCritical, maxHealthPenalty, neglectStartedAt to Pet; RecoveryItem and UserRecoveryItem models)
+  - Migration: prisma/migrations/20260207053510_add_critical_state_and_recovery/migration.sql
+  - Library: src/lib/recovery.ts (Critical state detection, recovery mechanics, grace period logic, penalty calculation)
+  - Library: src/lib/statDegradation.ts (integrated grace period and Critical state into degradation calculations)
+  - Background: src/lib/backgroundJobs.ts (updated to handle Critical state and neglectStartedAt fields)
+  - API: src/app/api/pets/recover/route.ts (POST endpoint to use recovery items)
+  - API: src/app/api/recovery-items/user/[userId]/route.ts (GET user's recovery items)
+  - API: src/app/api/recovery-items/grant/route.ts (POST to grant items for testing/admin)
+  - API: src/app/api/pets/update-stats/route.ts (updated to handle new Critical state fields)
+  - Seed: prisma/seed.ts (added 3 recovery items: Health Potion, Super Health Potion, Revival Spell)
+  - UI: src/app/dashboard/page.tsx (Critical state banner, recovery button, disabled interactions, penalty display)
+  - Updated: prd.json (marked US-008 complete), dev.db
+- **Learnings for future iterations:**
+  - Critical state triggered when health reaches 0 or below
+  - Pets in Critical state cannot degrade further, cannot be fed, cannot breed (interactions blocked)
+  - Recovery items stored as separate models: RecoveryItem (catalog) and UserRecoveryItem (inventory with quantity)
+  - Recovery mechanics: restores health to 50, adds 10% max health penalty (cumulative), resets neglect period
+  - Grace period: First 24 hours of neglect have 50% slower stat degradation (applies to hunger, happiness, health rates)
+  - neglectStartedAt tracks when pet first entered neglected state (hunger > 50 or happiness < 50)
+  - Grace period resets when pet returns to good care (all stats healthy)
+  - Max health penalty reduces effective max health: if penalty is 20%, max health is 80 instead of 100
+  - Recovery item quantities tracked and decremented on use, deleted from inventory when quantity reaches 0
+  - Health Potion is earnable (price $0.99, earnable=true), others are purchasable only
+  - Dashboard shows red border around Critical pets, prominent recovery banner with skull emoji
+  - Feed button disabled with tooltip when pet is Critical
+  - 3D model already handles health < 20 as Critical visually (from US-007), no changes needed
+  - Admin grant endpoint allows giving items to users for testing: POST /api/recovery-items/grant with userId, itemName, quantity
+  - calculateStatDegradation now takes 5 params: stats, lastUpdate, lastInteraction, neglectStartedAt, isCritical, timezoneOffset
+  - Always update background jobs and update-stats API when changing stat degradation signature
+  - Recovery items could be integrated into marketplace later (US-015/US-016 for purchases)
+  - Consider adding more recovery item types in future (instant recovery, bonus effects, etc.)
+---
+
