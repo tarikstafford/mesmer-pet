@@ -264,3 +264,37 @@ Total user stories: 30
   - Consider adding more recovery item types in future (instant recovery, bonus effects, etc.)
 ---
 
+
+## 2026-02-07 - US-010
+- Implemented Hybrid Memory System with GPT-4o-mini summarization
+- Files changed:
+  - Database: prisma/schema.prisma (added Interaction and MemorySummary models)
+  - Migration: prisma/migrations/20260207054311_add_hybrid_memory_system/migration.sql
+  - Library: src/lib/memory.ts (storage, retrieval, pruning, formatting)
+  - Library: src/lib/memorySummarization.ts (GPT-4o-mini summarization service)
+  - API: src/app/api/memory/store/route.ts (POST to store interactions)
+  - API: src/app/api/memory/[petId]/route.ts (GET memory context)
+  - API: src/app/api/memory/summarize/route.ts (POST/GET to trigger summarization)
+  - Background: src/lib/backgroundJobs.ts (daily summarization job at 2 AM)
+  - Dependencies: package.json, package-lock.json (added openai SDK)
+  - Updated: prd.json, dev.db
+- **Learnings for future iterations:**
+  - Memory system separates recent (Interaction) from historical (MemorySummary) data
+  - Interaction model stores: petId, userId, role ('user'/'assistant'), message, context, createdAt
+  - MemorySummary model stores: petId, summary, periodStart, periodEnd for time-bounded summaries
+  - Automatic pruning keeps only last 50 interactions per pet (deleteMany after insert)
+  - GPT-4o-mini summarization uses max 500 tokens, temperature 0.3 for consistency
+  - Summarization prompt asks for key topics, events, personality traits, user preferences, emotional moments
+  - Memory retrieval combines recent interactions (chronological) + historical summaries (period-based)
+  - formatMemoryForPrompt() creates a string format ready for LLM system prompt injection
+  - Daily cron job checks every hour if it's 2 AM and hasn't run today (tracks lastSummarizationDate)
+  - Summarization only runs on interactions older than 30 days that aren't already summarized
+  - After summarization, old interactions are deleted (they're now in the summary)
+  - OpenAI SDK requires OPENAI_API_KEY environment variable (added to .env but not committed)
+  - getInteractionsForSummarization checks for existing summaries to avoid duplicate work
+  - Memory APIs follow pattern: /memory/store (POST), /memory/[petId] (GET), /memory/summarize (POST/GET)
+  - Background job uses setInterval with 1-hour checks instead of daily setTimeout for reliability
+  - Composite index on (petId, createdAt DESC) optimizes recent interaction queries
+  - System is ready for US-009 (LLM chat) and US-011 (personality system) integration
+  - Note: Users will need to set OPENAI_API_KEY in .env for summarization to work
+---
