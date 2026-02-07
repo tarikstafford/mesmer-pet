@@ -29,6 +29,8 @@ model User {
   accounts          Account[]
   userSkills        UserSkill[]
   recoveryItems     UserRecoveryItem[]
+  engagement        UserEngagement?
+  challenges        UserChallenge[]
 
   @@index([email])
 }
@@ -295,4 +297,62 @@ model GameState {
   @@index([petId])
   @@index([gameType])
   @@index([status])
+}
+
+// US-022: Daily Engagement System
+model UserEngagement {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  lastLoginDate     DateTime @default(now())
+  currentStreak     Int      @default(1)
+  longestStreak     Int      @default(1)
+  totalLogins       Int      @default(1)
+  virtualCurrency   Int      @default(0)  // Earned through daily bonuses and challenges
+
+  // Milestone tracking
+  milestone7Days    Boolean  @default(false)
+  milestone30Days   Boolean  @default(false)
+  milestone100Days  Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lastLoginDate])
+}
+
+model DailyChallenge {
+  id              String   @id @default(uuid())
+  challengeName   String   @unique
+  description     String
+  challengeType   String   // 'feed', 'chat', 'breed', 'health_check', 'play_game'
+  targetCount     Int      // Number of times action must be performed
+  reward          Int      // Virtual currency reward
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+
+  userChallenges  UserChallenge[]
+
+  @@index([active])
+}
+
+model UserChallenge {
+  id              String   @id @default(uuid())
+  userId          String
+  challengeId     String
+  currentCount    Int      @default(0)
+  completed       Boolean  @default(false)
+  assignedDate    DateTime @default(now())
+  completedDate   DateTime?
+
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge       DailyChallenge  @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, challengeId, assignedDate])
+  @@index([userId])
+  @@index([challengeId])
+  @@index([assignedDate])
+  @@index([completed])
 }

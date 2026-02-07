@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { breedPets, canBreed } from '@/lib/breeding';
 import jwt from 'jsonwebtoken';
+import { updateChallengeProgress } from '@/lib/engagement';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -105,6 +106,11 @@ export async function POST(req: NextRequest) {
         data: { lastBredAt: now },
       }),
     ]);
+
+    // US-022: Track challenge progress for breeding
+    await updateChallengeProgress(userId, 'breed', 1).catch((err) => {
+      console.warn('Failed to update breed challenge:', err);
+    });
 
     return NextResponse.json({
       message: 'Breeding successful!',

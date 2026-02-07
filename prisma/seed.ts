@@ -227,6 +227,50 @@ const predefinedSkills = [
   },
 ];
 
+// US-022: Daily Challenges for engagement system
+const dailyChallenges = [
+  {
+    challengeName: 'Feed Your Pets',
+    description: 'Feed your pet 3 times today',
+    challengeType: 'feed',
+    targetCount: 3,
+    reward: 10,
+    active: true,
+  },
+  {
+    challengeName: 'Chat Marathon',
+    description: 'Have 5 conversations with your pet',
+    challengeType: 'chat',
+    targetCount: 5,
+    reward: 15,
+    active: true,
+  },
+  {
+    challengeName: 'Health Checkup',
+    description: 'Check the health status of all your pets',
+    challengeType: 'health_check',
+    targetCount: 1,
+    reward: 5,
+    active: true,
+  },
+  {
+    challengeName: 'Game Time',
+    description: 'Play 2 games with your pet (chess or other activities)',
+    challengeType: 'play_game',
+    targetCount: 2,
+    reward: 20,
+    active: true,
+  },
+  {
+    challengeName: 'Social Breeder',
+    description: 'Breed a new pet to expand your collection',
+    challengeType: 'breed',
+    targetCount: 1,
+    reward: 25,
+    active: true,
+  },
+];
+
 async function main() {
   console.log('🌱 Starting seed...');
 
@@ -241,6 +285,10 @@ async function main() {
   // US-015: Clear existing skills
   await prisma.skill.deleteMany({});
   console.log('🧹 Cleared existing skills');
+
+  // US-022: Clear existing daily challenges
+  await prisma.dailyChallenge.deleteMany({});
+  console.log('🧹 Cleared existing daily challenges');
 
   // Insert predefined traits
   for (const trait of predefinedTraits) {
@@ -268,6 +316,15 @@ async function main() {
   }
 
   console.log(`✅ Created ${predefinedSkills.length} skills`);
+
+  // US-022: Insert daily challenges
+  for (const challenge of dailyChallenges) {
+    await prisma.dailyChallenge.create({
+      data: challenge,
+    });
+  }
+
+  console.log(`✅ Created ${dailyChallenges.length} daily challenges`);
 
   // Verify rarity distribution
   const rarityCount = await prisma.trait.groupBy({

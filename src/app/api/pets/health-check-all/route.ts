@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { updateChallengeProgress } from '@/lib/engagement'
 
 /**
  * US-023: Check health status of all pets owned by a user
@@ -94,6 +95,11 @@ export async function GET(request: NextRequest) {
         healthSummary.healthyCount++
       }
     }
+
+    // US-022: Track challenge progress for health check
+    await updateChallengeProgress(userId, 'health_check', 1).catch((err) => {
+      console.warn('Failed to update health check challenge:', err);
+    });
 
     return NextResponse.json({
       summary: healthSummary,

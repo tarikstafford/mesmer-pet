@@ -6,6 +6,7 @@ import { generatePersonalityPrompt } from '@/lib/personality';
 import { formatMemoryForPrompt } from '@/lib/memory';
 import { generateSkillPrompts, hasChessSkill } from '@/lib/skillPrompts';
 import { FENToGame, boardToASCII } from '@/lib/chess';
+import { updateChallengeProgress } from '@/lib/engagement';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -155,6 +156,11 @@ Guidelines:
     await prisma.pet.update({
       where: { id: petId },
       data: { lastInteractionAt: new Date() },
+    });
+
+    // US-022: Track challenge progress for chatting
+    await updateChallengeProgress(userId, 'chat', 1).catch((err) => {
+      console.warn('Failed to update chat challenge:', err);
     });
 
     return NextResponse.json({

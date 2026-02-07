@@ -49,6 +49,16 @@ const ChessBoard = dynamic(() => import('@/components/ChessBoard'), {
   ),
 })
 
+// Dynamically import Engagement Panel (US-022)
+const EngagementPanel = dynamic(() => import('@/components/EngagementPanel'), {
+  ssr: false,
+  loading: () => (
+    <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg p-6 text-white">
+      <p>Loading engagement data...</p>
+    </div>
+  ),
+})
+
 interface Trait {
   id: string
   traitName: string
@@ -526,6 +536,11 @@ export default function DashboardPage() {
             {errorMessage}
           </div>
         )}
+
+        {/* US-022: Daily Engagement Panel */}
+        <div className="mb-8">
+          <EngagementPanel userId={user.id} />
+        </div>
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-3xl font-bold text-gray-800">Your Pets</h2>

@@ -15,6 +15,7 @@ import {
   boardToASCII,
   getLegalMoves
 } from '@/lib/chess';
+import { updateChallengeProgress } from '@/lib/engagement';
 
 // POST /api/games/chess/move - Make a chess move
 export async function POST(request: NextRequest) {
@@ -159,6 +160,18 @@ export async function POST(request: NextRequest) {
         updatedAt: new Date()
       }
     });
+
+    // US-022: Track challenge progress for playing games
+    // Get pet and userId from game state
+    const pet = await prisma.pet.findUnique({
+      where: { id: gameState.petId },
+      select: { userId: true }
+    });
+    if (pet) {
+      await updateChallengeProgress(pet.userId, 'play_game', 1).catch((err) => {
+        console.warn('Failed to update play_game challenge:', err);
+      });
+    }
 
     return NextResponse.json({
       gameId,

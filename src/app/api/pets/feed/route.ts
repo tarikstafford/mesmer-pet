@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { feedPet } from '@/lib/feeding';
+import { updateChallengeProgress } from '@/lib/engagement';
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,13 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await feedPet(petId, userId);
+
+    // US-022: Track challenge progress for feeding
+    if (result.success) {
+      await updateChallengeProgress(userId, 'feed', 1).catch((err) => {
+        console.warn('Failed to update feed challenge:', err);
+      });
+    }
 
     if (!result.success) {
       return NextResponse.json(
