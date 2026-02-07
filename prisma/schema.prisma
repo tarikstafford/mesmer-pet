@@ -27,6 +27,7 @@ model User {
   pets              Pet[]
   sessions          Session[]
   accounts          Account[]
+  userSkills        UserSkill[]
 
   @@index([email])
 }
@@ -76,8 +77,9 @@ model Pet {
   userId    String
   createdAt DateTime @default(now())
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   petTraits PetTrait[]
+  petSkills PetSkill[]
 
   @@index([userId])
 }
@@ -110,4 +112,49 @@ model PetTrait {
   @@unique([petId, traitId])
   @@index([petId])
   @@index([traitId])
+}
+
+// US-017: Skill Activation and Storage
+model Skill {
+  id          String   @id @default(uuid())
+  skillName   String   @unique
+  category    String   // 'education', 'games', 'arts', 'sports'
+  description String
+  price       Float    // Price in USD
+  createdAt   DateTime @default(now())
+
+  userSkills  UserSkill[]
+  petSkills   PetSkill[]
+
+  @@index([category])
+}
+
+model UserSkill {
+  id           String   @id @default(uuid())
+  userId       String
+  skillId      String
+  purchaseDate DateTime @default(now())
+  active       Boolean  @default(true)
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill        Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, skillId])
+  @@index([userId])
+  @@index([skillId])
+}
+
+model PetSkill {
+  id            String   @id @default(uuid())
+  petId         String
+  skillId       String
+  proficiency   Int      @default(0) // 0-100
+  activatedDate DateTime @default(now())
+
+  pet           Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  skill         Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([petId, skillId])
+  @@index([petId])
+  @@index([skillId])
 }
