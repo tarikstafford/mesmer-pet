@@ -1,8 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
+
+// Dynamically import 3D model to avoid SSR issues
+const PetModel3D = dynamic(() => import('@/components/PetModel3D'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-64 flex items-center justify-center bg-gray-100 rounded-lg">
+      <div className="text-gray-400">Loading 3D model...</div>
+    </div>
+  ),
+})
 
 interface Trait {
   id: string
@@ -162,15 +173,24 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pets.map((pet) => (
-              <div key={pet.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
+            {pets.map((pet) => {
+              const visualTraitNames = pet.petTraits
+                .filter((pt) => pt.trait.traitType === 'visual')
+                .map((pt) => pt.trait.traitName);
+
+              return (
+                <div key={pet.id} className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition">
+                  {/* 3D Pet Model */}
+                  <div className="mb-4 bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg overflow-hidden">
+                    <Suspense fallback={<div className="w-full h-64 flex items-center justify-center"><div className="text-gray-400">Loading...</div></div>}>
+                      <PetModel3D traitNames={visualTraitNames} width={350} height={280} autoRotate={true} />
+                    </Suspense>
+                  </div>
+
+                  <div className="mb-4">
                     <h3 className="text-2xl font-bold text-gray-800">{pet.name}</h3>
                     <p className="text-sm text-gray-500">Generation {pet.generation}</p>
                   </div>
-                  <div className="text-4xl">🐾</div>
-                </div>
 
                 {/* Stats */}
                 <div className="space-y-2 mb-4">
@@ -257,7 +277,8 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
