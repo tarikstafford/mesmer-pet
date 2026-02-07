@@ -85,3 +85,26 @@ Total user stories: 30
   - Next.js 16 dynamic routes use `params` as Promise, must await before accessing
 ---
 
+## 2026-02-07 - US-002
+- Implemented Pet Creation with Genetics Initialization
+- Files changed:
+  - Database: prisma/schema.prisma (expanded Pet model with stats, personality, lineage)
+  - Migration: prisma/migrations/20260207024255_add_pet_creation_fields/migration.sql
+  - Library: src/lib/genetics.ts (random trait assignment, pet creation logic)
+  - API routes: src/app/api/pets/route.ts (POST to create, GET to fetch pets)
+  - UI pages: src/app/pets/create/page.tsx (pet creation wizard), src/app/dashboard/page.tsx (pet display)
+  - Updated: prd.json, dev.db
+- **Learnings for future iterations:**
+  - Pet model now includes: stats (health, hunger, happiness, energy), personality traits (5 attributes), and lineage tracking
+  - Pet creation assigns random traits based on rarity distribution (60% common, 25% uncommon, 10% rare, 5% legendary)
+  - Default trait assignment: 4 visual traits, 3 personality traits per new pet
+  - Pet limit enforced at API level: 10 pets max per user (MVP constraint)
+  - Dashboard displays pets with stat bars (green=health, yellow=happiness, blue=energy, red=hunger)
+  - Trait badges color-coded by rarity: legendary=yellow, rare=purple, uncommon=blue, common=gray
+  - Personality traits stored as integers 0-100, randomly generated for first-generation pets
+  - Auth token stored as 'authToken' in localStorage (from US-001), decoded client-side for userId
+  - Pet creation wizard at /pets/create, accessible from dashboard "Create Pet" button
+  - Success message shown on dashboard after pet creation via URL param ?petCreated=true
+  - Prisma createMany does not support skipDuplicates in some configurations, removed to pass typecheck
+---
+
