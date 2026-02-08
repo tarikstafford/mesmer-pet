@@ -221,3 +221,22 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Memory summarization job calls summarizeAllPetMemories which processes old interactions
   - All 13 tests passing, typecheck passes
 ---
+## 2026-02-08 17:02 - US-TEST-017
+- Implemented comprehensive marketplace transaction logic test suite
+- Files changed:
+  - src/lib/marketplace.ts (created with createListing, purchasePet, cancelListing functions)
+  - src/__tests__/lib/marketplace.test.ts (created with 28 tests covering all marketplace scenarios)
+  - test.db (updated schema with MarketplaceListing table via prisma db push)
+  - scripts/ralph/prd.json (marked US-TEST-017 as passing)
+- **Learnings for future iterations:**
+  - MarketplaceListing model exists in schema.prisma with unique constraint on petId field
+  - Marketplace uses virtual currency from UserEngagement model (not real money)
+  - Transaction functions use Prisma transactions ($transaction) for atomic operations
+  - createListing uses upsert to handle relisting after cancellation (unique constraint on petId)
+  - purchasePet handles: currency validation, ownership transfer, listing status update, seller/buyer currency updates
+  - Race conditions are prevented by transaction atomicity - only one buyer can purchase at a time
+  - If seller doesn't have UserEngagement record, it's created automatically with the sale proceeds
+  - Cancel operation only works on active listings - prevents cancelling sold/cancelled listings
+  - After running schema changes, always regenerate Prisma client (npx prisma generate) and push to test DB (DATABASE_URL="file:./test.db" npx prisma db push)
+  - All 28 tests passing, typecheck passes
+---
