@@ -1012,3 +1012,36 @@ Total user stories: 30
   - Mock request body passed to route handler via MockNextRequest class implementing json() method
   - Typecheck passes without errors
 ---
+
+## 2026-02-08 - US-TEST-005
+- Implemented comprehensive pets API test suite with 30 tests
+- Files changed:
+  - Created: src/__tests__/api/pets.test.ts (30 tests covering all pets endpoints)
+  - Updated: src/lib/genetics.ts (fixed duplicate trait assignment bug)
+  - Updated: scripts/ralph/prd.json (marked US-TEST-005 complete)
+- **Learnings for future iterations:**
+  - Pets API test suite covers: POST /api/pets (create), GET /api/pets (fetch all), POST /api/pets/feed (feed with cooldown), POST /api/pets/recover (recovery items)
+  - Created MockNextRequest class to simulate NextRequest with json() and url properties
+  - Test database cleanup must include all related tables: userRecoveryItem, recoveryItem, pet, user, trait
+  - Feed API returns message: "Pet fed successfully!" with exclamation mark
+  - Feed cooldown error message: "Pet was recently fed. Please wait X more minutes."
+  - Feed API does NOT block feeding Critical pets (current implementation allows it)
+  - Feed API returns 400 (not 404) when pet not found (feedPet returns success:false, message:"Pet not found")
+  - RecoveryItem schema has NO healthRestore field (uses itemType, price, earnable instead)
+  - Recover API expects itemId parameter (UUID), not itemName
+  - Recover API validation error: "No recovery items available" when user doesn't own item
+  - Recover API expects userId_itemId composite key for UserRecoveryItem lookups
+  - Genetics assignRandomTraits had duplicate trait bug - needed usedTraitIds Set with notIn filter
+  - Duplicate prevention critical when limited test traits (5 traits, 7 requested = duplicates without Set)
+  - Pet creation with genetics uses 4 visual + 3 personality traits by default
+  - createPetWithGenetics can return null, need non-null assertions (pet!.id) in tests
+  - Test structure: 30 tests across 5 describe blocks (create, get, feed, recover, edge cases)
+  - All 30 tests passing, typecheck passes without errors
+  - Feeding tests verify: stats update, cooldown enforcement, invalid inputs, edge cases
+  - Recovery tests verify: item usage, quantity decrement, deletion at 0, validation errors
+  - Edge case tests verify: concurrent creation, zero stats, max stats handling
+  - Pattern: Use beforeEach to create test user and traits, afterEach for full cleanup
+  - Pattern: For tests requiring pets, use nested beforeEach in describe blocks
+  - API endpoints tested: GET /api/pets, POST /api/pets, POST /api/pets/feed, POST /api/pets/recover
+  - Individual pet endpoints (GET/PUT/DELETE /api/pets/[id]) not found in codebase, adapted tests to actual API
+---
