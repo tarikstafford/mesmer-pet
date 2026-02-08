@@ -17,7 +17,7 @@
       ],
       "priority": 1,
       "passes": true,
-      "notes": "Completed - Vitest infrastructure fully configured with coverage thresholds and smoke tests passing"
+      "notes": "Completed - Vitest infrastructure set up with 100% coverage thresholds"
     },
     {
       "id": "US-TEST-002",
