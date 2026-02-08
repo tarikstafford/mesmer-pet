@@ -48,6 +48,7 @@ export async function assignRandomTraits(
   traitCounts: { visual: number; personality: number; skill?: number }
 ) {
   const assignedTraits: Array<{ traitId: string; inheritanceSource: string }> = [];
+  const usedTraitIds = new Set<string>(); // Track used traits to prevent duplicates
 
   // Get all available traits by type
   for (const [traitType, count] of Object.entries(traitCounts)) {
@@ -57,18 +58,22 @@ export async function assignRandomTraits(
       // Determine rarity for this trait selection
       const targetRarity = getRandomRarity();
 
-      // Fetch traits matching this type and rarity
+      // Fetch traits matching this type and rarity (excluding already used ones)
       const availableTraits = await prisma.trait.findMany({
         where: {
           traitType,
           rarity: targetRarity,
+          id: { notIn: Array.from(usedTraitIds) },
         },
       });
 
-      // If no traits found for this rarity, fetch from any rarity
+      // If no traits found for this rarity, fetch from any rarity (excluding used)
       if (availableTraits.length === 0) {
         const fallbackTraits = await prisma.trait.findMany({
-          where: { traitType },
+          where: {
+            traitType,
+            id: { notIn: Array.from(usedTraitIds) },
+          },
         });
 
         if (fallbackTraits.length > 0) {
@@ -77,7 +82,9 @@ export async function assignRandomTraits(
             traitId: randomTrait.id,
             inheritanceSource: 'initial',
           });
+          usedTraitIds.add(randomTrait.id); // Mark as used
         }
+        // If still no traits available, skip this assignment (happens when we've used all traits of this type)
       } else {
         // Randomly select one trait from available traits
         const randomTrait = availableTraits[Math.floor(Math.random() * availableTraits.length)];
@@ -85,6 +92,7 @@ export async function assignRandomTraits(
           traitId: randomTrait.id,
           inheritanceSource: 'initial',
         });
+        usedTraitIds.add(randomTrait.id); // Mark as used
       }
     }
   }
