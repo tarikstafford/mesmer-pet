@@ -118,3 +118,20 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Tutorial auto-initializes on first GET request if it doesn't exist
   - All 24 tests passing, typecheck passes
 ---
+## 2026-02-08 16:33 - US-TEST-011
+- Implemented comprehensive admin API test suite
+- Files changed:
+  - src/__tests__/api/admin.test.ts (created with 37 tests covering all admin scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-011 as passing)
+- **Learnings for future iterations:**
+  - Admin API endpoints test skill management, not user management as PRD suggested
+  - Admin endpoints: GET /api/admin/skills/list, POST /api/admin/skills/create, PATCH /api/admin/skills/update, PATCH /api/admin/skills/toggle, GET /api/admin/analytics/skills
+  - Admin authentication uses verifyAdminAuth() from @/lib/adminAuth, which checks User.isAdmin field
+  - verifyAdminAuth() throws errors with specific messages: "No authorization token provided", "Invalid token", "User not found", "Unauthorized: Admin access required"
+  - Error handling in routes: 403 for "Unauthorized" or "Admin access required", 401 for "token" or "authorization", 500 for everything else including "User not found"
+  - Pet model does NOT have a 'species' field - only name, userId, generation, stats, personality traits
+  - Skills have validation: category enum ('education', 'games', 'arts', 'sports'), price range (0-100), skillName unique constraint
+  - Analytics endpoint calculates: totalPurchases, totalRevenue, purchasesLast7Days, purchasesLast30Days, activationRate (petSkills / userSkills)
+  - Toggle endpoint provides message indicating if skill was "activated" or "deactivated"
+  - All 37 tests passing, typecheck passes
+---
