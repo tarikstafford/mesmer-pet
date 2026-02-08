@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OpenAI } from 'openai';
 import { prisma } from '@/lib/prisma';
-import { storeInteraction } from '@/lib/memory';
+import { storeInteraction, getMemoryContext, formatMemoryForPrompt } from '@/lib/memory';
 import { generatePersonalityPrompt } from '@/lib/personality';
-import { formatMemoryForPrompt } from '@/lib/memory';
 import { generateSkillPrompts, hasChessSkill } from '@/lib/skillPrompts';
 import { FENToGame, boardToASCII } from '@/lib/chess';
 import { updateChallengeProgress } from '@/lib/engagement';
@@ -74,7 +73,8 @@ export async function POST(req: NextRequest) {
     const personalityPrompt = generatePersonalityPrompt(pet);
 
     // Get memory context
-    const memoryContext = await formatMemoryForPrompt(petId);
+    const memoryContextData = await getMemoryContext(petId);
+    const memoryContext = formatMemoryForPrompt(memoryContextData);
 
     // Get skill prompts for teaching abilities (US-018) and game skills (US-019)
     const skillPrompts = generateSkillPrompts(pet.petSkills);
