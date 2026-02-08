@@ -100,3 +100,21 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Duplicate pending requests in either direction are prevented
   - All 35 tests passing, typecheck passes
 ---
+## 2026-02-08 16:30 - US-TEST-010
+- Implemented comprehensive tutorial/onboarding API test suite
+- Files changed:
+  - src/__tests__/api/tutorial.test.ts (created with 24 tests covering all tutorial scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-010 as passing)
+- **Learnings for future iterations:**
+  - Tutorial API endpoints: GET /api/tutorial/progress, POST /api/tutorial/update, /skip, /resume
+  - Tutorial has 5 steps: create_pet, feed, chat, view_stats, learn_breeding (all defined in TUTORIAL_STEPS)
+  - UserTutorial model tracks: currentStep (1-6), completed, skipped, rewardGranted, and individual step booleans
+  - Tutorial steps can be completed out of order, currentStep = max(current, stepNumber + 1)
+  - Tutorial completion grants reward: 50 virtual currency via UserEngagement model
+  - Reward is granted only once (rewardGranted flag prevents duplicate rewards)
+  - Skip sets currentStep to 6, skipped=true, completedAt to current date
+  - Resume calculates currentStep from completed steps (1-6 based on which steps are done)
+  - Updating steps doesn't work if tutorial.completed or tutorial.skipped is true
+  - Tutorial auto-initializes on first GET request if it doesn't exist
+  - All 24 tests passing, typecheck passes
+---
