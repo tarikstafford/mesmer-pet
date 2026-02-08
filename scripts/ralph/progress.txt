@@ -189,3 +189,18 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Stats are clamped to 0-100 range and rounded to integers
   - All 20 tests passing, typecheck passes
 ---
+## 2026-02-08 16:50 - US-TEST-015
+- Implemented comprehensive auth utilities test suite
+- Files changed:
+  - src/__tests__/lib/auth.test.ts (created with 42 tests covering all auth utility functions)
+  - scripts/ralph/prd.json (marked US-TEST-015 as passing)
+- **Learnings for future iterations:**
+  - Auth utilities are in @/lib/auth: hashPassword, verifyPassword, generateToken, verifyToken, generateVerificationToken
+  - bcrypt.compare returns false for invalid hash format instead of throwing an error
+  - JWT tokens with identical payloads generated in the same second will be identical (JWT uses second precision for iat claim)
+  - JWT_SECRET comes from NEXTAUTH_SECRET env variable (not JWT_SECRET as used in some routes)
+  - generateToken sets expiration to 7 days ('7d')
+  - verifyPassword is designed to be constant-time to prevent timing attacks (built into bcrypt)
+  - generateVerificationToken uses Math.random() to create alphanumeric tokens (should be ~26 characters long)
+  - All 42 tests passing, typecheck passes
+---
