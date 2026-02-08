@@ -31,3 +31,21 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Base URL defaults to http://localhost:3000, can be overridden with PLAYWRIGHT_BASE_URL env var
   - Use `npx playwright test --list` to quickly verify test discovery without running them
 ---
+## 2026-02-08 16:10 - US-TEST-006
+- Implemented comprehensive breeding API test suite
+- Files changed:
+  - src/__tests__/api/breeding.test.ts (created with 17 tests covering all breeding scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-006 as passing)
+- **Learnings for future iterations:**
+  - Breeding API uses JWT auth tokens in Authorization headers (Bearer token pattern)
+  - MockNextRequest class needs to properly implement headers.get() method for auth testing
+  - generateToken() requires both userId AND email as payload: { userId: string, email: string }
+  - createPetWithGenetics() creates pets at generation 1 by default, not 0
+  - Breeding mechanics use 7-day cooldowns (not 24h as mentioned in original PRD criteria)
+  - The actual breeding endpoint is POST /api/pets/breed (not /api/breeding/initiate or /api/breeding/complete)
+  - Breeding requires: both pets 7+ days old, health > 50, not critical state, 7-day cooldown respected
+  - User must own at least one parent pet to breed (allows friend breeding)
+  - Offspring generation = max(parent1.generation, parent2.generation) + 1
+  - Trait inheritance tracks source: 'parent1', 'parent2', or 'mutation' (15% chance)
+  - All 17 tests passing, typecheck passes
+---
