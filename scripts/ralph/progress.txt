@@ -154,3 +154,21 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Interaction model uses userId, role, message, context fields (not interactionType)
   - All 29 tests passing, typecheck passes
 ---
+## 2026-02-08 16:44 - US-TEST-013
+- Implemented comprehensive genetic trait inheritance test suite
+- Files changed:
+  - src/__tests__/lib/genetics.test.ts (created with 15 tests covering all genetic inheritance scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-013 as passing)
+- **Learnings for future iterations:**
+  - Genetic trait inheritance uses breedPets() function in @/lib/breeding, not a separate calculateGeneticTraits()
+  - User model requires `password` and `name` fields, not `passwordHash` and `username` (match auth.test.ts pattern)
+  - Trait inheritance logic: 50/50 from parents with 15% mutation chance per trait
+  - Mutations use same rarity distribution as initial generation (60% common, 25% uncommon, 10% rare, 5% legendary)
+  - Offspring personality = average of parents with ±15 variance, clamped to 0-100 range
+  - Offspring generation = max(parent1.generation, parent2.generation) + 1
+  - Traits track inheritanceSource: 'initial', 'parent1', 'parent2', or 'mutation'
+  - Trait types (visual, personality, skill) are preserved during mutations - mutations only replace within same type
+  - breedPets prevents duplicate trait IDs within a single offspring using usedTraitIds Set
+  - For probabilistic tests (mutation rate), test with large sample sizes (50-100 trials) and allow variance
+  - All 15 tests passing, typecheck passes
+---
