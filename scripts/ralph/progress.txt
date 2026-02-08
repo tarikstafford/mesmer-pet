@@ -298,3 +298,24 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - DOM normalizes whitespace in textContent, so testing whitespace-only strings requires checking element existence
   - All 42 tests passing, typecheck passes
 ---
+## 2026-02-08 17:17 - US-TEST-021
+- Implemented comprehensive ChatInterface component test suite
+- Files changed:
+  - src/__tests__/components/ChatInterface.test.tsx (created with 39 tests covering all chat interface scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-021 as passing)
+- **Learnings for future iterations:**
+  - ChatInterface is a client component that handles real-time chat with AI pets via POST /api/chat endpoint
+  - Component uses useState for messages array, input text, loading state, and error handling
+  - scrollIntoView is not available in JSDOM test environment - must mock it with `Element.prototype.scrollIntoView = vi.fn()`
+  - Component integrates with tutorial system - updates tutorial step 'chat' on first successful message (checks localStorage for authToken)
+  - Tutorial update only happens when messages.length === 0 (first chat) and authToken exists
+  - API can return fallback responses when OpenAI fails - these have `{ fallback: true, message: string }`
+  - Enter key sends message, Shift+Enter creates new line (uses keyDown event with shiftKey check)
+  - Message display uses flexbox with justify-end for user messages, justify-start for AI messages
+  - User messages have blue background (bg-blue-500), AI messages have gray (bg-gray-200)
+  - Loading state shows animated dots with staggered animations (animate-bounce with delay classes)
+  - Send button is disabled when input is empty/whitespace or when loading
+  - Input and button are also disabled during loading to prevent duplicate sends
+  - Error messages appear in a red banner below messages area (bg-red-50 border-red-200)
+  - All 39 tests passing, typecheck passes
+---
