@@ -172,3 +172,20 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - For probabilistic tests (mutation rate), test with large sample sizes (50-100 trials) and allow variance
   - All 15 tests passing, typecheck passes
 ---
+## 2026-02-08 16:46 - US-TEST-014
+- Implemented comprehensive stat degradation test suite
+- Files changed:
+  - src/__tests__/lib/statDegradation.test.ts (created with 20 tests covering all stat decay scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-014 as passing)
+- **Learnings for future iterations:**
+  - Stat decay system is in @/lib/statDegradation with calculateStatDegradation() and batchUpdatePetStats()
+  - **Actual decay rates differ from PRD**: hunger +1/hr, happiness -0.5/hr, energy -0.3/hr (or +5/hr during sleep), health -2/hr (only when hunger > 80)
+  - Neglect triggers when hunger > 50 OR happiness < 50, sets neglectStartedAt timestamp
+  - Grace period applies 50% slower degradation for first 24 hours of neglect (via getAdjustedDegradationRate())
+  - Critical state triggered when health <= 0, prevents further stat degradation
+  - Sleep time is midnight-6am in user's timezone, energy recovers +5/hr during sleep
+  - isSleepTime() uses Date.getHours() which returns local timezone hour, not UTC
+  - When testing with vi.setSystemTime(), use setHours() for local time tests, not setUTCHours()
+  - Stats are clamped to 0-100 range and rounded to integers
+  - All 20 tests passing, typecheck passes
+---
