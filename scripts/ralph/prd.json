@@ -1,0 +1,613 @@
+{
+  "project": "Mesmer Pet App",
+  "branchName": "ralph/comprehensive-testing-strategy",
+  "description": "Comprehensive Testing Strategy - Achieve 100% test coverage across unit, integration, E2E, and feature validation",
+  "userStories": [
+    {
+      "id": "US-TEST-001",
+      "title": "Set up Vitest testing infrastructure",
+      "description": "As a developer, I need a modern testing framework configured so I can write fast, reliable tests.",
+      "acceptanceCriteria": [
+        "Install vitest, @vitest/ui, and jsdom dependencies",
+        "Create vitest.config.ts with jsdom environment and path aliases",
+        "Add test scripts to package.json (test, test:ui, test:coverage)",
+        "Configure coverage thresholds (100% branches, functions, lines, statements)",
+        "Verify setup works with a simple smoke test",
+        "Typecheck passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "Completed - Vitest infrastructure fully configured with coverage thresholds and smoke tests passing"
+    },
+    {
+      "id": "US-TEST-002",
+      "title": "Set up Playwright E2E testing",
+      "description": "As a developer, I need E2E testing infrastructure so I can validate complete user flows.",
+      "acceptanceCriteria": [
+        "Install @playwright/test dependency",
+        "Create playwright.config.ts with chromium, firefox, webkit browsers",
+        "Configure baseURL, test directory, and screenshot/video settings",
+        "Add e2e test scripts to package.json",
+        "Create example E2E test that passes",
+        "Typecheck passes"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-003",
+      "title": "Configure CI testing pipeline",
+      "description": "As a developer, I need automated testing in CI so tests run on every PR.",
+      "acceptanceCriteria": [
+        "Create .github/workflows/test.yml workflow",
+        "Run unit tests, E2E tests, and typecheck on every PR",
+        "Enforce 100% coverage requirement (fail CI if below threshold)",
+        "Generate and upload coverage reports",
+        "Configure Playwright browser dependencies in CI",
+        "Typecheck passes"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-004",
+      "title": "Test auth API endpoints",
+      "description": "As a developer, I need to validate auth endpoints work correctly.",
+      "acceptanceCriteria": [
+        "Test POST /api/auth/register: success, duplicate email, validation errors",
+        "Test POST /api/auth/login: success, wrong password, nonexistent user",
+        "Test GET /api/auth/me: success with valid token, 401 with invalid token",
+        "Verify JWT token generation and validation",
+        "Verify password hashing works correctly",
+        "All auth edge cases covered",
+        "Typecheck passes"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-005",
+      "title": "Test pets API endpoints",
+      "description": "As a developer, I need to validate pet management endpoints work correctly.",
+      "acceptanceCriteria": [
+        "Test GET /api/pets: returns user's pets, requires auth",
+        "Test POST /api/pets: creates pet with traits, requires auth, validates input",
+        "Test GET /api/pets/[id]: returns single pet, checks ownership",
+        "Test PUT /api/pets/[id]: updates pet stats, validates changes",
+        "Test DELETE /api/pets/[id]: soft deletes pet, checks ownership",
+        "Test all error cases (404, 403, 401, 400)",
+        "Typecheck passes"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-006",
+      "title": "Test breeding API endpoints",
+      "description": "As a developer, I need to validate breeding mechanics work correctly.",
+      "acceptanceCriteria": [
+        "Test POST /api/breeding/initiate: validates cooldown, checks ownership",
+        "Test POST /api/breeding/complete: generates offspring with genetic traits",
+        "Test breeding cooldown enforcement (24h)",
+        "Verify trait inheritance logic in breeding",
+        "Test error cases (invalid parent IDs, cooldown active)",
+        "Typecheck passes"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-007",
+      "title": "Test marketplace API endpoints",
+      "description": "As a developer, I need to validate marketplace transactions work correctly.",
+      "acceptanceCriteria": [
+        "Test GET /api/marketplace: returns available listings",
+        "Test POST /api/marketplace/list: creates listing, validates price",
+        "Test POST /api/marketplace/buy: processes purchase, transfers ownership",
+        "Test POST /api/marketplace/cancel: cancels listing, restores ownership",
+        "Verify currency deduction and credit on transactions",
+        "Test error cases (insufficient funds, invalid listing)",
+        "Typecheck passes"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-008",
+      "title": "Test chat API endpoints",
+      "description": "As a developer, I need to validate AI chat functionality works correctly.",
+      "acceptanceCriteria": [
+        "Test POST /api/chat: generates AI response, saves to memory",
+        "Test GET /api/chat/history: returns conversation history",
+        "Verify message persistence in database",
+        "Test error cases (missing pet ID, invalid input)",
+        "Mock OpenAI API calls for consistent testing",
+        "Typecheck passes"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-009",
+      "title": "Test friends/social API endpoints",
+      "description": "As a developer, I need to validate social features work correctly.",
+      "acceptanceCriteria": [
+        "Test POST /api/friends/request: sends friend request",
+        "Test POST /api/friends/accept: accepts request, creates friendship",
+        "Test POST /api/friends/reject: rejects request",
+        "Test GET /api/friends: returns user's friends list",
+        "Test DELETE /api/friends/[id]: removes friendship",
+        "Test error cases (duplicate requests, invalid user IDs)",
+        "Typecheck passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-010",
+      "title": "Test tutorial/onboarding API",
+      "description": "As a developer, I need to validate tutorial progress tracking works.",
+      "acceptanceCriteria": [
+        "Test GET /api/tutorial: returns tutorial state for user",
+        "Test POST /api/tutorial/complete: marks step as completed",
+        "Verify tutorial progress persistence",
+        "Test error cases (invalid step ID)",
+        "Typecheck passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-011",
+      "title": "Test admin API endpoints",
+      "description": "As a developer, I need to validate admin functionality is properly secured.",
+      "acceptanceCriteria": [
+        "Test GET /api/admin/users: requires admin role, returns user list",
+        "Test PUT /api/admin/users/[id]: updates user, checks admin auth",
+        "Test DELETE /api/admin/users/[id]: soft deletes user, checks admin auth",
+        "Test GET /api/admin/stats: returns platform statistics",
+        "Verify non-admin users get 403 Forbidden",
+        "Typecheck passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-012",
+      "title": "Test sync API endpoints",
+      "description": "As a developer, I need to validate cross-device sync works correctly.",
+      "acceptanceCriteria": [
+        "Test GET /api/sync: returns latest data with timestamps",
+        "Test POST /api/sync: merges changes, resolves conflicts",
+        "Verify last-write-wins conflict resolution",
+        "Test sync with concurrent updates",
+        "Typecheck passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-013",
+      "title": "Test genetic trait inheritance",
+      "description": "As a developer, I need to validate genetic inheritance works correctly.",
+      "acceptanceCriteria": [
+        "Test calculateGeneticTraits function with various parent combinations",
+        "Verify 50/50 parent trait inheritance",
+        "Verify mutation chance (5%) works correctly",
+        "Test rarity distribution in mutations",
+        "Verify trait categories (visual, personality, skill) are preserved",
+        "Test edge cases (same traits from both parents, all traits mutate)",
+        "Typecheck passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-014",
+      "title": "Test pet stat decay system",
+      "description": "As a developer, I need to validate stat decay calculations are accurate.",
+      "acceptanceCriteria": [
+        "Test updatePetStats function with various time deltas",
+        "Verify happiness decays 5 points per hour",
+        "Verify health decays 3 points per hour",
+        "Verify energy decays 4 points per hour",
+        "Test stat floor (minimum 0)",
+        "Test critical status thresholds (<20 = critical)",
+        "Typecheck passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-015",
+      "title": "Test auth utilities",
+      "description": "As a developer, I need to validate auth helpers work securely.",
+      "acceptanceCriteria": [
+        "Test hashPassword: generates bcrypt hash",
+        "Test verifyPassword: validates correct/incorrect passwords",
+        "Test generateToken: creates valid JWT with expiration",
+        "Test verifyToken: validates token, rejects expired/invalid tokens",
+        "Test getServerSession: extracts user from valid token",
+        "Typecheck passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-016",
+      "title": "Test background jobs",
+      "description": "As a developer, I need to validate background jobs execute correctly.",
+      "acceptanceCriteria": [
+        "Test stat update job: calls updatePetStats for all pets",
+        "Test memory summarization job: processes pet conversations",
+        "Verify jobs run on schedule (15min for stats, daily at 2 AM for memory)",
+        "Test error handling when jobs fail",
+        "Mock database calls for isolated testing",
+        "Typecheck passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-017",
+      "title": "Test marketplace transaction logic",
+      "description": "As a developer, I need to validate marketplace transaction integrity.",
+      "acceptanceCriteria": [
+        "Test purchasePet: transfers ownership, deducts currency, marks listing as sold",
+        "Test createListing: validates price, marks pet as listed",
+        "Test cancelListing: restores pet to owner, removes listing",
+        "Verify atomic transactions (all or nothing)",
+        "Test race conditions (simultaneous purchases)",
+        "Typecheck passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-018",
+      "title": "Test PetCard component",
+      "description": "As a developer, I need to validate PetCard renders correctly with all prop variations.",
+      "acceptanceCriteria": [
+        "Renders pet name, image, and stats correctly",
+        "Shows critical warning badges when stats < 20",
+        "Displays traits with correct icons and rarities",
+        "Handles missing/optional props gracefully",
+        "Responds to onClick handler when clickable",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-019",
+      "title": "Test StatBar component",
+      "description": "As a developer, I need to validate StatBar displays stat values correctly.",
+      "acceptanceCriteria": [
+        "Renders stat label, value, and max correctly",
+        "Bar width reflects percentage (value/max)",
+        "Color changes based on thresholds (green > 60, yellow 30-60, red < 30)",
+        "Shows critical indicator when < 20",
+        "Handles edge cases (0, 100, negative values)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-020",
+      "title": "Test TraitBadge component",
+      "description": "As a developer, I need to validate TraitBadge renders trait data correctly.",
+      "acceptanceCriteria": [
+        "Displays trait name and icon",
+        "Shows rarity indicator (color-coded border)",
+        "Renders tooltip with trait description on hover",
+        "Handles all rarity levels (common, uncommon, rare, legendary)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-021",
+      "title": "Test ChatInterface component",
+      "description": "As a developer, I need to validate ChatInterface handles user input and displays messages.",
+      "acceptanceCriteria": [
+        "Renders message history with user/AI distinction",
+        "Input field accepts text and submits on Enter",
+        "Shows loading state while waiting for AI response",
+        "Scrolls to bottom when new message arrives",
+        "Handles empty input (disabled send button)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-022",
+      "title": "Test TutorialOverlay component",
+      "description": "As a developer, I need to validate TutorialOverlay guides users correctly.",
+      "acceptanceCriteria": [
+        "Displays tutorial steps with next/prev navigation",
+        "Shows progress indicator (step X of Y)",
+        "Can be dismissed via close button",
+        "Persists completion state to localStorage",
+        "Fits within viewport (max-h-90vh, scrollable)",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-023",
+      "title": "Test PetCreationForm component",
+      "description": "As a developer, I need to validate PetCreationForm collects user input correctly.",
+      "acceptanceCriteria": [
+        "Renders name input field with validation",
+        "Shows error message for invalid input (empty, too long)",
+        "Submit button disabled until valid input",
+        "Calls onSubmit callback with form data",
+        "Shows loading state during submission",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-024",
+      "title": "Test MarketplaceCard component",
+      "description": "As a developer, I need to validate MarketplaceCard displays listing data correctly.",
+      "acceptanceCriteria": [
+        "Displays pet info, price, and seller name",
+        "Buy button triggers purchase action",
+        "Shows sold indicator for completed listings",
+        "Disables buy button when insufficient funds",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-025",
+      "title": "Test BreedingInterface component",
+      "description": "As a developer, I need to validate BreedingInterface handles breeding flow correctly.",
+      "acceptanceCriteria": [
+        "Displays parent selection UI",
+        "Shows cooldown timer when breeding on cooldown",
+        "Preview shows potential offspring traits",
+        "Confirms breeding action with modal",
+        "Shows success/error messages after breeding",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-026",
+      "title": "Test AR/3D rendering components",
+      "description": "As a developer, I need to validate 3D pet models and AR viewer work correctly.",
+      "acceptanceCriteria": [
+        "Test Pet3DModel component: renders Three.js scene, loads GLTF model",
+        "Test ARPetViewer component: initializes WebXR session, handles AR placement",
+        "Verify animations play correctly (idle, eating, playing)",
+        "Test motion detection (shake to trigger animation)",
+        "Mock WebXR API for testing",
+        "Typecheck passes",
+        "Verify in browser using dev-browser skill"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-027",
+      "title": "E2E: User registration and login flow",
+      "description": "As a user, I should be able to register and log in to the app.",
+      "acceptanceCriteria": [
+        "Navigate to /register and create new account",
+        "Verify validation errors for invalid input",
+        "Successfully register with valid data",
+        "Redirects to dashboard after registration",
+        "Log out and log back in with same credentials",
+        "Verify session persists across page refresh",
+        "Typecheck passes"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-028",
+      "title": "E2E: Pet creation flow",
+      "description": "As a user, I should be able to create my first pet.",
+      "acceptanceCriteria": [
+        "Navigate to /pets/create from dashboard",
+        "Enter pet name and submit",
+        "Verify pet appears on dashboard with random traits",
+        "Verify pet stats initialize correctly (happiness, health, energy)",
+        "Typecheck passes"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-029",
+      "title": "E2E: Pet interaction and stat changes",
+      "description": "As a user, I should be able to interact with my pet and see stats change.",
+      "acceptanceCriteria": [
+        "Navigate to pet detail page",
+        "Click feed button and verify happiness increases",
+        "Click play button and verify energy decreases",
+        "Wait for stat decay and verify stats decrease over time",
+        "Verify critical warnings appear when stats < 20",
+        "Typecheck passes"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-030",
+      "title": "E2E: Breeding flow",
+      "description": "As a user, I should be able to breed two pets to create offspring.",
+      "acceptanceCriteria": [
+        "Create two pets for breeding",
+        "Navigate to /breeding page",
+        "Select two parent pets",
+        "Initiate breeding and wait for completion",
+        "Verify offspring appears with inherited traits",
+        "Verify breeding cooldown is enforced",
+        "Typecheck passes"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-031",
+      "title": "E2E: Marketplace transaction flow",
+      "description": "As a user, I should be able to list and purchase pets on the marketplace.",
+      "acceptanceCriteria": [
+        "List a pet on marketplace with price",
+        "Log in as different user",
+        "Browse marketplace and see listing",
+        "Purchase pet (verify currency deduction)",
+        "Verify pet ownership transfers",
+        "Original owner can see sale history",
+        "Typecheck passes"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-032",
+      "title": "E2E: Chat with pet using AI",
+      "description": "As a user, I should be able to chat with my pet and get AI responses.",
+      "acceptanceCriteria": [
+        "Navigate to pet chat interface",
+        "Send message to pet",
+        "Verify AI response appears with personality traits",
+        "Send multiple messages and verify conversation history",
+        "Verify messages persist after page refresh",
+        "Typecheck passes"
+      ],
+      "priority": 32,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-033",
+      "title": "Performance testing with Lighthouse",
+      "description": "As a developer, I need to ensure the app meets performance standards.",
+      "acceptanceCriteria": [
+        "Run Lighthouse audit on key pages (dashboard, pet detail, marketplace)",
+        "Performance score >= 90 on all pages",
+        "Accessibility score >= 95 on all pages",
+        "Best practices score >= 90 on all pages",
+        "Identify and document performance bottlenecks",
+        "Typecheck passes"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-034",
+      "title": "Accessibility testing with axe-core",
+      "description": "As a developer, I need to ensure the app is accessible to all users.",
+      "acceptanceCriteria": [
+        "Integrate @axe-core/playwright for automated a11y testing",
+        "Run axe scans on all major pages",
+        "Fix all critical and serious accessibility violations",
+        "Verify keyboard navigation works for all interactive elements",
+        "Test screen reader compatibility",
+        "Typecheck passes"
+      ],
+      "priority": 34,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-035",
+      "title": "Visual regression testing with Percy",
+      "description": "As a developer, I need to catch unintended UI changes.",
+      "acceptanceCriteria": [
+        "Set up Percy for visual regression testing",
+        "Capture baseline screenshots of key pages",
+        "Configure Percy in CI pipeline",
+        "Test responsive layouts (mobile, tablet, desktop)",
+        "Document review process for visual changes",
+        "Typecheck passes"
+      ],
+      "priority": 35,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-036",
+      "title": "Load testing with k6",
+      "description": "As a developer, I need to ensure the app handles concurrent users.",
+      "acceptanceCriteria": [
+        "Install k6 and create load test scripts",
+        "Test API endpoints under load (100, 500, 1000 concurrent users)",
+        "Measure response times and error rates",
+        "Test database connection pooling under load",
+        "Document performance characteristics and limits",
+        "Typecheck passes"
+      ],
+      "priority": 36,
+      "passes": false,
+      "notes": ""
+    },
+    {
+      "id": "US-TEST-037",
+      "title": "Testing documentation",
+      "description": "As a developer, I need comprehensive testing documentation for the team.",
+      "acceptanceCriteria": [
+        "Create TESTING.md with testing strategy overview",
+        "Document how to run all test types (unit, integration, E2E)",
+        "Document coverage requirements and enforcement",
+        "Provide examples of writing good tests",
+        "Document CI/CD testing pipeline",
+        "Include troubleshooting guide for common test issues",
+        "Typecheck passes"
+      ],
+      "priority": 37,
+      "passes": false,
+      "notes": ""
+    }
+  ]
+}

@@ -1,3 +1,19 @@
 # Ralph Progress Log
 Started: Sat  7 Feb 2026 10:26:11 +08
 ---
+
+## 2026-02-08 14:56 - US-TEST-001
+- Implemented Vitest testing infrastructure
+- Files changed:
+  - package.json (added test scripts: test, test:ui, test:coverage)
+  - package-lock.json (installed vitest, @vitest/ui, jsdom, @vitest/coverage-v8, @testing-library/react, @testing-library/jest-dom, happy-dom)
+  - vitest.config.ts (configured jsdom environment, path aliases, 100% coverage thresholds)
+  - vitest.setup.ts (configured test globals, cleanup, and environment variables)
+  - src/__tests__/setup.test.ts (created smoke tests to verify setup)
+- **Learnings for future iterations:**
+  - This is a Next.js project with TypeScript, using path aliases (@/* -> ./src/*)
+  - Coverage thresholds are strict (100% for all metrics) - this will require comprehensive testing
+  - Test environment variables are configured in vitest.setup.ts (JWT_SECRET, DATABASE_URL, OPENAI_API_KEY)
+  - The project uses Prisma for database ORM, which will need mocking in tests
+  - @testing-library/react is installed for component testing
+---
