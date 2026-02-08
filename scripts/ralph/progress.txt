@@ -319,3 +319,24 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Error messages appear in a red banner below messages area (bg-red-50 border-red-200)
   - All 39 tests passing, typecheck passes
 ---
+## 2026-02-08 17:37 - US-TEST-022
+- Implemented comprehensive TutorialOverlay component test suite
+- Files changed:
+  - src/__tests__/components/TutorialOverlay.test.tsx (created with 37 tests covering all tutorial overlay scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-022 as passing)
+- **Learnings for future iterations:**
+  - Component has unreachable reward screen code due to early return on progress.completed check
+  - When testing components with conditional rendering, must account for all code paths
+  - Testing emojis in React components: use document.body.textContent.toContain() instead of screen.getByText()
+  - When text appears in multiple places (like tutorial step titles), use getAllByText() and check length
+  - For className testing with multiple conditions, use document.querySelectorAll() to avoid closest() issues
+  - Component uses localStorage.getItem('authToken') for authentication (consistent pattern across components)
+  - Tutorial API endpoints: GET /api/tutorial/progress, POST /api/tutorial/skip
+  - TutorialOverlay hides itself when progress.completed or progress.skipped is true
+  - Progress calculation: (completedStepsCount / 5) * 100
+  - Tutorial has 5 steps: create_pet, feed, chat, view_stats, learn_breeding
+  - Skip button appears in both header and footer for accessibility
+  - Component uses max-h-[90vh] for viewport constraint and overflow-y-auto for scrolling
+  - Note on component bug: showReward state logic is never reached due to early return, preventing reward screen display
+  - All 37 tests passing, typecheck passes
+---
