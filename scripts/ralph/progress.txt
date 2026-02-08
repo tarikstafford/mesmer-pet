@@ -135,3 +135,22 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Toggle endpoint provides message indicating if skill was "activated" or "deactivated"
   - All 37 tests passing, typecheck passes
 ---
+## 2026-02-08 16:39 - US-TEST-012
+- Implemented comprehensive sync API test suite
+- Files changed:
+  - src/__tests__/api/sync.test.ts (created with 29 tests covering all sync scenarios)
+  - test.db (updated with test data)
+  - scripts/ralph/prd.json (marked US-TEST-012 as passing)
+- **Learnings for future iterations:**
+  - Sync API has 3 main endpoints: GET /api/sync/status, GET/POST /api/sync/pet/[petId], GET/POST/PATCH /api/sync/offline
+  - Sync uses SyncState model to track versions with userId_entityType_entityId composite unique key
+  - Conflict resolution uses "Last Write Wins" strategy - client version >= server version means client wins
+  - For stats conflicts, sync merges by taking max values (health, happiness, energy) and min hunger
+  - For interactions/memory, server always wins when version conflict (resolved: false, winner: 'server')
+  - OfflineAction model tracks pending actions with status: 'pending', 'synced', 'failed', 'conflict'
+  - Offline actions can be queued with or without petId (global vs pet-specific actions)
+  - Sync endpoints support platform tracking ('web', 'ar', 'mobile') and deviceId for multi-device scenarios
+  - GET /api/sync/pet/[petId] accepts 'since' query param to filter sync states by timestamp (defaults to last 5 seconds)
+  - Interaction model uses userId, role, message, context fields (not interactionType)
+  - All 29 tests passing, typecheck passes
+---
