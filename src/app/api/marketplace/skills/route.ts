@@ -68,9 +68,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
+      // SQLite doesn't support case-insensitive search with mode, so we use lowercase for both
+      const searchLower = search.toLowerCase();
       where.OR = [
-        { skillName: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
+        { skillName: { contains: searchLower } },
+        { description: { contains: searchLower } },
       ];
     }
 

@@ -469,3 +469,19 @@ model UserTutorial {
   @@index([userId])
   @@index([completed])
 }
+
+// Pet Marketplace Listings
+model MarketplaceListing {
+  id          String   @id @default(uuid())
+  petId       String   @unique // A pet can only be listed once
+  sellerId    String   // User listing the pet
+  price       Int      // Price in virtual currency
+  status      String   @default("active") // 'active', 'sold', 'cancelled'
+  listedAt    DateTime @default(now())
+  soldAt      DateTime?
+  buyerId     String?  // User who purchased (if sold)
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([listedAt])
+}
