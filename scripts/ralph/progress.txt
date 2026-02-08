@@ -240,3 +240,23 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - After running schema changes, always regenerate Prisma client (npx prisma generate) and push to test DB (DATABASE_URL="file:./test.db" npx prisma db push)
   - All 28 tests passing, typecheck passes
 ---
+## 2026-02-08 17:08 - US-TEST-018
+- Implemented PetCard component test suite
+- Files changed:
+  - src/components/PetCard.tsx (created reusable PetCard component extracted from dashboard)
+  - src/__tests__/components/PetCard.test.tsx (created with 61 comprehensive tests)
+  - scripts/ralph/prd.json (marked US-TEST-018 as passing)
+- **Learnings for future iterations:**
+  - Created first component test - pattern for future component testing established
+  - PetCard component is a reusable card component that displays pet information
+  - Component accepts extensive props: pet stats (health, happiness, energy, hunger), personality traits, visual traits, skills, warnings, critical state
+  - Component handles optional callback props: onClick, onFeed, onChat, onLineage, onViewAR, onRecover
+  - Testing dynamic imports requires mocking next/dynamic to avoid SSR/loading state issues in tests
+  - Mock next/dynamic like: `vi.mock('next/dynamic', () => ({ default: (importFn) => Component }))`
+  - Component uses Tailwind classes for styling with color-coded stat bars (green >70, yellow 40-70, red <40)
+  - Rarity colors for traits: legendary (yellow), rare (purple), uncommon (blue), common (gray)
+  - Critical state shows red ring, disables feed/chat buttons, shows recovery options
+  - Warnings displayed with severity styling (critical: red with 🚨, warning: yellow with ⚠️)
+  - Date formatting in tests should be flexible (check for year, not exact format) to handle locale differences
+  - All 61 tests passing, typecheck passes
+---
