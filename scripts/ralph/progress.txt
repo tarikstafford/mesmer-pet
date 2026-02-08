@@ -17,3 +17,17 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - The project uses Prisma for database ORM, which will need mocking in tests
   - @testing-library/react is installed for component testing
 ---
+## 2026-02-08 15:46 - US-TEST-002
+- Implemented Playwright E2E testing infrastructure
+- Files changed:
+  - package.json (added test:e2e, test:e2e:ui, test:e2e:debug scripts)
+  - package-lock.json (installed @playwright/test)
+  - playwright.config.ts (configured chromium, firefox, webkit, Mobile Chrome, Mobile Safari)
+  - e2e/example.spec.ts (created example E2E tests for homepage)
+- **Learnings for future iterations:**
+  - Playwright is configured to run dev server automatically before tests (webServer config)
+  - Tests run in parallel by default with 5 browser projects (3 desktop + 2 mobile)
+  - Screenshots and videos are captured on failure for debugging
+  - Base URL defaults to http://localhost:3000, can be overridden with PLAYWRIGHT_BASE_URL env var
+  - Use `npx playwright test --list` to quickly verify test discovery without running them
+---
