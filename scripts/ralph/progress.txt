@@ -49,3 +49,21 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Trait inheritance tracks source: 'parent1', 'parent2', or 'mutation' (15% chance)
   - All 17 tests passing, typecheck passes
 ---
+## 2026-02-08 16:16 - US-TEST-007
+- Implemented comprehensive marketplace API test suite
+- Files changed:
+  - src/__tests__/api/marketplace.test.ts (created with 28 tests covering all marketplace scenarios)
+  - src/app/api/marketplace/skills/route.ts (fixed SQLite compatibility by removing mode: 'insensitive' from search)
+  - scripts/ralph/prd.json (marked US-TEST-007 as passing)
+- **Learnings for future iterations:**
+  - This codebase has a **skill marketplace** (for purchasing skills via Stripe), not a traditional pet marketplace
+  - Marketplace uses GET /api/marketplace/skills for listing/filtering and POST /api/checkout for purchases
+  - SQLite does NOT support Prisma's `mode: 'insensitive'` option for case-insensitive search
+  - For SQLite compatibility, convert search terms to lowercase instead of using mode parameter
+  - Stripe integration uses createCheckoutSession() from @/lib/stripe with metadata (skillId, userId)
+  - Skills have active/inactive flag - only active skills appear in marketplace (US-027)
+  - Skills track ownership via UserSkill model with userId_skillId composite unique key
+  - Checkout validates: skill exists, user exists, skill active, user doesn't already own skill
+  - Test suite covers: filtering (category, price, featured), search (name, description), ownership tracking, checkout validation, Stripe error handling
+  - All 28 tests passing, typecheck passes
+---
