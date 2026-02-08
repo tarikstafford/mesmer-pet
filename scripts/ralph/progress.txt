@@ -278,3 +278,23 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Test pattern established: test basic rendering, calculations, color thresholds, critical state, edge cases, styling
   - All 48 tests passing, typecheck passes
 ---
+## 2026-02-08 17:13 - US-TEST-020
+- Implemented TraitBadge component test suite
+- Files changed:
+  - src/components/TraitBadge.tsx (created reusable TraitBadge component)
+  - src/__tests__/components/TraitBadge.test.tsx (created with 42 comprehensive tests)
+  - scripts/ralph/prd.json (marked US-TEST-020 as passing)
+- **Learnings for future iterations:**
+  - TraitBadge component extracted from PetCard to make trait display reusable across the app
+  - Component uses rarity-based color coding: legendary (yellow), rare (purple), uncommon (blue), common (gray)
+  - Rarity matching is case-insensitive for flexibility (legendary, LEGENDARY, Legendary all work)
+  - Unknown rarity values default to common styling for graceful degradation
+  - Tooltip support is optional via showTooltip prop, shows description on hover by default
+  - Icon support allows displaying emoji or symbols before trait name
+  - Component uses border-2 for prominent rarity indicator (vs border used in original PetCard)
+  - Hover effects (scale-105, shadow-md) provide interactive feedback
+  - Component is inline-flex for flexible layout (can be used in rows or grids)
+  - Testing JSX with special characters: use variables instead of inline strings with quotes/brackets
+  - DOM normalizes whitespace in textContent, so testing whitespace-only strings requires checking element existence
+  - All 42 tests passing, typecheck passes
+---
