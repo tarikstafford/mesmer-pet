@@ -67,3 +67,36 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Test suite covers: filtering (category, price, featured), search (name, description), ownership tracking, checkout validation, Stripe error handling
   - All 28 tests passing, typecheck passes
 ---
+## 2026-02-08 16:24 - US-TEST-008
+- Implemented comprehensive chat API test suite
+- Files changed:
+  - src/__tests__/api/chat.test.ts (created with 16 tests covering all chat scenarios)
+  - src/app/api/chat/route.ts (fixed bug where formatMemoryForPrompt was incorrectly called with petId instead of MemoryContext)
+  - scripts/ralph/prd.json (marked US-TEST-008 as passing)
+- **Learnings for future iterations:**
+  - Chat API Bug Fix: formatMemoryForPrompt() in chat route was called with petId directly, but the function signature requires a MemoryContext object. The correct pattern is: `const memoryContextData = await getMemoryContext(petId); const memoryContext = formatMemoryForPrompt(memoryContextData);`
+  - OpenAI mocking requires vi.hoisted() to properly hoist mock functions for use in vi.mock() factory
+  - Mock functions for async operations (updateChallengeProgress, updateSyncState) must return promises using mockResolvedValue()
+  - Chat API dependencies that need mocking: OpenAI, encryption, performanceMonitor, errorLogger, engagement, sync, skillPrompts, chess
+  - PetTrait model requires inheritanceSource field (not 'source'), values like 'random', 'parent1', 'parent2', 'mutation'
+  - Trait model requires description field in addition to traitName, traitType, rarity
+  - When testing message order in database, use .find() with role filter rather than array indices since timing can vary
+  - All 16 tests passing, typecheck passes
+---
+## 2026-02-08 16:26 - US-TEST-009
+- Implemented comprehensive friends/social API test suite
+- Files changed:
+  - src/__tests__/api/friends.test.ts (created with 35 tests covering all social features)
+  - scripts/ralph/prd.json (marked US-TEST-009 as passing)
+- **Learnings for future iterations:**
+  - Friends API endpoints: POST /api/friends/send, /accept, /decline, GET /api/friends/list, DELETE /api/friends/remove
+  - Friendship model has requesterId, addresseeId, status ('pending', 'accepted', 'declined')
+  - Accept/decline operations require friendshipId (not userId), only addressee can accept/decline
+  - Friend limit is enforced at MAX_FRIENDS = 50 (checked on both send and accept)
+  - Friendships are bidirectional - checked in both directions (requesterId/addresseeId or vice versa)
+  - Remove friend works from either side of the friendship (requester or addressee)
+  - Declined friendships can be re-requested (status updates back to 'pending')
+  - Cannot send friend request to self or non-existent users
+  - Duplicate pending requests in either direction are prevented
+  - All 35 tests passing, typecheck passes
+---
