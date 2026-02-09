@@ -9,8 +9,15 @@ import { generateHarmonizedColor, generateComplementaryColor } from './colorHarm
  * @param rng - Seeded random number generator
  * @param weights - Map of choices to their weights
  * @returns Selected choice
+ *
+ * @example
+ * const rng = seedrandom('my-seed');
+ * const rarity = weightedChoice(rng, {
+ *   common: 0.7,
+ *   rare: 0.3
+ * }); // Returns 'common' 70% of the time
  */
-function weightedChoice<T extends string>(
+export function weightedChoice<T extends string>(
   rng: () => number,
   weights: Record<T, number>
 ): T {
