@@ -380,3 +380,21 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - ARPetViewer handles three main states: loading (checking support), ready (AR supported, showing preview), not supported (fallback message with requirements)
   - All 65 tests passing, typecheck passes
 ---
+## 2026-02-09 18:00 - US-TEST-027
+- Implemented comprehensive E2E test suite for user registration and login flow
+- Files changed:
+  - e2e/auth.spec.ts (created with 15 tests covering all auth scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-027 as passing)
+- **Learnings for future iterations:**
+  - Auth pages use /auth/register and /auth/login routes, not /register and /login
+  - Form fields use #id selectors, not input[name="..."] selectors
+  - Registration requires dateOfBirth field for COPPA compliance (users under 13 need parental consent)
+  - Registration redirects to /auth/login?registered=true, not /dashboard
+  - Login stores token in localStorage (authToken, user) and redirects to /dashboard
+  - Error message for wrong credentials is "Invalid email or password" (not "invalid credentials")
+  - E2E tests need unique email addresses per test to avoid conflicts - use template literals with Date.now()
+  - When beforeEach hook times out, it's often because page.goto() is waiting for a page that doesn't load
+  - For strict mode violations (multiple matching elements), use more specific selectors or .first()
+  - HTML5 form validation (required, type="email") prevents submission, so test stays on same URL
+  - All 15 tests passing with chromium browser, typecheck passes
+---
