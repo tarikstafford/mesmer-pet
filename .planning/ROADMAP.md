@@ -34,7 +34,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md -- Deterministic trait generation system (TDD: types, validation, seeded PRNG, color harmony, rarity) - Completed 2026-02-09
-- [ ] 01-02-PLAN.md -- SVG rendering system (layer components + PetSVG composer with sizing and fallbacks)
+- [x] 01-02-PLAN.md -- SVG rendering system (layer components + PetSVG composer with sizing and fallbacks) - Completed 2026-02-09
 
 ### Phase 2: Database Integration
 **Goal**: All existing pets receive unique visual traits and new pets generate traits automatically on creation
@@ -45,10 +45,11 @@ Plans:
   2. Migration completes without downtime or data loss (existing functionality continues working)
   3. New pet creation automatically generates and saves traits to database
   4. Created pets display with full visual features immediately after creation
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md -- Schema migration and data backfill (add traits column, backfill all existing pets with deterministic traits)
+- [ ] 02-02-PLAN.md -- Pet creation flow update (generate and persist traits on new pet creation, verify API responses)
 
 ### Phase 3: Animation & Persistence
 **Goal**: Pets feel alive through idle animations and maintain visual identity across sessions
@@ -100,12 +101,12 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 1/2 | In progress | - |
-| 2. Database Integration | 0/0 | Not started | - |
+| 1. Foundation | 2/2 | Complete | 2026-02-09 |
+| 2. Database Integration | 0/2 | Planned | - |
 | 3. Animation & Persistence | 0/0 | Not started | - |
 | 4. Display Rollout | 0/0 | Not started | - |
 | 5. Performance & Quality | 0/0 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*
-*Last updated: 2026-02-09 (01-01 completed)*
+*Last updated: 2026-02-09 (Phase 2 planned)*
