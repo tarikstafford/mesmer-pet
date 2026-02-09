@@ -30,10 +30,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Generated pets have aesthetically pleasing color combinations with no clashing (validated with 1000+ samples)
   4. Pet renders as layered SVG at any size (small cards, medium dashboard, large focus) without pixelation
   5. System handles missing or invalid trait data gracefully with fallback defaults
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md -- Deterministic trait generation system (TDD: types, validation, seeded PRNG, color harmony, rarity)
+- [ ] 01-02-PLAN.md -- SVG rendering system (layer components + PetSVG composer with sizing and fallbacks)
 
 ### Phase 2: Database Integration
 **Goal**: All existing pets receive unique visual traits and new pets generate traits automatically on creation
@@ -99,7 +100,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/0 | Not started | - |
+| 1. Foundation | 0/2 | Planned | - |
 | 2. Database Integration | 0/0 | Not started | - |
 | 3. Animation & Persistence | 0/0 | Not started | - |
 | 4. Display Rollout | 0/0 | Not started | - |
