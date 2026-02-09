@@ -33,7 +33,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans:** 2 plans
 
 Plans:
-- [ ] 01-01-PLAN.md -- Deterministic trait generation system (TDD: types, validation, seeded PRNG, color harmony, rarity)
+- [x] 01-01-PLAN.md -- Deterministic trait generation system (TDD: types, validation, seeded PRNG, color harmony, rarity) - Completed 2026-02-09
 - [ ] 01-02-PLAN.md -- SVG rendering system (layer components + PetSVG composer with sizing and fallbacks)
 
 ### Phase 2: Database Integration
@@ -100,7 +100,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/2 | Planned | - |
+| 1. Foundation | 1/2 | In progress | - |
 | 2. Database Integration | 0/0 | Not started | - |
 | 3. Animation & Persistence | 0/0 | Not started | - |
 | 4. Display Rollout | 0/0 | Not started | - |
@@ -108,4 +108,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-02-09*
-*Last updated: 2026-02-09*
+*Last updated: 2026-02-09 (01-01 completed)*
