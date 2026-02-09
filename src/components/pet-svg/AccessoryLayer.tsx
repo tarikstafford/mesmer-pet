@@ -16,7 +16,7 @@ const AccessoryLayerComponent: React.FC<AccessoryLayerProps> = ({ type, size }) 
   }
 
   return (
-    <g transform={`scale(${scale})`} transform-origin="50 50">
+    <g transform={`translate(50, 50) scale(${scale}) translate(-50, -50)`}>
       {/* Horns: two small triangles on top of head */}
       {type === 'horns' && (
         <>

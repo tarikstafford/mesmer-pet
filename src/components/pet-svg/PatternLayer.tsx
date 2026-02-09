@@ -26,7 +26,7 @@ const PatternLayerComponent: React.FC<PatternLayerProps> = ({ type, color, size 
   const gradientId = `pattern-gradient-${uniqueId}`;
 
   return (
-    <g transform={`scale(${scale})`} transform-origin="50 50">
+    <g transform={`translate(50, 50) scale(${scale}) translate(-50, -50)`}>
       {/* Define clip path matching body ellipse dimensions */}
       <defs>
         <clipPath id={clipPathId}>

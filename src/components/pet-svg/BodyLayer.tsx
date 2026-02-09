@@ -22,7 +22,7 @@ const BodyLayerComponent: React.FC<BodyLayerProps> = ({ color, size }) => {
   });
 
   return (
-    <g transform={`scale(${scale})`} transform-origin="50 50">
+    <g transform={`translate(50, 50) scale(${scale}) translate(-50, -50)`}>
       {/* Body ellipse - centered at (50, 55) */}
       <ellipse
         cx="50"
