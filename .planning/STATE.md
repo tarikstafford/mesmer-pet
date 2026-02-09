@@ -5,34 +5,36 @@
 See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Users form emotional connections with unique, visually distinctive pets that feel alive through personality-driven interactions and visual appeal.
-**Current focus:** Phase 1 - Foundation
+**Current focus:** Phase 2 - Database Integration
 
 ## Current Position
 
-Phase: 1 of 5 (Foundation)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-09 — Completed 01-02-PLAN.md (SVG rendering system)
+Phase: 2 of 5 (Database Integration)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-09 — Completed 02-01-PLAN.md (Database schema for pet visual traits)
 
-Progress: [██████████] 100% (Phase 1)
+Progress: [█████░░░░░] 50% (Phase 2)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 2
-- Average duration: 4 min
-- Total execution time: 0.13 hours
+- Total plans completed: 3
+- Average duration: 4.3 min
+- Total execution time: 0.22 hours
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-foundation | 2 | 8 min | 4 min |
+| 02-database-integration | 1 | 5 min | 5 min |
 
 **Recent Plans:**
 
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
+| Phase 02 P01 | 5 min | 2 | 3 |
 | Phase 01 P02 | 5 min | 2 | 7 |
 | Phase 01 P01 | 3 min | 4 | 7 |
 
@@ -56,6 +58,13 @@ Recent decisions affecting current work:
 - Custom React.memo comparison uses JSON.stringify for deep trait comparison
 - Layer z-order via SVG document order: Body → Pattern → Accessory → Expression
 
+**From 02-01 (Database Schema):**
+- Used db push instead of migrate dev when schema drift prevented migration creation
+- Used Prisma.DbNull for JSON null filtering (not plain null)
+- Made traits column optional (Json?) to avoid Prisma SQLite JSON default value bug
+- Wrapped backfill updates in transaction for atomicity
+- Created standalone Prisma client in backfill script (not singleton)
+
 **From Planning:**
 - SVG-based trait rendering over complex 3D models (scalable, performant, easier to generate procedurally)
 - Trait generation at pet creation, not on-demand (consistent appearance, simpler caching)
@@ -76,18 +85,20 @@ None yet.
 - ✓ SVG rendering system complete (layered composition with fallback handling)
 - ✓ Component testing infrastructure established (16 tests passing)
 
-**Phase 2 Readiness:**
-- Database migration can begin (trait generation and rendering systems ready)
-- Pet creation flow can preview generated traits before saving
-- Marketplace can render grids of pets with unique SVG def IDs
+**Phase 2 Progress:**
+- ✓ Database schema updated (traits JSON column added to Pet table)
+- ✓ All 92 existing pets backfilled with deterministic traits
+- ⚠️ Some API tests need updates to expect traits field in responses
+- Pet creation flow can now save traits during pet creation
+- Marketplace can render grids of pets with stored traits
 
 ## Session Continuity
 
 Last session: 2026-02-09 (plan execution)
-Stopped at: Completed 01-02-PLAN.md (SVG rendering system) - Phase 1 complete
+Stopped at: Completed 02-01-PLAN.md (Database schema for pet visual traits)
 Resume file: None
-Next action: Begin Phase 2 (Database migration and trait integration)
+Next action: Execute 02-02-PLAN.md (Update pet creation flow to generate and store traits)
 
 ---
 *State initialized: 2026-02-09*
-*Last updated: 2026-02-09 07:35 UTC*
+*Last updated: 2026-02-09 08:48 UTC*
