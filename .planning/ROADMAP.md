@@ -61,10 +61,11 @@ Plans:
   3. Pets display subtle movement animations appropriate to body type
   4. Animations can be disabled for motion sensitivity (accessibility compliance)
   5. Same pet loads with identical appearance after page reload or across browser sessions
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md -- Trait persistence and version migration (loadTraits utility, backward compat, tests)
+- [ ] 03-02-PLAN.md -- Animation system (breathing, blinking, hooks, CSS keyframes, AnimatedPetSVG wrapper)
 
 ### Phase 4: Display Rollout
 **Goal**: Enhanced pet rendering appears everywhere in the app, replacing all white polygon placeholders
@@ -103,7 +104,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-09 |
 | 2. Database Integration | 2/2 | Complete | 2026-02-09 |
-| 3. Animation & Persistence | 0/0 | Not started | - |
+| 3. Animation & Persistence | 0/2 | Planned | - |
 | 4. Display Rollout | 0/0 | Not started | - |
 | 5. Performance & Quality | 0/0 | Not started | - |
 
