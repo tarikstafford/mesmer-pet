@@ -1,0 +1,42 @@
+version: 2
+# Percy Visual Regression Testing Configuration
+
+# Snapshot settings
+snapshot:
+  widths:
+    - 375   # Mobile
+    - 768   # Tablet
+    - 1280  # Desktop
+    - 1920  # Large Desktop
+  minHeight: 1024
+  percyCSS: |
+    /* Hide elements that cause false positives */
+    .animate-pulse,
+    .animate-bounce,
+    .animate-spin {
+      animation: none !important;
+    }
+    /* Normalize timestamps */
+    [data-testid="timestamp"] {
+      visibility: hidden;
+    }
+
+# Static assets discovery
+static:
+  include: public/**
+  exclude:
+    - "**/*.map"
+
+# Discovery options
+discovery:
+  allowedHostnames:
+    - localhost
+  networkIdleTimeout: 750
+
+# Asset discovery
+agent:
+  asset-discovery:
+    allowed-hostnames:
+      - localhost
+      - fonts.googleapis.com
+      - fonts.gstatic.com
