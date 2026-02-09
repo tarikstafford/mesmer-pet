@@ -1114,3 +1114,28 @@ Total user stories: 30
   - All acceptance criteria met: navigation works, form validated, pets created with traits and correct stats, typecheck passes
   - Firefox and webkit tests had beforeEach timeout issues (known Playwright limitation with some browsers)
 ---
+
+## 2026-02-09 - US-TEST-029
+- Implemented comprehensive E2E test suite for pet interaction and stat changes
+- Files changed:
+  - Created: e2e/pet-interaction.spec.ts (14 tests)
+  - Updated: scripts/ralph/prd.json (marked US-TEST-029 as passes: true)
+- **Learnings for future iterations:**
+  - Dashboard displays pets in grid with individual pet cards using class `.border`
+  - Feed button located in pet card with text "Feed Pet" or "🍖" emoji
+  - Stats displayed as bars with color coding: green (>70), yellow (40-70), red (<40)
+  - Feed API endpoint: POST /api/pets/feed with petId and userId in body
+  - Feeding updates hunger, happiness, and health stats
+  - Feed cooldown enforced - shows error message on subsequent feed attempts
+  - Success messages displayed at top of page with pattern `text=/fed|success/i`
+  - Error messages for cooldown with pattern `text=/cooldown|wait|recently/i`
+  - Loading state shows "Feeding..." text during API call
+  - Pet cards show last interaction timestamp with format "Just now", "Xm ago", "Xh ago"
+  - Personality traits section displays 5 traits: Friendliness, Energy, Curiosity, Patience, Playfulness
+  - Visual traits displayed as rounded badges with rarity-based colors
+  - Dashboard shows stats with format "XX/100" for easy parsing in tests
+  - Critical state pets show warning banner and disabled interaction buttons
+  - E2E tests should use unique timestamps in email/pet names to avoid database conflicts
+  - Playwright selectors: use `.locator('text=/pattern/i')` for flexible text matching
+  - Test strategy: Create user + login + create pet in beforeEach for clean state per test
+---
