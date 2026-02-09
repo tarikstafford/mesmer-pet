@@ -18,12 +18,14 @@ const ExpressionLayerComponent: React.FC<ExpressionLayerProps> = ({ type, size }
       {/* Happy expression */}
       {type === 'happy' && (
         <>
-          {/* Left eye */}
-          <circle cx="44" cy="33" r="2.5" fill={eyeColor} />
-          <circle cx="44.8" cy="32.5" r="0.8" fill={highlightColor} />
-          {/* Right eye */}
-          <circle cx="56" cy="33" r="2.5" fill={eyeColor} />
-          <circle cx="56.8" cy="32.5" r="0.8" fill={highlightColor} />
+          <g className="pet-eyes">
+            {/* Left eye */}
+            <circle cx="44" cy="33" r="2.5" fill={eyeColor} />
+            <circle cx="44.8" cy="32.5" r="0.8" fill={highlightColor} />
+            {/* Right eye */}
+            <circle cx="56" cy="33" r="2.5" fill={eyeColor} />
+            <circle cx="56.8" cy="32.5" r="0.8" fill={highlightColor} />
+          </g>
           {/* Curved-up mouth */}
           <path
             d="M 45 40 Q 50 43 55 40"
@@ -38,12 +40,14 @@ const ExpressionLayerComponent: React.FC<ExpressionLayerProps> = ({ type, size }
       {/* Neutral expression */}
       {type === 'neutral' && (
         <>
-          {/* Left eye */}
-          <circle cx="44" cy="33" r="2.5" fill={eyeColor} />
-          <circle cx="44.8" cy="32.5" r="0.8" fill={highlightColor} />
-          {/* Right eye */}
-          <circle cx="56" cy="33" r="2.5" fill={eyeColor} />
-          <circle cx="56.8" cy="32.5" r="0.8" fill={highlightColor} />
+          <g className="pet-eyes">
+            {/* Left eye */}
+            <circle cx="44" cy="33" r="2.5" fill={eyeColor} />
+            <circle cx="44.8" cy="32.5" r="0.8" fill={highlightColor} />
+            {/* Right eye */}
+            <circle cx="56" cy="33" r="2.5" fill={eyeColor} />
+            <circle cx="56.8" cy="32.5" r="0.8" fill={highlightColor} />
+          </g>
           {/* Straight line mouth */}
           <line
             x1="45"
@@ -60,12 +64,14 @@ const ExpressionLayerComponent: React.FC<ExpressionLayerProps> = ({ type, size }
       {/* Curious expression */}
       {type === 'curious' && (
         <>
-          {/* Left eye - slightly larger */}
-          <circle cx="44" cy="33" r="3" fill={eyeColor} />
-          <circle cx="44.8" cy="32.2" r="0.8" fill={highlightColor} />
-          {/* Right eye - slightly larger */}
-          <circle cx="56" cy="33" r="3" fill={eyeColor} />
-          <circle cx="56.8" cy="32.2" r="0.8" fill={highlightColor} />
+          <g className="pet-eyes">
+            {/* Left eye - slightly larger */}
+            <circle cx="44" cy="33" r="3" fill={eyeColor} />
+            <circle cx="44.8" cy="32.2" r="0.8" fill={highlightColor} />
+            {/* Right eye - slightly larger */}
+            <circle cx="56" cy="33" r="3" fill={eyeColor} />
+            <circle cx="56.8" cy="32.2" r="0.8" fill={highlightColor} />
+          </g>
           {/* One eyebrow raised (above left eye) */}
           <line
             x1="41"
@@ -84,26 +90,28 @@ const ExpressionLayerComponent: React.FC<ExpressionLayerProps> = ({ type, size }
       {/* Mischievous expression */}
       {type === 'mischievous' && (
         <>
-          {/* Left eye - angled ellipse */}
-          <ellipse
-            cx="44"
-            cy="33"
-            rx="2.5"
-            ry="2"
-            fill={eyeColor}
-            transform="rotate(-10 44 33)"
-          />
-          <circle cx="44.8" cy="32.5" r="0.8" fill={highlightColor} />
-          {/* Right eye - angled ellipse */}
-          <ellipse
-            cx="56"
-            cy="33"
-            rx="2.5"
-            ry="2"
-            fill={eyeColor}
-            transform="rotate(10 56 33)"
-          />
-          <circle cx="56.8" cy="32.5" r="0.8" fill={highlightColor} />
+          <g className="pet-eyes">
+            {/* Left eye - angled ellipse */}
+            <ellipse
+              cx="44"
+              cy="33"
+              rx="2.5"
+              ry="2"
+              fill={eyeColor}
+              transform="rotate(-10 44 33)"
+            />
+            <circle cx="44.8" cy="32.5" r="0.8" fill={highlightColor} />
+            {/* Right eye - angled ellipse */}
+            <ellipse
+              cx="56"
+              cy="33"
+              rx="2.5"
+              ry="2"
+              fill={eyeColor}
+              transform="rotate(10 56 33)"
+            />
+            <circle cx="56.8" cy="32.5" r="0.8" fill={highlightColor} />
+          </g>
           {/* Asymmetric smirk mouth */}
           <path
             d="M 45 40 Q 48 42 52 41 Q 54 40.5 55 40"
@@ -118,26 +126,28 @@ const ExpressionLayerComponent: React.FC<ExpressionLayerProps> = ({ type, size }
       {/* Sleepy expression */}
       {type === 'sleepy' && (
         <>
-          {/* Left eye - closed (horizontal line) */}
-          <line
-            x1="41"
-            y1="33"
-            x2="47"
-            y2="33"
-            stroke={eyeColor}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          {/* Right eye - closed (horizontal line) */}
-          <line
-            x1="53"
-            y1="33"
-            x2="59"
-            y2="33"
-            stroke={eyeColor}
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
+          <g className="pet-eyes">
+            {/* Left eye - closed (horizontal line) */}
+            <line
+              x1="41"
+              y1="33"
+              x2="47"
+              y2="33"
+              stroke={eyeColor}
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+            {/* Right eye - closed (horizontal line) */}
+            <line
+              x1="53"
+              y1="33"
+              x2="59"
+              y2="33"
+              stroke={eyeColor}
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </g>
           {/* Gentle curve mouth */}
           <path
             d="M 47 40 Q 50 41 53 40"
