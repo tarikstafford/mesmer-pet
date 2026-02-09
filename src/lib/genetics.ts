@@ -1,4 +1,6 @@
 import { prisma } from './prisma';
+import { generatePetTraits } from './traits/generation';
+import { PetTraitsSchema } from './traits/validation';
 
 // Rarity distribution for random trait selection
 const RARITY_DISTRIBUTION = {
@@ -116,9 +118,15 @@ export async function createPetWithGenetics(userId: string, petName: string) {
   // Generate random personality traits
   const personality = generateRandomPersonality();
 
+  // Generate deterministic pet ID and visual traits
+  // Using the same ID for both pet identity and trait seed ensures traits are reproducible from pet ID
+  const petId = crypto.randomUUID();
+  const traits = PetTraitsSchema.parse(generatePetTraits(petId));
+
   // Create the pet
   const pet = await prisma.pet.create({
     data: {
+      id: petId,
       name: petName,
       userId,
       generation: 1,
@@ -127,6 +135,7 @@ export async function createPetWithGenetics(userId: string, petName: string) {
       curiosity: personality.curiosity,
       patience: personality.patience,
       playfulness: personality.playfulness,
+      traits,
     },
   });
 
