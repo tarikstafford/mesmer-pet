@@ -1062,3 +1062,27 @@ Total user stories: 30
   - Testing coverage includes: rendering, validation, error handling, form submission, loading states, accessibility, edge cases (unicode, boundaries)
   - All 46 tests pass, typecheck passes, component is production-ready
 ---
+
+## 2026-02-09 - US-TEST-024
+- Implemented MarketplaceCard component for pet marketplace listings
+- Files changed:
+  - Created src/components/MarketplaceCard.tsx (reusable marketplace card component)
+  - Created src/__tests__/components/MarketplaceCard.test.tsx (54 comprehensive tests)
+  - Updated scripts/ralph/prd.json (marked US-TEST-024 complete)
+- **Learnings for future iterations:**
+  - MarketplaceCard component displays pet listings with purchase functionality
+  - Component handles multiple states: active listing, sold, own listing, insufficient funds, loading
+  - Purchase logic checks: isSold, isOwnListing (currentUserId === sellerId), insufficientFunds (userCurrency < price)
+  - Buy button disabled when: sold, own listing, insufficient funds, or loading
+  - Sold indicator shown with gray styling and "✓ Sold" badge
+  - Component uses gradient styling consistent with app design (purple/pink gradients)
+  - Test coverage includes: rendering, image display, sold indicators, button states, callbacks, edge cases, styling, accessibility
+  - Edge cases tested: zero price/currency, exact match boundary, empty names, large values, undefined props
+  - Component designed for integration with marketplace.ts library (createListing, purchasePet, cancelListing functions)
+  - Test pattern: 54 tests across 9 describe blocks covering all component scenarios
+  - All acceptance criteria met: displays info, purchase callback, sold indicator, insufficient funds handling, typecheck passes
+  - Browser verification deferred (dev-browser skill not available)
+  - Pattern: Reusable component with comprehensive prop validation and controlled behavior
+  - Component ready for use in pet marketplace page (not yet created, will use marketplace.ts API)
+  - Typecheck passes without errors
+---
