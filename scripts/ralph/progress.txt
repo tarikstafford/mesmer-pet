@@ -340,3 +340,22 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Note on component bug: showReward state logic is never reached due to early return, preventing reward screen display
   - All 37 tests passing, typecheck passes
 ---
+## 2026-02-09 09:59 - US-TEST-025
+- Implemented comprehensive BreedingInterface component test suite
+- Files changed:
+  - src/__tests__/components/BreedingInterface.test.tsx (created with 41 tests covering all breeding interface scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-025 as passing)
+- **Learnings for future iterations:**
+  - BreedingInterface is actually the breed page component (/app/breed/page.tsx) not a separate component
+  - Component has complex state management: selectedPet1/2, breedingCheck, offspringName, loading, breeding, error
+  - Uses useSearchParams to allow pre-selecting pets via URL params (pet1=id&pet2=id)
+  - Breeding compatibility check is automatic when both parents are selected (useEffect dependency)
+  - Component displays compatibility score with color-coded labels: Excellent (80+), Good (60+), Fair (40+), Poor (<40)
+  - Breeding form only shows when breedingCheck.canBreed is true
+  - Component includes extensive validation: 2+ pets required, health check, age check, cooldown enforcement
+  - Testing multiple elements with same text requires using getAllByText() instead of getByText()
+  - When text appears in multiple places (like requirements section + error message), use unique error messages in tests
+  - Mock useRouter and useSearchParams from next/navigation for testing Next.js components
+  - Testing Suspense components: import the page component directly, the Suspense boundary is handled automatically
+  - All 41 tests passing, typecheck passes
+---
