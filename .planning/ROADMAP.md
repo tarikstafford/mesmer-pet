@@ -13,7 +13,7 @@ Transform Mesmer's virtual pets from generic white polygons into visually distin
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Foundation** - Trait generation system and SVG rendering
-- [ ] **Phase 2: Database Integration** - Migration and pet creation flow
+- [x] **Phase 2: Database Integration** - Migration and pet creation flow
 - [ ] **Phase 3: Animation & Persistence** - Idle animations and trait persistence
 - [ ] **Phase 4: Display Rollout** - Replace white polygons across all contexts
 - [ ] **Phase 5: Performance & Quality** - Validation and optimization
@@ -48,8 +48,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md -- Schema migration and data backfill (add traits column, backfill all existing pets with deterministic traits)
-- [ ] 02-02-PLAN.md -- Pet creation flow update (generate and persist traits on new pet creation, verify API responses)
+- [x] 02-01-PLAN.md -- Schema migration and data backfill (add traits column, backfill all existing pets with deterministic traits) - Completed 2026-02-09
+- [x] 02-02-PLAN.md -- Pet creation flow update (generate and persist traits on new pet creation, verify API responses) - Completed 2026-02-09
 
 ### Phase 3: Animation & Persistence
 **Goal**: Pets feel alive through idle animations and maintain visual identity across sessions
@@ -102,11 +102,11 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-09 |
-| 2. Database Integration | 0/2 | Planned | - |
+| 2. Database Integration | 2/2 | Complete | 2026-02-09 |
 | 3. Animation & Persistence | 0/0 | Not started | - |
 | 4. Display Rollout | 0/0 | Not started | - |
 | 5. Performance & Quality | 0/0 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*
-*Last updated: 2026-02-09 (Phase 2 planned)*
+*Last updated: 2026-02-09 (Phase 2 complete)*
