@@ -12,9 +12,9 @@ Transform Mesmer's virtual pets from generic white polygons into visually distin
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Foundation** - Trait generation system and SVG rendering
+- [x] **Phase 1: Foundation** - Trait generation system and SVG rendering
 - [x] **Phase 2: Database Integration** - Migration and pet creation flow
-- [ ] **Phase 3: Animation & Persistence** - Idle animations and trait persistence
+- [x] **Phase 3: Animation & Persistence** - Idle animations and trait persistence
 - [ ] **Phase 4: Display Rollout** - Replace white polygons across all contexts
 - [ ] **Phase 5: Performance & Quality** - Validation and optimization
 
@@ -64,8 +64,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md -- Trait persistence and version migration (loadTraits utility, backward compat, tests)
-- [ ] 03-02-PLAN.md -- Animation system (breathing, blinking, hooks, CSS keyframes, AnimatedPetSVG wrapper)
+- [x] 03-01-PLAN.md -- Trait persistence and version migration (loadTraits utility, backward compat, tests) - Completed 2026-02-09
+- [x] 03-02-PLAN.md -- Animation system (breathing, blinking, hooks, CSS keyframes, AnimatedPetSVG wrapper) - Completed 2026-02-09
 
 ### Phase 4: Display Rollout
 **Goal**: Enhanced pet rendering appears everywhere in the app, replacing all white polygon placeholders
@@ -104,10 +104,10 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Foundation | 2/2 | Complete | 2026-02-09 |
 | 2. Database Integration | 2/2 | Complete | 2026-02-09 |
-| 3. Animation & Persistence | 0/2 | Planned | - |
+| 3. Animation & Persistence | 2/2 | Complete | 2026-02-09 |
 | 4. Display Rollout | 0/0 | Not started | - |
 | 5. Performance & Quality | 0/0 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-09*
-*Last updated: 2026-02-09 (Phase 2 complete)*
+*Last updated: 2026-02-09 (Phase 3 complete)*
