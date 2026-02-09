@@ -359,3 +359,24 @@ Started: Sat  7 Feb 2026 10:26:11 +08
   - Testing Suspense components: import the page component directly, the Suspense boundary is handled automatically
   - All 41 tests passing, typecheck passes
 ---
+## 2026-02-09 10:05 - US-TEST-026
+- Implemented comprehensive AR/3D rendering component test suite
+- Files changed:
+  - src/__tests__/components/AR3D.test.tsx (created with 65 tests covering all AR/3D scenarios)
+  - scripts/ralph/prd.json (marked US-TEST-026 as passing)
+- **Learnings for future iterations:**
+  - PetModel3D uses @react-three/fiber Canvas with Three.js for 3D rendering in the browser
+  - ARPetViewer is a comprehensive AR viewer using WebXR API for immersive AR experiences
+  - Both components share the same PetCreature geometry but with different animation/interaction systems
+  - getPetModelConfig maps string trait names (e.g., 'Sky Blue', 'Glowing Eyes') to 3D model properties
+  - Trait system includes: base colors (5 options), patterns (striped, spotted, gradient), special visual traits (glowing eyes, crystal horns, rainbow shimmer, galaxy pattern)
+  - Health state affects visual appearance: healthy (normal), sick (<40 health, desaturated colors), critical (<20 health, gray with red glow)
+  - Animation states in AR: idle, happy, hungry - each with distinct movement patterns
+  - ARPetViewer includes: WebXR AR session management, device motion detection (shake to interact), voice chat with speech recognition, wake lock to prevent screen sleep, error logging with breadcrumbs
+  - Testing Three.js/React Three Fiber components requires mocking: Canvas (render children), useFrame (animation callback), useThree (scene/camera/renderer access), OrbitControls/Environment/ContactShadows (drei helpers)
+  - Testing AR components requires mocking: navigator.xr.isSessionSupported, navigator.wakeLock.request/release, window.speechSynthesis.speak, DeviceMotionEvent
+  - Three.js Material classes (MeshStandardMaterial, MeshPhysicalMaterial) need to be mocked with simple constructor that stores props
+  - WebXR AR support detection is async - component shows loading state until check completes
+  - ARPetViewer handles three main states: loading (checking support), ready (AR supported, showing preview), not supported (fallback message with requirements)
+  - All 65 tests passing, typecheck passes
+---
