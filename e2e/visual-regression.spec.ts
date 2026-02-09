@@ -51,7 +51,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture login page on tablet', async ({ page, context }) => {
-    await context.setViewportSize({ width: 768, height: 1024 });
+    await page.setViewportSize({ width: 768, height: 1024 });
     await page.goto('/auth/login');
     await page.waitForLoadState('networkidle');
 
@@ -59,7 +59,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture login page on mobile', async ({ page, context }) => {
-    await context.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/auth/login');
     await page.waitForLoadState('networkidle');
 
@@ -74,7 +74,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture registration page on mobile', async ({ page, context }) => {
-    await context.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/auth/register');
     await page.waitForLoadState('networkidle');
 
@@ -98,7 +98,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture dashboard on tablet', async ({ page, context }) => {
-    await context.setViewportSize({ width: 768, height: 1024 });
+    await page.setViewportSize({ width: 768, height: 1024 });
 
     await page.goto('/dashboard');
     await page.evaluate((token) => {
@@ -114,7 +114,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture dashboard on mobile', async ({ page, context }) => {
-    await context.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto('/dashboard');
     await page.evaluate((token) => {
@@ -143,7 +143,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture pet creation page on mobile', async ({ page, context }) => {
-    await context.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto('/pets/create');
     await page.evaluate((token) => {
@@ -171,7 +171,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture marketplace page on mobile', async ({ page, context }) => {
-    await context.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto('/pets/marketplace');
     await page.evaluate((token) => {
@@ -200,7 +200,7 @@ test.describe('Visual Regression Testing with Percy', () => {
   });
 
   test('should capture breeding page on mobile', async ({ page, context }) => {
-    await context.setViewportSize({ width: 375, height: 667 });
+    await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto('/breed');
     await page.evaluate((token) => {

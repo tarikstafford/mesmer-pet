@@ -81,12 +81,22 @@ describe('TutorialOverlay', () => {
   });
 
   describe('Rendering', () => {
-    it('renders loading state initially', () => {
+    it('renders loading state initially', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ progress: mockProgressInProgress }),
+      });
+
       render(<TutorialOverlay {...defaultProps} />);
 
-      // Loading spinner should be visible
+      // Loading spinner should be visible initially
       const spinner = document.querySelector('.animate-spin');
       expect(spinner).toBeInTheDocument();
+
+      // Wait for the async state update to complete
+      await waitFor(() => {
+        expect(mockFetch).toHaveBeenCalled();
+      });
     });
 
     it('fetches tutorial progress on mount', async () => {

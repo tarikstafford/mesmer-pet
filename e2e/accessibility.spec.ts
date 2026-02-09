@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
+import AxeBuilder, { AxeResults } from '@axe-core/playwright';
+
+type AxeViolation = AxeResults['violations'][number];
+type AxeNode = AxeViolation['nodes'][number];
 
 test.describe('Accessibility Testing with axe-core', () => {
   let testEmail: string;
@@ -83,7 +86,7 @@ test.describe('Accessibility Testing with axe-core', () => {
     // Log any violations for debugging
     if (accessibilityScanResults.violations.length > 0) {
       console.log('Accessibility violations on dashboard:');
-      accessibilityScanResults.violations.forEach((violation) => {
+      accessibilityScanResults.violations.forEach((violation: AxeViolation) => {
         console.log(`  - ${violation.id}: ${violation.description}`);
         console.log(`    Impact: ${violation.impact}`);
         console.log(`    Help: ${violation.help}`);
@@ -93,7 +96,7 @@ test.describe('Accessibility Testing with axe-core', () => {
 
     // Filter out minor violations and only fail on critical/serious
     const criticalViolations = accessibilityScanResults.violations.filter(
-      v => v.impact === 'critical' || v.impact === 'serious'
+      (v: AxeViolation) => v.impact === 'critical' || v.impact === 'serious'
     );
 
     expect(criticalViolations).toEqual([]);
@@ -114,7 +117,7 @@ test.describe('Accessibility Testing with axe-core', () => {
       .analyze();
 
     const criticalViolations = accessibilityScanResults.violations.filter(
-      v => v.impact === 'critical' || v.impact === 'serious'
+      (v: AxeViolation) => v.impact === 'critical' || v.impact === 'serious'
     );
 
     expect(criticalViolations).toEqual([]);
@@ -135,7 +138,7 @@ test.describe('Accessibility Testing with axe-core', () => {
       .analyze();
 
     const criticalViolations = accessibilityScanResults.violations.filter(
-      v => v.impact === 'critical' || v.impact === 'serious'
+      (v: AxeViolation) => v.impact === 'critical' || v.impact === 'serious'
     );
 
     expect(criticalViolations).toEqual([]);
@@ -156,7 +159,7 @@ test.describe('Accessibility Testing with axe-core', () => {
       .analyze();
 
     const criticalViolations = accessibilityScanResults.violations.filter(
-      v => v.impact === 'critical' || v.impact === 'serious'
+      (v: AxeViolation) => v.impact === 'critical' || v.impact === 'serious'
     );
 
     expect(criticalViolations).toEqual([]);
@@ -321,14 +324,14 @@ test.describe('Accessibility Testing with axe-core', () => {
 
     // Check specifically for color contrast violations
     const contrastViolations = accessibilityScanResults.violations.filter(
-      v => v.id === 'color-contrast'
+      (v: AxeViolation) => v.id === 'color-contrast'
     );
 
     if (contrastViolations.length > 0) {
       console.log('Color contrast violations:');
       contrastViolations.forEach((violation) => {
         console.log(`  - ${violation.description}`);
-        violation.nodes.forEach((node) => {
+        violation.nodes.forEach((node: AxeNode) => {
           console.log(`    Element: ${node.html}`);
         });
       });
@@ -354,7 +357,7 @@ test.describe('Accessibility Testing with axe-core', () => {
 
     // Check for image-alt violations
     const imageAltViolations = accessibilityScanResults.violations.filter(
-      v => v.id === 'image-alt'
+      (v: AxeViolation) => v.id === 'image-alt'
     );
 
     expect(imageAltViolations).toEqual([]);
