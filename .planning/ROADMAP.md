@@ -78,10 +78,11 @@ Plans:
   4. Inventory and collection views show enhanced pets
   5. No visual regressions in layout or sizing after enhancement
   6. Zero white polygon pets remain visible in any user-facing context
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md -- Replace PetModel3D with AnimatedPetSVG in dashboard and PetCard (primary display contexts)
+- [ ] 04-02-PLAN.md -- Replace PetModel3D in breed, friends, and marketplace pages (remaining contexts + visual verification)
 
 ### Phase 5: Performance & Quality
 **Goal**: System maintains 60fps with multiple pets and passes quality validation
