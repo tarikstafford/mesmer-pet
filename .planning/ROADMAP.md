@@ -94,12 +94,13 @@ Plans:
   3. Views with 20+ pets activate viewport culling to maintain performance
   4. Color combinations pass aesthetic validation (no clashing across 1000+ samples)
   5. Users can visually distinguish pets from each other at a glance
-**Plans:** 3 plans
+**Plans:** 4 plans
 
 Plans:
 - [ ] 05-01-PLAN.md -- Performance benchmarks and AnimatedPetSVG memoization (PERF-01, PERF-02, PERF-03, PERF-05)
 - [ ] 05-02-PLAN.md -- Quality validation test suites for color harmony and visual distinctiveness (QUALITY-01, QUALITY-02)
 - [ ] 05-03-PLAN.md -- Viewport culling with LazyPetGrid component (PERF-04)
+- [ ] 05-04-PLAN.md -- Gap closure: Integrate LazyPetGrid into marketplace and friends pages (PERF-04 wiring)
 
 ## Progress
 
@@ -109,7 +110,7 @@ Plans:
 | 2. Database Integration | 2/2 | Complete | 2026-02-09 |
 | 3. Animation & Persistence | 2/2 | Complete | 2026-02-09 |
 | 4. Display Rollout | 2/2 | Complete | 2026-02-10 |
-| 5. Performance & Quality | 0/3 | Planning complete | - |
+| 5. Performance & Quality | 3/4 | Gap closure planned | - |
 
 ---
 *Roadmap created: 2026-02-09*
