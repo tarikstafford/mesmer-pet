@@ -1,17 +1,8 @@
 'use client'
 
-import dynamic from 'next/dynamic'
-import { Suspense } from 'react'
-
-// Dynamically import 3D model to avoid SSR issues
-const PetModel3D = dynamic(() => import('@/components/PetModel3D'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-64 flex items-center justify-center bg-gray-100 rounded-lg">
-      <div className="text-gray-400">Loading 3D model...</div>
-    </div>
-  ),
-})
+import { useMemo } from 'react'
+import { AnimatedPetSVG } from '@/components/pet-svg/AnimatedPetSVG'
+import { loadTraits } from '@/lib/traits/migration'
 
 interface Trait {
   id: string
@@ -64,6 +55,7 @@ export interface PetCardProps {
   createdAt: string
   lastInteractionAt?: string | null
   petTraits: PetTrait[]
+  traits?: Record<string, unknown> | null // Visual appearance traits JSON from database
   petSkills?: PetSkill[]
   warnings?: PetWarning[]
   isCritical?: boolean
@@ -100,6 +92,7 @@ export default function PetCard(props: PetCardProps) {
     createdAt,
     lastInteractionAt,
     petTraits,
+    traits,
     petSkills = [],
     warnings = [],
     isCritical = false,
@@ -116,6 +109,11 @@ export default function PetCard(props: PetCardProps) {
     onRecover,
     recoveringPetId,
   } = props
+
+  const validatedTraits = useMemo(
+    () => loadTraits(traits, id),
+    [traits, id]
+  )
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
@@ -168,10 +166,6 @@ export default function PetCard(props: PetCardProps) {
       icon: '⚠️',
     }
   }
-
-  const visualTraitNames = petTraits
-    .filter((pt) => pt.trait.traitType === 'visual')
-    .map((pt) => pt.trait.traitName)
 
   return (
     <div
@@ -240,15 +234,15 @@ export default function PetCard(props: PetCardProps) {
           </div>
         )}
 
-        {/* 3D Pet Model */}
+        {/* Animated Pet SVG */}
         <div className="mb-6 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-2xl overflow-hidden shadow-inner border-2 border-purple-200" data-testid="pet-model">
-          <Suspense fallback={
-            <div className="w-full h-72 flex items-center justify-center">
-              <div className="text-gray-400 animate-pulse">Loading 3D model...</div>
-            </div>
-          }>
-            <PetModel3D traitNames={visualTraitNames} health={health} width={350} height={280} autoRotate={true} />
-          </Suspense>
+          <div className="w-full h-72 flex items-center justify-center">
+            <AnimatedPetSVG
+              petId={id}
+              traits={validatedTraits}
+              size="large"
+            />
+          </div>
         </div>
 
         {/* Pet Name & Generation */}

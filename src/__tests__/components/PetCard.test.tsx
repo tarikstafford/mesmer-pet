@@ -3,17 +3,25 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import PetCard, { PetCardProps } from '@/components/PetCard'
 
-// Mock dynamic import to avoid Three.js and SSR issues in tests
-vi.mock('next/dynamic', () => ({
-  default: (importFn: any, options?: any) => {
-    // Return a component that renders immediately (no loading state in tests)
-    const Component = ({ traitNames, health }: { traitNames: string[]; health: number }) => (
-      <div data-testid="pet-model-3d" data-trait-names={traitNames.join(',')} data-health={health}>
-        Mocked 3D Model
-      </div>
-    )
-    return Component
-  },
+// Mock AnimatedPetSVG component
+vi.mock('@/components/pet-svg/AnimatedPetSVG', () => ({
+  AnimatedPetSVG: ({ petId, size }: { petId: string; size: string }) => (
+    <div data-testid="animated-pet-svg" data-pet-id={petId} data-size={size}>
+      Mocked AnimatedPetSVG
+    </div>
+  ),
+}))
+
+// Mock loadTraits utility
+vi.mock('@/lib/traits/migration', () => ({
+  loadTraits: (traits: any, petId: string) => ({
+    body: { color: '#3b82f6' },
+    pattern: { type: 'none' as const, color: '#000000' },
+    accessory: { type: 'none' as const, color: '#000000' },
+    expression: { type: 'happy' as const, color: '#000000' },
+    rarity: 'common' as const,
+    traitVersion: 1,
+  }),
 }))
 
 describe('PetCard Component', () => {
@@ -34,6 +42,7 @@ describe('PetCard Component', () => {
     parent2Id: 'parent-2',
     createdAt: '2024-01-01T00:00:00.000Z',
     lastInteractionAt: '2024-01-10T12:00:00.000Z',
+    traits: null,
     petTraits: [
       {
         trait: {
@@ -95,12 +104,12 @@ describe('PetCard Component', () => {
       expect(screen.getByText('Generation 2')).toBeInTheDocument()
     })
 
-    it('should render the 3D model with correct props', () => {
+    it('should render the AnimatedPetSVG with correct props', () => {
       render(<PetCard {...mockPetData} />)
-      const model = screen.getByTestId('pet-model-3d')
-      expect(model).toBeInTheDocument()
-      expect(model).toHaveAttribute('data-health', '85')
-      expect(model).toHaveAttribute('data-trait-names', 'Sparkling Eyes,Fluffy Tail,Golden Fur')
+      const svg = screen.getByTestId('animated-pet-svg')
+      expect(svg).toBeInTheDocument()
+      expect(svg).toHaveAttribute('data-pet-id', 'pet-123')
+      expect(svg).toHaveAttribute('data-size', 'large')
     })
 
     it('should display bred indicator when pet has parents', () => {
