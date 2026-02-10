@@ -1,0 +1,51 @@
+/* Pet idle animations - breathing and blinking
+ * CRITICAL: Only animate transform and opacity properties (GPU-accelerated, no layout thrashing)
+ * See ANIM-06 requirement
+ */
+
+/* Breathing animation - subtle scale from center (ANIM-01) */
+@keyframes pet-breathe {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Blink animation - opacity flash on eyes (ANIM-02) */
+@keyframes pet-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Animation classes */
+
+/* Breathing animation with CSS custom properties for duration and delay */
+.pet-animate-breathing {
+  animation: pet-breathe var(--pet-breathing-duration, 3.5s) ease-in-out infinite;
+  animation-delay: var(--pet-breathing-delay, 0s);
+  transform-origin: center center;
+}
+
+/* Pause state for tab visibility (ANIM-04) */
+.pet-animate-breathing.pet-paused {
+  animation-play-state: paused;
+}
+
+/* Blink animation targeting eyes specifically (ANIM-02) */
+.pet-blinking .pet-eyes {
+  animation: pet-blink 0.2s ease-in-out 1;
+}
+
+/* Accessibility: Disable all animations when user prefers reduced motion (ANIM-05) */
+@media (prefers-reduced-motion: reduce) {
+  .pet-animate-breathing,
+  .pet-blinking .pet-eyes {
+    animation: none !important;
+  }
+}

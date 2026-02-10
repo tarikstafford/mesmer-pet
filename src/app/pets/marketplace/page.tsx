@@ -8,6 +8,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import MarketplaceCard from '@/components/MarketplaceCard';
+import { LazyPetGrid } from '@/components/pet-svg';
+import type { LazyPetItem } from '@/components/pet-svg';
+import { loadTraits } from '@/lib/traits/migration';
 
 interface PetTrait {
   trait: {
@@ -19,7 +22,7 @@ interface PetTrait {
 interface Pet {
   id: string;
   name: string;
-  traits: PetTrait[];
+  traits: unknown;  // JSON scalar field (visual appearance traits)
 }
 
 interface Listing {
@@ -217,23 +220,35 @@ export default function PetMarketplacePage() {
             <p className="text-gray-500 mt-2">Check back later for new listings!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listings.map((listing) => (
-              <MarketplaceCard
-                key={listing.id}
-                listingId={listing.id}
-                petName={listing.pet.name}
-                price={listing.price}
-                sellerName={listing.seller.name}
-                sellerId={listing.sellerId}
-                isSold={listing.status === 'sold'}
-                currentUserId={currentUserId || undefined}
-                userCurrency={userCurrency}
-                onPurchase={handlePurchase}
-                loading={purchasingId === listing.id}
-              />
-            ))}
-          </div>
+          <LazyPetGrid
+            pets={listings.map((listing) => ({
+              id: listing.pet.id,
+              traits: loadTraits(listing.pet.traits as Record<string, unknown> | null, listing.pet.id)
+            }))}
+            size="medium"
+            columns="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            renderCard={(pet, petSvg) => {
+              const listing = listings.find(l => l.pet.id === pet.id)!;
+              return (
+                <MarketplaceCard
+                  key={listing.id}
+                  listingId={listing.id}
+                  petName={listing.pet.name}
+                  petId={listing.pet.id}
+                  petTraits={listing.pet.traits as Record<string, unknown> | null}
+                  petSvgNode={petSvg}
+                  price={listing.price}
+                  sellerName={listing.seller.name}
+                  sellerId={listing.sellerId}
+                  isSold={listing.status === 'sold'}
+                  currentUserId={currentUserId || undefined}
+                  userCurrency={userCurrency}
+                  onPurchase={handlePurchase}
+                  loading={purchasingId === listing.id}
+                />
+              );
+            }}
+          />
         )}
       </div>
     </div>

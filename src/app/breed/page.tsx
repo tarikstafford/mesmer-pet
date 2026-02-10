@@ -2,12 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
-
-const PetModel3D = dynamic(() => import('@/components/PetModel3D'), {
-  ssr: false,
-  loading: () => <div className="w-full h-[200px] bg-gradient-to-br from-purple-100 to-pink-100 animate-pulse rounded-2xl" />,
-});
+import { AnimatedPetSVG } from '@/components/pet-svg/AnimatedPetSVG';
+import { loadTraits } from '@/lib/traits/migration';
 
 interface Pet {
   id: string;
@@ -23,6 +19,7 @@ interface Pet {
   patience: number;
   playfulness: number;
   createdAt: string;
+  traits?: Record<string, unknown> | null;
   petTraits: Array<{
     trait: {
       id: string;
@@ -289,12 +286,13 @@ function BreedingPageContent() {
             {selectedPet1 && getPet(selectedPet1) && (
               <div>
                 <div className="mb-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-2xl overflow-hidden border-2 border-purple-200">
-                  <PetModel3D
-                    traitNames={getPet(selectedPet1)!.petTraits
-                      .filter((pt) => pt.trait.traitType === 'visual')
-                      .map((pt) => pt.trait.traitName)}
-                    health={getPet(selectedPet1)!.health}
-                  />
+                  <div className="w-full h-[200px] flex items-center justify-center">
+                    <AnimatedPetSVG
+                      petId={getPet(selectedPet1)!.id}
+                      traits={loadTraits(getPet(selectedPet1)!.traits, getPet(selectedPet1)!.id)}
+                      size="medium"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200">
@@ -344,12 +342,13 @@ function BreedingPageContent() {
             {selectedPet2 && getPet(selectedPet2) && (
               <div>
                 <div className="mb-4 bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 rounded-2xl overflow-hidden border-2 border-pink-200">
-                  <PetModel3D
-                    traitNames={getPet(selectedPet2)!.petTraits
-                      .filter((pt) => pt.trait.traitType === 'visual')
-                      .map((pt) => pt.trait.traitName)}
-                    health={getPet(selectedPet2)!.health}
-                  />
+                  <div className="w-full h-[200px] flex items-center justify-center">
+                    <AnimatedPetSVG
+                      petId={getPet(selectedPet2)!.id}
+                      traits={loadTraits(getPet(selectedPet2)!.traits, getPet(selectedPet2)!.id)}
+                      size="medium"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between p-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-xl border border-red-200">

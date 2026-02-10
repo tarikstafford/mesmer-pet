@@ -5,10 +5,17 @@
  * Displays pet marketplace listing with purchase functionality
  */
 
+import React from 'react';
+import { AnimatedPetSVG } from '@/components/pet-svg/AnimatedPetSVG';
+import { loadTraits } from '@/lib/traits/migration';
+
 interface MarketplaceCardProps {
   listingId: string;
   petName: string;
-  petImage?: string;
+  petImage?: string;           // Keep for backward compatibility but unused
+  petId?: string;              // ADD: Pet ID for trait loading and animation
+  petTraits?: Record<string, unknown> | null;  // ADD: Pet traits JSON from database
+  petSvgNode?: React.ReactNode;  // ADD: Optional external SVG node from LazyPetGrid
   price: number;
   sellerName: string;
   sellerId: string;
@@ -23,6 +30,9 @@ export default function MarketplaceCard({
   listingId,
   petName,
   petImage,
+  petId,
+  petTraits,
+  petSvgNode,
   price,
   sellerName,
   sellerId,
@@ -58,16 +68,28 @@ export default function MarketplaceCard({
         </div>
       )}
 
-      {/* Pet Image */}
-      {petImage && (
-        <div className="pet-image mb-4">
-          <img
-            src={petImage}
-            alt={petName}
-            className="w-full h-48 object-cover rounded-xl"
-          />
+      {/* Pet Display */}
+      <div className="pet-display mb-4 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-xl overflow-hidden shadow-inner border-2 border-purple-200">
+        <div className="w-full h-48 flex items-center justify-center">
+          {petSvgNode ? (
+            petSvgNode
+          ) : petId ? (
+            <AnimatedPetSVG
+              petId={petId}
+              traits={loadTraits(petTraits, petId)}
+              size="medium"
+            />
+          ) : petImage ? (
+            <img
+              src={petImage}
+              alt={petName}
+              className="w-full h-48 object-cover"
+            />
+          ) : (
+            <div className="text-gray-400 text-sm">No pet preview</div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Pet Info */}
       <div className="pet-info mb-4">
