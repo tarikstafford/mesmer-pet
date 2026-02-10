@@ -28,8 +28,9 @@ export interface AnimatedPetSVGProps {
  * - ANIM-06: GPU-only animations (transform and opacity)
  * - ANIM-07: Unique phase offset per pet ID (no sync between pets)
  * - PERSIST-01: Validates traits via loadTraits before rendering
+ * - PERF-01: React.memo prevents unnecessary re-renders when parent re-renders with same props
  */
-export const AnimatedPetSVG: React.FC<AnimatedPetSVGProps> = ({
+const AnimatedPetSVGComponent: React.FC<AnimatedPetSVGProps> = ({
   petId,
   traits,
   size = 'medium',
@@ -147,3 +148,23 @@ export const AnimatedPetSVG: React.FC<AnimatedPetSVGProps> = ({
     </div>
   );
 };
+
+// Custom comparison function for React.memo
+const arePropsEqual = (
+  prevProps: AnimatedPetSVGProps,
+  nextProps: AnimatedPetSVGProps
+): boolean => {
+  // Compare petId (string equality)
+  const petIdEqual = prevProps.petId === nextProps.petId;
+
+  // Compare traits via JSON.stringify (deep comparison for nested objects)
+  const traitsEqual = JSON.stringify(prevProps.traits) === JSON.stringify(nextProps.traits);
+
+  // Compare size directly
+  const sizeEqual = prevProps.size === nextProps.size;
+
+  // Skip className comparison (cosmetic, doesn't affect animation behavior)
+  return petIdEqual && traitsEqual && sizeEqual;
+};
+
+export const AnimatedPetSVG = React.memo(AnimatedPetSVGComponent, arePropsEqual);
