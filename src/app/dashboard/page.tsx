@@ -1,19 +1,11 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-
-// Dynamically import 3D model to avoid SSR issues
-const PetModel3D = dynamic(() => import('@/components/PetModel3D'), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-64 flex items-center justify-center bg-gray-100 rounded-lg">
-      <div className="text-gray-400">Loading 3D model...</div>
-    </div>
-  ),
-})
+import { AnimatedPetSVG } from '@/components/pet-svg/AnimatedPetSVG'
+import { loadTraits } from '@/lib/traits/migration'
 
 // Dynamically import Chat Interface
 const ChatInterface = dynamic(() => import('@/components/ChatInterface'), {
@@ -147,6 +139,7 @@ interface Pet {
   isCritical: boolean // US-008: Critical state flag
   maxHealthPenalty: number // US-008: Max health penalty from recoveries
   personalitySummary?: string // US-011: Personality summary
+  traits?: Record<string, unknown> | null // Visual appearance traits JSON
 }
 
 interface RecoveryItem {
@@ -912,10 +905,6 @@ export default function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pets.map((pet) => {
-              const visualTraitNames = pet.petTraits
-                .filter((pt) => pt.trait.traitType === 'visual')
-                .map((pt) => pt.trait.traitName);
-
               return (
                 <div
                   key={pet.id}
@@ -978,15 +967,15 @@ export default function DashboardPage() {
                       </div>
                     )}
 
-                    {/* 3D Pet Model */}
+                    {/* Animated Pet SVG */}
                     <div className="mb-6 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-2xl overflow-hidden shadow-inner border-2 border-purple-200">
-                      <Suspense fallback={
-                        <div className="w-full h-72 flex items-center justify-center">
-                          <div className="text-gray-400 animate-pulse">Loading 3D model...</div>
-                        </div>
-                      }>
-                        <PetModel3D traitNames={visualTraitNames} health={pet.health} width={350} height={280} autoRotate={true} />
-                      </Suspense>
+                      <div className="w-full h-72 flex items-center justify-center">
+                        <AnimatedPetSVG
+                          petId={pet.id}
+                          traits={loadTraits(pet.traits, pet.id)}
+                          size="large"
+                        />
+                      </div>
                     </div>
 
                     {/* Pet Name & Generation */}
