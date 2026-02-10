@@ -19,7 +19,7 @@ interface PetTrait {
 interface Pet {
   id: string;
   name: string;
-  traits: PetTrait[];
+  traits: unknown;  // JSON scalar field (visual appearance traits)
 }
 
 interface Listing {
@@ -223,6 +223,8 @@ export default function PetMarketplacePage() {
                 key={listing.id}
                 listingId={listing.id}
                 petName={listing.pet.name}
+                petId={listing.pet.id}
+                petTraits={listing.pet.traits as Record<string, unknown> | null}
                 price={listing.price}
                 sellerName={listing.seller.name}
                 sellerId={listing.sellerId}
