@@ -43,6 +43,7 @@
     "prisma": "^7.3.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-intersection-observer": "^10.0.2",
     "seedrandom": "^3.0.5",
     "stripe": "^20.3.1",
     "tailwindcss": "^4.1.18",
