@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
-
-const PetModel3D = dynamic(() => import('@/components/PetModel3D'), { ssr: false });
+import { AnimatedPetSVG } from '@/components/pet-svg/AnimatedPetSVG';
+import { loadTraits } from '@/lib/traits/migration';
 
 interface Trait {
   id: string;
@@ -44,6 +43,7 @@ interface Pet {
   patience: number;
   playfulness: number;
   createdAt: string;
+  traits?: Record<string, unknown> | null;
   petTraits: PetTrait[];
   petSkills: PetSkill[];
 }
@@ -223,13 +223,12 @@ export default function FriendPetsPage({ params }: { params: Promise<{ friendId:
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pets.map((pet) => (
               <div key={pet.id} className="bg-white rounded-lg shadow-lg p-6">
-                {/* Pet 3D Model */}
-                <div className="mb-4 h-64 bg-gray-50 rounded-lg overflow-hidden">
-                  <PetModel3D
-                    traitNames={pet.petTraits
-                      .filter((pt) => pt.trait.traitType === 'visual')
-                      .map((pt) => pt.trait.traitName)}
-                    health={pet.health}
+                {/* Animated Pet SVG */}
+                <div className="mb-4 h-64 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-lg overflow-hidden flex items-center justify-center">
+                  <AnimatedPetSVG
+                    petId={pet.id}
+                    traits={loadTraits(pet.traits, pet.id)}
+                    size="medium"
                   />
                 </div>
 
