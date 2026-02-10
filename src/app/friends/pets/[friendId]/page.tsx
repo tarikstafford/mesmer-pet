@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AnimatedPetSVG } from '@/components/pet-svg/AnimatedPetSVG';
+import { LazyPetGrid } from '@/components/pet-svg';
 import { loadTraits } from '@/lib/traits/migration';
 
 interface Trait {
@@ -220,84 +220,89 @@ export default function FriendPetsPage({ params }: { params: Promise<{ friendId:
             <p className="text-gray-600">This friend doesn't have any pets yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {pets.map((pet) => (
-              <div key={pet.id} className="bg-white rounded-lg shadow-lg p-6">
-                {/* Animated Pet SVG */}
-                <div className="mb-4 h-64 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-lg overflow-hidden flex items-center justify-center">
-                  <AnimatedPetSVG
-                    petId={pet.id}
-                    traits={loadTraits(pet.traits, pet.id)}
-                    size="medium"
-                  />
+          <LazyPetGrid
+            pets={pets.map((pet) => ({
+              id: pet.id,
+              traits: loadTraits(pet.traits, pet.id)
+            }))}
+            size="medium"
+            columns="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            renderCard={(lazyPet, petSvg) => {
+              const pet = pets.find(p => p.id === lazyPet.id)!;
+              return (
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  {/* Animated Pet SVG - viewport culled */}
+                  <div className="mb-4 h-64 bg-gradient-to-br from-purple-100 via-pink-100 to-blue-100 rounded-lg overflow-hidden flex items-center justify-center">
+                    {petSvg}
+                  </div>
+
+                  {/* Pet Info */}
+                  <h3 className="text-2xl font-bold text-purple-900 mb-2">{pet.name}</h3>
+                  <p className="text-sm text-gray-600 mb-4">Generation {pet.generation}</p>
+
+                  {/* Stats */}
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Health:</span>
+                      <span className={`text-sm font-bold ${getStatColor(pet.health)}`}>{pet.health}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Hunger:</span>
+                      <span className={`text-sm font-bold ${getStatColor(100 - pet.hunger)}`}>{pet.hunger}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Happiness:</span>
+                      <span className={`text-sm font-bold ${getStatColor(pet.happiness)}`}>{pet.happiness}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Energy:</span>
+                      <span className={`text-sm font-bold ${getStatColor(pet.energy)}`}>{pet.energy}</span>
+                    </div>
+                  </div>
+
+                  {/* Visual Traits */}
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold mb-2">Visual Traits:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {pet.petTraits
+                        .filter((pt) => pt.trait.traitType === 'visual')
+                        .map((pt) => (
+                          <span
+                            key={pt.trait.id}
+                            className={`px-2 py-1 rounded text-xs border ${getRarityColor(pt.trait.rarity)}`}
+                          >
+                            {pt.trait.traitName}
+                          </span>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Personality */}
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold mb-2">Personality:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>Friendliness: {pet.friendliness}</div>
+                      <div>Energy: {pet.energyTrait}</div>
+                      <div>Curiosity: {pet.curiosity}</div>
+                      <div>Patience: {pet.patience}</div>
+                      <div>Playfulness: {pet.playfulness}</div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <button
+                    onClick={() => {
+                      setSelectedPet(pet);
+                      setShowBreedRequest(true);
+                    }}
+                    className="w-full px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
+                  >
+                    Request Breeding
+                  </button>
                 </div>
-
-                {/* Pet Info */}
-                <h3 className="text-2xl font-bold text-purple-900 mb-2">{pet.name}</h3>
-                <p className="text-sm text-gray-600 mb-4">Generation {pet.generation}</p>
-
-                {/* Stats */}
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Health:</span>
-                    <span className={`text-sm font-bold ${getStatColor(pet.health)}`}>{pet.health}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Hunger:</span>
-                    <span className={`text-sm font-bold ${getStatColor(100 - pet.hunger)}`}>{pet.hunger}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Happiness:</span>
-                    <span className={`text-sm font-bold ${getStatColor(pet.happiness)}`}>{pet.happiness}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Energy:</span>
-                    <span className={`text-sm font-bold ${getStatColor(pet.energy)}`}>{pet.energy}</span>
-                  </div>
-                </div>
-
-                {/* Visual Traits */}
-                <div className="mb-4">
-                  <p className="text-sm font-semibold mb-2">Visual Traits:</p>
-                  <div className="flex flex-wrap gap-1">
-                    {pet.petTraits
-                      .filter((pt) => pt.trait.traitType === 'visual')
-                      .map((pt) => (
-                        <span
-                          key={pt.trait.id}
-                          className={`px-2 py-1 rounded text-xs border ${getRarityColor(pt.trait.rarity)}`}
-                        >
-                          {pt.trait.traitName}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-
-                {/* Personality */}
-                <div className="mb-4">
-                  <p className="text-sm font-semibold mb-2">Personality:</p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>Friendliness: {pet.friendliness}</div>
-                    <div>Energy: {pet.energyTrait}</div>
-                    <div>Curiosity: {pet.curiosity}</div>
-                    <div>Patience: {pet.patience}</div>
-                    <div>Playfulness: {pet.playfulness}</div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <button
-                  onClick={() => {
-                    setSelectedPet(pet);
-                    setShowBreedRequest(true);
-                  }}
-                  className="w-full px-4 py-2 bg-pink-600 text-white rounded-lg hover:bg-pink-700"
-                >
-                  💕 Request Breeding
-                </button>
-              </div>
-            ))}
-          </div>
+              );
+            }}
+          />
         )}
 
         {/* Breeding Request Modal */}
